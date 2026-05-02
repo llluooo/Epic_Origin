@@ -1,37 +1,36 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// 游戏管理器（全局唯一）
-/// 控制：回合、玩家/AI切换、游戏状态
+/// 游戏管理器（核心控制类）
+/// 负责：回合控制、玩家行为限制、状态管理
 /// </summary>
 public class GameManager : MonoBehaviour
 {
-    // ================== 单例 ==================
     public static GameManager Instance;
 
     // ================== 回合数据 ==================
-    public int currentTurn = 1;       // 当前回合数
-    public bool isPlayerTurn = true;  // 是否玩家回合
+    public int currentTurn = 1;           // 当前回合数
+    public bool isPlayerTurn = true;      // 是否玩家回合
+
+    // ================== 玩家行为控制 ==================
+    public bool hasPlayerActed = false;   // 本回合玩家是否已经执行过主操作
 
     // ================== 游戏状态 ==================
     public enum GameState
     {
-        Start,      // 游戏刚开始
-        PlayerTurn, // 玩家回合
-        AITurn,     // AI回合
-        End         // 游戏结束
+        PlayerTurn,
+        AITurn,
+        End
     }
 
     public GameState currentState;
 
-    // ================== 初始化 ==================
     private void Awake()
     {
-        // 单例初始化（保证全局唯一）
+        // 单例模式
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 切场景不销毁
         }
         else
         {
@@ -50,12 +49,6 @@ public class GameManager : MonoBehaviour
     void StartGame()
     {
         currentTurn = 1;
-        isPlayerTurn = true;
-        currentState = GameState.PlayerTurn;
-
-        Debug.Log("游戏开始！");
-        Debug.Log("当前回合: " + currentTurn);
-
         StartPlayerTurn();
     }
 
@@ -64,16 +57,35 @@ public class GameManager : MonoBehaviour
     void StartPlayerTurn()
     {
         currentState = GameState.PlayerTurn;
-        Debug.Log("玩家回合开始");
+        isPlayerTurn = true;
 
-        // 👉 后续在这里解锁玩家操作（移动/升级/召唤）
+        // 关键：重置玩家操作状态
+        hasPlayerActed = false;
+
+        Debug.Log("玩家回合开始");
     }
 
+    /// <summary>
+    /// 玩家执行主操作（移动/升级/召唤）时调用
+    /// </summary>
+    public void OnPlayerAction()
+    {
+        hasPlayerActed = true;
+    }
+
+    /// <summary>
+    /// 玩家结束回合
+    /// </summary>
     public void EndPlayerTurn()
     {
+        if (!hasPlayerActed)
+        {
+            Debug.Log("你还没有执行操作！");
+            return;
+        }
+
         Debug.Log("玩家回合结束");
 
-        isPlayerTurn = false;
         StartAITurn();
     }
 
@@ -82,9 +94,11 @@ public class GameManager : MonoBehaviour
     void StartAITurn()
     {
         currentState = GameState.AITurn;
+        isPlayerTurn = false;
+
         Debug.Log("AI回合开始");
 
-        // 👉 模拟AI行为（暂时用延迟代替）
+        // 模拟AI行为
         Invoke(nameof(EndAITurn), 1.5f);
     }
 
@@ -100,23 +114,6 @@ public class GameManager : MonoBehaviour
     void NextTurn()
     {
         currentTurn++;
-        isPlayerTurn = true;
-
-        Debug.Log("进入下一回合: " + currentTurn);
-
         StartPlayerTurn();
-    }
-
-
-    void Update()
-    {
-        // 按空格结束玩家回合（测试用）
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (currentState == GameState.PlayerTurn)
-            {
-                EndPlayerTurn();
-            }
-        }
     }
 }
