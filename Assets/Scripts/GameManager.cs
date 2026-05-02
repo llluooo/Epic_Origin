@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// 开始游戏
     /// </summary>
-    void StartGame()
+    public void StartGame()
     {
         currentTurn = 1;
         isPlayerTurn = true;
