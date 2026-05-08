@@ -1,9 +1,17 @@
 using UnityEngine;
 
+public enum StrongholdType
+{
+    Player,
+    Enemy
+}
+
 public class StrongholdTile : Tile
 {
+    public StrongholdType strongholdType;
+
     public override void OnHeroEnter()
     {
-        Debug.Log("½øÈë¾İµã£¡");
+        Debug.Log("è¿›å…¥æ®ç‚¹ï¼" + strongholdType);
     }
 }
