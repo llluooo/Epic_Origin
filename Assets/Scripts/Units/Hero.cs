@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 英雄控制（玩家单位）
 /// </summary>
 public class Hero : MonoBehaviour
 {
-    public Vector2Int currentGridPos;   // 当前格子坐标
+    public Vector2Int currentGridPos;
     public float moveSpeed = 5f;
 
     private bool isMoving = false;
@@ -13,7 +13,6 @@ public class Hero : MonoBehaviour
 
     void Update()
     {
-        // 平滑移动
         if (isMoving)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
@@ -35,23 +34,14 @@ public class Hero : MonoBehaviour
     /// </summary>
     public void TryMove(Vector2Int targetGridPos)
     {
-        // ❌ 如果不是玩家回合，禁止操作
         if (!GameManager.Instance.isPlayerTurn)
         {
             Debug.Log("现在不是你的回合！");
             return;
         }
 
-        // ❌ 如果已经操作过，禁止再次操作
-        if (GameManager.Instance.hasPlayerActed)
-        {
-            Debug.Log("本回合你已经行动过了！");
-            return;
-        }
-
         if (isMoving) return;
 
-        // 曼哈顿距离限制（最多3格）
         int distance = Mathf.Abs(targetGridPos.x - currentGridPos.x) +
                        Mathf.Abs(targetGridPos.y - currentGridPos.y);
 
@@ -61,12 +51,26 @@ public class Hero : MonoBehaviour
             return;
         }
 
+        // 站在当前格子上点自己 → 触发交互但不消耗行动
+        if (distance == 0)
+        {
+            Tile tile = MapManager.Instance.GetTileAt(currentGridPos);
+            tile.OnHeroEnter();
+            return;
+        }
+
+        // 如果已经操作过，禁止移动
+        if (GameManager.Instance.hasPlayerActed)
+        {
+            Debug.Log("本回合你已经行动过了！");
+            return;
+        }
+
         // 开始移动
         currentGridPos = targetGridPos;
         targetPos = MapManager.Instance.GridToWorld(targetGridPos);
         isMoving = true;
 
-        // ⭐ 关键：记录“已经行动”
         GameManager.Instance.OnPlayerAction();
     }
 }

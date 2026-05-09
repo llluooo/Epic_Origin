@@ -18,6 +18,9 @@ public class MapGenerator : MonoBehaviour
     public GameObject eventTilePrefab;
     public GameObject strongholdTilePrefab;
 
+    public StrongholdUI strongholdUI;   // 据点经营面板
+    public Hero hero;                   // 玩家英雄
+
     // 策划案精确数量
     private const int ResourceCount = 8;
     private const int ArmyCampCount = 6;
@@ -97,6 +100,13 @@ public class MapGenerator : MonoBehaviour
         for (; index < free.Count; index++)
             PlaceTile(emptyTilePrefab, free[index]);
 
+        // 把英雄放到玩家据点位置
+        if (hero != null)
+        {
+            hero.currentGridPos = playerStronghold;
+            hero.transform.position = new Vector3(playerStronghold.x * tileSize, playerStronghold.y * tileSize, 0);
+        }
+
         MapManager.Instance.SetMap(map);
         Debug.Log("地图生成完成！");
     }
@@ -108,6 +118,12 @@ public class MapGenerator : MonoBehaviour
         StrongholdTile tile = obj.GetComponent<StrongholdTile>();
         tile.gridPosition = pos;
         tile.strongholdType = type;
+
+        if (type == StrongholdType.Player)
+        {
+            tile.strongholdUI = strongholdUI;
+        }
+
         map[pos.x, pos.y] = tile;
     }
 

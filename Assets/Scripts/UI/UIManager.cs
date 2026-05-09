@@ -1,46 +1,55 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
-/// UI¹ÜÀíÆ÷
-/// ¸ºÔğ£ºÏÔÊ¾»ØºÏĞÅÏ¢¡¢°´Å¥½»»¥
+/// UIç®¡ç†å™¨
+/// è´Ÿè´£æ˜¾ç¤ºå›åˆä¿¡æ¯ã€èµ„æºã€æŒ‰é’®ç›‘å¬
 /// </summary>
 public class UIManager : MonoBehaviour
 {
-    public Text turnText;        // »ØºÏÎÄ±¾
-    public Text stateText;       // ×´Ì¬ÎÄ±¾
+    public TMP_Text turnText;
+    public TMP_Text stateText;
+    public TMP_Text resourceText;
 
     void Update()
     {
         UpdateUI();
     }
 
-    /// <summary>
-    /// ¸üĞÂUIÏÔÊ¾
-    /// </summary>
     void UpdateUI()
     {
-        // ÏÔÊ¾»ØºÏÊı
-        turnText.text = "»ØºÏ: " + GameManager.Instance.currentTurn;
+        GameManager gm = GameManager.Instance;
+        if (gm == null) return;
 
-        // ÏÔÊ¾µ±Ç°×´Ì¬
-        if (GameManager.Instance.isPlayerTurn)
+        // å›åˆä¿¡æ¯
+        turnText.text = $"å›åˆ: {gm.currentTurn}/{gm.maxTurn}";
+
+        // çŠ¶æ€ä¿¡æ¯
+        if (gm.currentState == GameManager.GameState.End)
         {
-            stateText.text = "Íæ¼Ò»ØºÏ";
-
-            if (GameManager.Instance.hasPlayerActed)
-            {
-                stateText.text += "£¨ÒÑĞĞ¶¯£©";
-            }
+            stateText.text = "æ¸¸æˆç»“æŸ";
+        }
+        else if (gm.isPlayerTurn)
+        {
+            stateText.text = "ä½ çš„å›åˆ";
+            if (gm.hasPlayerActed)
+                stateText.text += " [å·²è¡ŒåŠ¨]";
         }
         else
         {
-            stateText.text = "AI»ØºÏ";
+            stateText.text = "AIå›åˆ";
+        }
+
+        // èµ„æºä¿¡æ¯
+        if (resourceText != null && gm.player != null)
+        {
+            Player p = gm.player;
+            resourceText.text = $"é‡‘å¸:{p.resources.gold}  å»ºæ:{p.resources.buildingMaterials}  æ®ç‚¹Lv{p.strongholdLevel}";
         }
     }
 
     /// <summary>
-    /// ½áÊø»ØºÏ°´Å¥µã»÷ÊÂ¼ş
+    /// ç»“æŸå›åˆæŒ‰é’®ç›‘å¬
     /// </summary>
     public void OnEndTurnButton()
     {
