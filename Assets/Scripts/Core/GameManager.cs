@@ -54,29 +54,32 @@ public class GameManager : MonoBehaviour
         currentTurn = 1;
         gameEnded = false;
 
+        // 从GameSetupData获取种族，若未设置则使用默认
+        RaceType playerRace = GameSetupData.IsNewGame ? GameSetupData.PlayerRace : RaceType.Human;
+        RaceType aiRace = GameSetupData.IsNewGame ? GameSetupData.EnemyRace : RaceType.Ghost;
+
         // 初始化玩家（策划案5.5: 初始100金+100建材，1级据点，1张Lv3卡）
         player = new Player
         {
             playerName = "玩家",
-            race = RaceType.Human,
+            race = playerRace,
             resources = new ResourceData(100, 100),
             strongholdLevel = 1,
             deck = new Deck(),
             strongholdPos = new Vector2Int(0, 0)
         };
-        // 初始给1张Lv3剑士卡
-        player.deck.AddCard(HumanUnit.CreateCard(0, 3));
+        player.deck.AddCard(CreateInitialCard(playerRace));
 
         aiPlayer = new Player
         {
             playerName = "AI",
-            race = RaceType.Ghost,
+            race = aiRace,
             resources = new ResourceData(100, 100),
             strongholdLevel = 1,
             deck = new Deck(),
             strongholdPos = new Vector2Int(9, 9)
         };
-        aiPlayer.deck.AddCard(GhostUnit.CreateCard(0, 3));
+        aiPlayer.deck.AddCard(CreateInitialCard(aiRace));
 
         StartPlayerTurn();
     }
@@ -200,6 +203,17 @@ public class GameManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    Card CreateInitialCard(RaceType race)
+    {
+        return race switch
+        {
+            RaceType.Human => HumanUnit.CreateCard(0, 3),
+            RaceType.Heaven => HeavenUnit.CreateCard(0, 3),
+            RaceType.Ghost => GhostUnit.CreateCard(0, 3),
+            _ => HumanUnit.CreateCard(0, 3),
+        };
     }
 
     // ================== 胜负判定 ==================

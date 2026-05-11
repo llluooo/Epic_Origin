@@ -105,6 +105,7 @@ public class MapGenerator : MonoBehaviour
         {
             hero.currentGridPos = playerStronghold;
             hero.transform.position = new Vector3(playerStronghold.x * tileSize, playerStronghold.y * tileSize, 0);
+            hero.SetRaceAppearance(GameSetupData.PlayerRace);
         }
 
         MapManager.Instance.SetMap(map);

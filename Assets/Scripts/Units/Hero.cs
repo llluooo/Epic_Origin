@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -10,6 +11,19 @@ public class Hero : MonoBehaviour
 
     private bool isMoving = false;
     private Vector3 targetPos;
+
+    private static readonly Dictionary<RaceType, Color> RaceColors = new()
+    {
+        { RaceType.Human, new Color(0.3f, 0.5f, 1f) },
+        { RaceType.Heaven, new Color(1f, 0.85f, 0.3f) },
+        { RaceType.Ghost, new Color(0.6f, 0.3f, 0.8f) },
+    };
+
+    public void SetRaceAppearance(RaceType race)
+    {
+        if (RaceColors.TryGetValue(race, out var color))
+            GetComponent<SpriteRenderer>().color = color;
+    }
 
     void Update()
     {
