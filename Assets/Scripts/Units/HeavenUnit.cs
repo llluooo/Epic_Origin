@@ -5,11 +5,11 @@ public class HeavenUnit : Unit
 {
     private static readonly (string name, int atk, int hp)[] UnitDefs =
     {
-        ("天兵",   9, 10),
-        ("雷将",  12,  7),
-        ("仙鹤",   6, 13),
-        ("灵童",   5, 11),
-        ("天马",   8,  8),
+        ("天兵",     5,  6),
+        ("天穹法师",  9,  8),
+        ("独角兽",   10, 16),
+        ("巨人",      8, 35),
+        ("大天使",   25, 28),
     };
 
     public HeavenUnit(int index, int level)

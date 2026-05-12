@@ -5,11 +5,11 @@ public class GhostUnit : Unit
 {
     private static readonly (string name, int atk, int hp)[] UnitDefs =
     {
-        ("幽灵",   7, 11),
-        ("骷髅",  10,  8),
-        ("亡灵",   8, 13),
-        ("鬼火",  11,  6),
-        ("僵尸",   6, 14),
+        ("骷髅",      3,  2),
+        ("僵尸",      4,  6),
+        ("鬼火",     10,  5),
+        ("死亡骑士", 14,  8),
+        ("死神",     23, 25),
     };
 
     public GhostUnit(int index, int level)
