@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
         player = new Player
         {
             playerName = "玩家",
-            race = RaceType.Human,
+            race = playerRace,
             resources = new ResourceData(100, 100),
             strongholdLevel = 1,
             deck = new Deck(),
@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
         aiPlayer = new Player
         {
             playerName = "AI",
-            race = RaceType.Ghost,
+            race = aiRace,
             resources = new ResourceData(100, 100),
             strongholdLevel = 1,
             deck = new Deck(),
