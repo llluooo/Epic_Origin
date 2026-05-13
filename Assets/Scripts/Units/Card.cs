@@ -3,12 +3,14 @@ using UnityEngine;
 
 /// <summary>
 /// 卡牌（包装一个单位实例，存储当前状态）
+/// level 由 unitIndex 决定: Lv = unitIndex + 1
+/// 不做等级倍率缩放 — baseAttack/baseHP 即为该兵种在该等级的实际数值
 /// </summary>
 [Serializable]
 public class Card
 {
-    public int unitIndex;   // 单位类型索引（0-4，对应种族内5种单位）
-    public int level;
+    public int unitIndex;   // 0-4，决定等级 (Lv = unitIndex + 1)
+    public int level;       // = unitIndex + 1
     public int currentHP;
     public RaceType race;
     public int baseAttack;
@@ -17,31 +19,16 @@ public class Card
 
     public int GetAttack()
     {
-        float mult = GetLevelMultiplier();
-        return Mathf.RoundToInt(baseAttack * mult);
+        return baseAttack;
     }
 
     public int GetMaxHP()
     {
-        float mult = GetLevelMultiplier();
-        return Mathf.RoundToInt(baseHP * mult);
+        return baseHP;
     }
 
     public int GetCombatPower()
     {
-        return GetAttack() + GetMaxHP();
-    }
-
-    private float GetLevelMultiplier()
-    {
-        return level switch
-        {
-            1 => 1.0f,
-            2 => 1.5f,
-            3 => 2.5f,
-            4 => 4.0f,
-            5 => 6.5f,
-            _ => 1.0f
-        };
+        return baseAttack + baseHP;
     }
 }

@@ -662,7 +662,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentTurn: 1
-  maxTurn: 20
+  maxTurn: 50
   isPlayerTurn: 1
   hasPlayerActed: 0
   currentState: 0
