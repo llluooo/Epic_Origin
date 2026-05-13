@@ -1,5 +1,5 @@
 /// <summary>
-/// 天族单位定义
+/// 天族单位定义 — Lv1=天兵, Lv2=天穹法师, Lv3=独角兽, Lv4=巨人, Lv5=大天使
 /// </summary>
 public class HeavenUnit : Unit
 {
@@ -12,23 +12,23 @@ public class HeavenUnit : Unit
         ("天马",   8,  8),
     };
 
-    public HeavenUnit(int index, int level)
+    public HeavenUnit(int unitIndex)
     {
-        var def = UnitDefs[index];
+        var def = UnitDefs[unitIndex];
         unitName = def.name;
         baseAttack = def.atk;
         baseHP = def.hp;
-        this.level = level;
+        level = unitIndex + 1;
         race = RaceType.Heaven;
     }
 
-    public static Card CreateCard(int unitIndex, int level)
+    public static Card CreateCard(int unitIndex)
     {
         var def = UnitDefs[unitIndex];
         var card = new Card
         {
             unitIndex = unitIndex,
-            level = level,
+            level = unitIndex + 1,
             race = RaceType.Heaven,
             cardName = def.name,
             baseAttack = def.atk,

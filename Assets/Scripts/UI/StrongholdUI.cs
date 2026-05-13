@@ -41,13 +41,13 @@ public class StrongholdUI : MonoBehaviour
         titleText.text = $"你的据点 Lv{p.strongholdLevel}";
 
         // 升级按钮
-        int upgradeCost = p.GetUpgradeCost();
-        upgradeCostText.text = $"升级费用: {upgradeCost}建材";
+        ResourceData upgradeCost = p.GetUpgradeCost();
+        upgradeCostText.text = $"升级费用: {upgradeCost.gold}金币 + {upgradeCost.buildingMaterials}建材";
         upgradeButton.interactable = p.CanUpgrade() && !gm.hasPlayerActed && p.strongholdLevel < 5;
 
         // 召唤按钮（召唤当前据点等级的单位）
-        int summonCost = p.GetSummonCost(p.strongholdLevel);
-        summonCostText.text = $"召唤 Lv{p.strongholdLevel} 单位: {summonCost}金币";
+        ResourceData summonCost = p.GetSummonCost(p.strongholdLevel);
+        summonCostText.text = $"召唤 Lv{p.strongholdLevel} 单位: {summonCost.gold}金币 + {summonCost.buildingMaterials}建材";
         summonButton.interactable = p.CanSummon(p.strongholdLevel) && !gm.hasPlayerActed;
     }
 
@@ -86,24 +86,25 @@ public class StrongholdUI : MonoBehaviour
         GameManager gm = GameManager.Instance;
         Player p = gm.player;
 
-        int level = p.strongholdLevel;
-        if (!p.CanSummon(level))
+        // 据点等级决定能召唤的最高 unitIndex: 据点Lv3 → 可召 unitIndex 0,1,2 (即Lv1~Lv3卡)
+        int maxUnitIndex = Mathf.Min(p.strongholdLevel - 1, 4);
+        if (maxUnitIndex < 0)
         {
-            messageText.text = "金币不足！";
+            messageText.text = "据点等级不足！";
             return;
         }
 
-        // 随机召唤一个该种族的单位
-        int unitCount = p.race switch
-        {
-            RaceType.Human => HumanUnit.UnitCount,
-            RaceType.Heaven => HeavenUnit.UnitCount,
-            RaceType.Ghost => GhostUnit.UnitCount,
-            _ => 5
-        };
-        int unitIndex = Random.Range(0, unitCount);
+        int unitIndex = Random.Range(0, maxUnitIndex + 1);
+        int level = unitIndex + 1;
 
-        bool success = gm.SummonUnit(p, unitIndex, level);
+        if (!p.CanSummon(level))
+        {
+            ResourceData cost = p.GetSummonCost(level);
+            messageText.text = $"资源不足！需要 {cost.gold}金币 + {cost.buildingMaterials}建材";
+            return;
+        }
+
+        bool success = gm.SummonUnit(p, unitIndex);
         if (success)
         {
             gm.OnPlayerAction();

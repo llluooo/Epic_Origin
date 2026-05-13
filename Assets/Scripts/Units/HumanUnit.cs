@@ -1,9 +1,8 @@
 /// <summary>
-/// 人族单位定义
+/// 人族单位定义 — Lv1=剑士, Lv2=重装步兵, Lv3=巫师, Lv4=骑士, Lv5=皇家近卫
 /// </summary>
 public class HumanUnit : Unit
 {
-    // 5种人族单位: 剑士、弓手、骑士、牧师、枪兵
     private static readonly (string name, int atk, int hp)[] UnitDefs =
     {
         ("剑士",   8, 12),
@@ -13,23 +12,23 @@ public class HumanUnit : Unit
         ("枪兵",   9,  9),
     };
 
-    public HumanUnit(int index, int level)
+    public HumanUnit(int unitIndex)
     {
-        var def = UnitDefs[index];
+        var def = UnitDefs[unitIndex];
         unitName = def.name;
         baseAttack = def.atk;
         baseHP = def.hp;
-        this.level = level;
+        level = unitIndex + 1;
         race = RaceType.Human;
     }
 
-    public static Card CreateCard(int unitIndex, int level)
+    public static Card CreateCard(int unitIndex)
     {
         var def = UnitDefs[unitIndex];
         var card = new Card
         {
             unitIndex = unitIndex,
-            level = level,
+            level = unitIndex + 1,
             race = RaceType.Human,
             cardName = def.name,
             baseAttack = def.atk,

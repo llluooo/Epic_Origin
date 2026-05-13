@@ -54,7 +54,11 @@ public class GameManager : MonoBehaviour
         currentTurn = 1;
         gameEnded = false;
 
-        // 初始化玩家（策划案5.5: 初始100金+100建材，1级据点，1张Lv3卡）
+        // 从GameSetupData获取种族，若未设置则使用默认
+        RaceType playerRace = GameSetupData.IsNewGame ? GameSetupData.PlayerRace : RaceType.Human;
+        RaceType aiRace = GameSetupData.IsNewGame ? GameSetupData.EnemyRace : RaceType.Ghost;
+
+        // 初始化玩家（策划案5.5: 初始100金+100建材，1级据点，3张Lv1基础兵种卡）
         player = new Player
         {
             playerName = "玩家",
@@ -64,8 +68,7 @@ public class GameManager : MonoBehaviour
             deck = new Deck(),
             strongholdPos = new Vector2Int(0, 0)
         };
-        // 初始给1张Lv3剑士卡
-        player.deck.AddCard(HumanUnit.CreateCard(0, 3));
+        DeckInit(player);
 
         aiPlayer = new Player
         {
@@ -76,7 +79,7 @@ public class GameManager : MonoBehaviour
             deck = new Deck(),
             strongholdPos = new Vector2Int(9, 9)
         };
-        aiPlayer.deck.AddCard(GhostUnit.CreateCard(0, 3));
+        DeckInit(aiPlayer);
 
         StartPlayerTurn();
     }
@@ -174,22 +177,24 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// 为指定玩家召唤单位
     /// </summary>
-    public bool SummonUnit(Player owner, int unitIndex, int level)
+    public bool SummonUnit(Player owner, int unitIndex)
     {
-        int cost = owner.GetSummonCost(level);
+        int level = unitIndex + 1;
+        ResourceData cost = owner.GetSummonCost(level);
         if (!owner.CanSummon(level))
         {
-            Debug.Log($"无法召唤！需要据点Lv{level}和{cost}金币");
+            Debug.Log($"无法召唤！需要据点Lv{level}、{cost.gold}金币、{cost.buildingMaterials}建材");
             return false;
         }
 
-        owner.resources.gold -= cost;
+        owner.resources.gold -= cost.gold;
+        owner.resources.buildingMaterials -= cost.buildingMaterials;
 
         Card card = owner.race switch
         {
-            RaceType.Human => HumanUnit.CreateCard(unitIndex, level),
-            RaceType.Heaven => HeavenUnit.CreateCard(unitIndex, level),
-            RaceType.Ghost => GhostUnit.CreateCard(unitIndex, level),
+            RaceType.Human => HumanUnit.CreateCard(unitIndex),
+            RaceType.Heaven => HeavenUnit.CreateCard(unitIndex),
+            RaceType.Ghost => GhostUnit.CreateCard(unitIndex),
             _ => null
         };
 
@@ -200,6 +205,23 @@ public class GameManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    void DeckInit(Player p)
+    {
+        for (int i = 0; i < 3; i++)
+            p.deck.AddCard(CreateBasicCard(p.race));
+    }
+
+    Card CreateBasicCard(RaceType race)
+    {
+        return race switch
+        {
+            RaceType.Human => HumanUnit.CreateCard(0),
+            RaceType.Heaven => HeavenUnit.CreateCard(0),
+            RaceType.Ghost => GhostUnit.CreateCard(0),
+            _ => HumanUnit.CreateCard(0),
+        };
     }
 
     // ================== 胜负判定 ==================
