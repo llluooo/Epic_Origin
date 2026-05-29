@@ -21,6 +21,8 @@ public class RaceSelectUI : MonoBehaviour
         public Image highlightImage;
         public RaceHotspotFeedback hotspotFeedback;
         public Sprite heroSprite;
+        public Sprite heroFrameSprite;
+        public Sprite textFrameSprite;
         public string displayName;
 
         [TextArea(4, 10)]
@@ -36,6 +38,8 @@ public class RaceSelectUI : MonoBehaviour
 
     [Header("Detail View")]
     public Image detailHeroImage;
+    public Image heroFrameImage;
+    public Image textFrameImage;
     public TMP_Text detailTitleText;
     public TMP_Text detailBodyText;
 
@@ -46,8 +50,11 @@ public class RaceSelectUI : MonoBehaviour
     [Header("Map Feedback")]
     public float mapClickTransitionDelay = 0.22f;
 
+    private const string MainMenuSceneName = "MainMenuScene";
+
     private int selectedIndex = -1;
     private bool isTransitioning;
+    private Coroutine showRaceDetailCoroutine;
 
     void Start()
     {
@@ -75,6 +82,12 @@ public class RaceSelectUI : MonoBehaviour
         }
 
         ShowMapPanel();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape) && CanReturnToMainMenu())
+            ReturnToMainMenu();
     }
 
     public void ShowMapPanel()
@@ -118,6 +131,9 @@ public class RaceSelectUI : MonoBehaviour
             detailHeroImage.preserveAspect = true;
         }
 
+        ApplyDetailFrame(heroFrameImage, option.heroFrameSprite);
+        ApplyDetailFrame(textFrameImage, option.textFrameSprite);
+
         if (mapPanel != null)
             mapPanel.SetActive(false);
 
@@ -148,13 +164,14 @@ public class RaceSelectUI : MonoBehaviour
             return;
         }
 
-        StartCoroutine(ShowRaceDetailAfterDelay(index, delay));
+        showRaceDetailCoroutine = StartCoroutine(ShowRaceDetailAfterDelay(index, delay));
     }
 
     IEnumerator ShowRaceDetailAfterDelay(int index, float delay)
     {
         isTransitioning = true;
         yield return new WaitForSecondsRealtime(delay);
+        showRaceDetailCoroutine = null;
         ShowRaceDetail(index);
     }
 
@@ -179,6 +196,26 @@ public class RaceSelectUI : MonoBehaviour
         GameSetupData.IsNewGame = true;
 
         SceneManager.LoadScene("MainScene");
+    }
+
+    bool CanReturnToMainMenu()
+    {
+        return mapPanel != null
+            && detailPanel != null
+            && mapPanel.activeSelf
+            && !detailPanel.activeSelf;
+    }
+
+    void ReturnToMainMenu()
+    {
+        if (showRaceDetailCoroutine != null)
+        {
+            StopCoroutine(showRaceDetailCoroutine);
+            showRaceDetailCoroutine = null;
+        }
+
+        isTransitioning = false;
+        SceneManager.LoadScene(MainMenuSceneName);
     }
 
     bool IsValidOptionIndex(int index)
@@ -217,5 +254,15 @@ public class RaceSelectUI : MonoBehaviour
 
         if (option.highlightImage == null && option.hotspotFeedback != null)
             option.highlightImage = option.hotspotFeedback.HighlightGraphic as Image;
+    }
+
+    void ApplyDetailFrame(Image frameImage, Sprite frameSprite)
+    {
+        if (frameImage == null)
+            return;
+
+        frameImage.sprite = frameSprite;
+        frameImage.enabled = frameSprite != null;
+        frameImage.raycastTarget = false;
     }
 }
