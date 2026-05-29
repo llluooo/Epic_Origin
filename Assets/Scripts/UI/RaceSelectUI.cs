@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -18,6 +19,7 @@ public class RaceSelectUI : MonoBehaviour
         public Button hotspotButton;
 
         public Image highlightImage;
+        public RaceHotspotFeedback hotspotFeedback;
         public Sprite heroSprite;
         public string displayName;
 
@@ -41,7 +43,11 @@ public class RaceSelectUI : MonoBehaviour
     public Button backButton;
     public Button confirmButton;
 
+    [Header("Map Feedback")]
+    public float mapClickTransitionDelay = 0.22f;
+
     private int selectedIndex = -1;
+    private bool isTransitioning;
 
     void Start()
     {
@@ -58,9 +64,11 @@ public class RaceSelectUI : MonoBehaviour
         {
             for (int i = 0; i < raceOptions.Length; i++)
             {
+                ResolveRaceOptionReferences(i);
+
                 int index = i;
                 if (raceOptions[i].hotspotButton != null)
-                    raceOptions[i].hotspotButton.onClick.AddListener(() => ShowRaceDetail(index));
+                    raceOptions[i].hotspotButton.onClick.AddListener(() => OnHotspotClicked(index));
 
                 SetHighlightVisible(i, false);
             }
@@ -72,6 +80,7 @@ public class RaceSelectUI : MonoBehaviour
     public void ShowMapPanel()
     {
         selectedIndex = -1;
+        isTransitioning = false;
         SetAllHighlightsHidden();
 
         if (mapPanel != null)
@@ -89,6 +98,7 @@ public class RaceSelectUI : MonoBehaviour
         if (!IsValidOptionIndex(index))
             return;
 
+        isTransitioning = false;
         selectedIndex = index;
         SetAllHighlightsHidden();
         SetHighlightVisible(index, true);
@@ -116,6 +126,36 @@ public class RaceSelectUI : MonoBehaviour
 
         if (confirmButton != null)
             confirmButton.interactable = true;
+    }
+
+    void OnHotspotClicked(int index)
+    {
+        if (!IsValidOptionIndex(index) || isTransitioning)
+            return;
+
+        float delay = mapClickTransitionDelay;
+        RaceHotspotFeedback feedback = raceOptions[index].hotspotFeedback;
+
+        if (feedback == null && raceOptions[index].hotspotButton != null)
+            feedback = raceOptions[index].hotspotButton.GetComponent<RaceHotspotFeedback>();
+
+        if (feedback != null)
+            delay = Mathf.Max(delay, feedback.PlayClickFeedback());
+
+        if (delay <= 0f)
+        {
+            ShowRaceDetail(index);
+            return;
+        }
+
+        StartCoroutine(ShowRaceDetailAfterDelay(index, delay));
+    }
+
+    IEnumerator ShowRaceDetailAfterDelay(int index, float delay)
+    {
+        isTransitioning = true;
+        yield return new WaitForSecondsRealtime(delay);
+        ShowRaceDetail(index);
     }
 
     void OnConfirm()
@@ -157,9 +197,25 @@ public class RaceSelectUI : MonoBehaviour
 
     void SetHighlightVisible(int index, bool visible)
     {
+        ResolveRaceOptionReferences(index);
+
         if (!IsValidOptionIndex(index) || raceOptions[index].highlightImage == null)
             return;
 
         raceOptions[index].highlightImage.gameObject.SetActive(visible);
+    }
+
+    void ResolveRaceOptionReferences(int index)
+    {
+        if (!IsValidOptionIndex(index))
+            return;
+
+        RaceOption option = raceOptions[index];
+
+        if (option.hotspotFeedback == null && option.hotspotButton != null)
+            option.hotspotFeedback = option.hotspotButton.GetComponent<RaceHotspotFeedback>();
+
+        if (option.highlightImage == null && option.hotspotFeedback != null)
+            option.highlightImage = option.hotspotFeedback.HighlightGraphic as Image;
     }
 }
