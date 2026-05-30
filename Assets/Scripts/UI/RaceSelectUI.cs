@@ -1,10 +1,12 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// 种族选择界面
+/// Race selection screen.
 /// </summary>
 public class RaceSelectUI : MonoBehaviour
 {
@@ -12,59 +14,181 @@ public class RaceSelectUI : MonoBehaviour
     public class RaceOption
     {
         public RaceType race;
-        public Button selectButton;
+
+        [FormerlySerializedAs("selectButton")]
+        public Button hotspotButton;
+
         public Image highlightImage;
+        public RaceHotspotFeedback hotspotFeedback;
+        public Sprite heroSprite;
+        public Sprite heroFrameSprite;
+        public Sprite textFrameSprite;
+        public string displayName;
+
+        [TextArea(4, 10)]
+        public string storyDescription;
     }
 
+    [Header("Panels")]
+    public GameObject mapPanel;
+    public GameObject detailPanel;
+
+    [Header("Race Options")]
     public RaceOption[] raceOptions;
+
+    [Header("Detail View")]
+    public Image detailHeroImage;
+    public Image heroFrameImage;
+    public Image textFrameImage;
+    public TMP_Text detailTitleText;
+    public TMP_Text detailBodyText;
+
+    [Header("Buttons")]
+    public Button backButton;
     public Button confirmButton;
 
+    [Header("Map Feedback")]
+    public float mapClickTransitionDelay = 0.22f;
+
+    private const string MainMenuSceneName = "MainMenuScene";
+
     private int selectedIndex = -1;
+    private bool isTransitioning;
+    private Coroutine showRaceDetailCoroutine;
 
     void Start()
     {
-        confirmButton.interactable = false;
-        confirmButton.onClick.AddListener(OnConfirm);
-
-        for (int i = 0; i < raceOptions.Length; i++)
+        if (confirmButton != null)
         {
-            int index = i;
-            raceOptions[i].selectButton.onClick.AddListener(() => OnSelectRace(index));
-            raceOptions[i].highlightImage.gameObject.SetActive(false);
+            confirmButton.interactable = false;
+            confirmButton.onClick.AddListener(OnConfirm);
         }
+
+        if (backButton != null)
+            backButton.onClick.AddListener(ShowMapPanel);
+
+        if (raceOptions != null)
+        {
+            for (int i = 0; i < raceOptions.Length; i++)
+            {
+                ResolveRaceOptionReferences(i);
+
+                int index = i;
+                if (raceOptions[i].hotspotButton != null)
+                    raceOptions[i].hotspotButton.onClick.AddListener(() => OnHotspotClicked(index));
+
+                SetHighlightVisible(i, false);
+            }
+        }
+
+        ShowMapPanel();
     }
 
-    void OnSelectRace(int index)
+    void Update()
     {
-        if (selectedIndex == index)
-        {
-            // 取消选中
-            raceOptions[index].highlightImage.gameObject.SetActive(false);
-            selectedIndex = -1;
-            confirmButton.interactable = false;
-        }
-        else
-        {
-            // 切换选中
-            if (selectedIndex >= 0)
-                raceOptions[selectedIndex].highlightImage.gameObject.SetActive(false);
+        if (Input.GetKeyDown(KeyCode.Escape) && CanReturnToMainMenu())
+            ReturnToMainMenu();
+    }
 
-            raceOptions[index].highlightImage.gameObject.SetActive(true);
-            selectedIndex = index;
-            confirmButton.interactable = true;
+    public void ShowMapPanel()
+    {
+        selectedIndex = -1;
+        isTransitioning = false;
+        SetAllHighlightsHidden();
+
+        if (mapPanel != null)
+            mapPanel.SetActive(true);
+
+        if (detailPanel != null)
+            detailPanel.SetActive(false);
+
+        if (confirmButton != null)
+            confirmButton.interactable = false;
+    }
+
+    public void ShowRaceDetail(int index)
+    {
+        if (!IsValidOptionIndex(index))
+            return;
+
+        isTransitioning = false;
+        selectedIndex = index;
+        SetAllHighlightsHidden();
+        SetHighlightVisible(index, true);
+
+        RaceOption option = raceOptions[index];
+
+        if (detailTitleText != null)
+            detailTitleText.text = string.IsNullOrWhiteSpace(option.displayName) ? option.race.ToString() : option.displayName;
+
+        if (detailBodyText != null)
+            detailBodyText.text = option.storyDescription ?? string.Empty;
+
+        if (detailHeroImage != null)
+        {
+            detailHeroImage.sprite = option.heroSprite;
+            detailHeroImage.enabled = option.heroSprite != null;
+            detailHeroImage.preserveAspect = true;
         }
+
+        ApplyDetailFrame(heroFrameImage, option.heroFrameSprite);
+        ApplyDetailFrame(textFrameImage, option.textFrameSprite);
+
+        if (mapPanel != null)
+            mapPanel.SetActive(false);
+
+        if (detailPanel != null)
+            detailPanel.SetActive(true);
+
+        if (confirmButton != null)
+            confirmButton.interactable = true;
+    }
+
+    void OnHotspotClicked(int index)
+    {
+        if (!IsValidOptionIndex(index) || isTransitioning)
+            return;
+
+        float delay = mapClickTransitionDelay;
+        RaceHotspotFeedback feedback = raceOptions[index].hotspotFeedback;
+
+        if (feedback == null && raceOptions[index].hotspotButton != null)
+            feedback = raceOptions[index].hotspotButton.GetComponent<RaceHotspotFeedback>();
+
+        if (feedback != null)
+            delay = Mathf.Max(delay, feedback.PlayClickFeedback());
+
+        if (delay <= 0f)
+        {
+            ShowRaceDetail(index);
+            return;
+        }
+
+        showRaceDetailCoroutine = StartCoroutine(ShowRaceDetailAfterDelay(index, delay));
+    }
+
+    IEnumerator ShowRaceDetailAfterDelay(int index, float delay)
+    {
+        isTransitioning = true;
+        yield return new WaitForSecondsRealtime(delay);
+        showRaceDetailCoroutine = null;
+        ShowRaceDetail(index);
     }
 
     void OnConfirm()
     {
-        if (selectedIndex < 0 || selectedIndex >= raceOptions.Length) return;
+        if (!IsValidOptionIndex(selectedIndex))
+            return;
 
         RaceType playerRace = raceOptions[selectedIndex].race;
 
-        // 从剩余种族中随机选一个给敌人
         var remaining = new System.Collections.Generic.List<RaceType>();
-        foreach (RaceType r in System.Enum.GetValues(typeof(RaceType)))
-            if (r != playerRace) remaining.Add(r);
+        foreach (RaceType race in System.Enum.GetValues(typeof(RaceType)))
+        {
+            if (race != playerRace)
+                remaining.Add(race);
+        }
+
         RaceType enemyRace = remaining[Random.Range(0, remaining.Count)];
 
         GameSetupData.PlayerRace = playerRace;
@@ -72,5 +196,73 @@ public class RaceSelectUI : MonoBehaviour
         GameSetupData.IsNewGame = true;
 
         SceneManager.LoadScene("MainScene");
+    }
+
+    bool CanReturnToMainMenu()
+    {
+        return mapPanel != null
+            && detailPanel != null
+            && mapPanel.activeSelf
+            && !detailPanel.activeSelf;
+    }
+
+    void ReturnToMainMenu()
+    {
+        if (showRaceDetailCoroutine != null)
+        {
+            StopCoroutine(showRaceDetailCoroutine);
+            showRaceDetailCoroutine = null;
+        }
+
+        isTransitioning = false;
+        SceneManager.LoadScene(MainMenuSceneName);
+    }
+
+    bool IsValidOptionIndex(int index)
+    {
+        return raceOptions != null && index >= 0 && index < raceOptions.Length;
+    }
+
+    void SetAllHighlightsHidden()
+    {
+        if (raceOptions == null)
+            return;
+
+        for (int i = 0; i < raceOptions.Length; i++)
+            SetHighlightVisible(i, false);
+    }
+
+    void SetHighlightVisible(int index, bool visible)
+    {
+        ResolveRaceOptionReferences(index);
+
+        if (!IsValidOptionIndex(index) || raceOptions[index].highlightImage == null)
+            return;
+
+        raceOptions[index].highlightImage.gameObject.SetActive(visible);
+    }
+
+    void ResolveRaceOptionReferences(int index)
+    {
+        if (!IsValidOptionIndex(index))
+            return;
+
+        RaceOption option = raceOptions[index];
+
+        if (option.hotspotFeedback == null && option.hotspotButton != null)
+            option.hotspotFeedback = option.hotspotButton.GetComponent<RaceHotspotFeedback>();
+
+        if (option.highlightImage == null && option.hotspotFeedback != null)
+            option.highlightImage = option.hotspotFeedback.HighlightGraphic as Image;
+    }
+
+    void ApplyDetailFrame(Image frameImage, Sprite frameSprite)
+    {
+        if (frameImage == null)
+            return;
+
+        frameImage.sprite = frameSprite;
+        frameImage.enabled = frameSprite != null;
+        frameImage.raycastTarget = false;
     }
 }

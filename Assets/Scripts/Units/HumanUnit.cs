@@ -5,11 +5,11 @@ public class HumanUnit : Unit
 {
     private static readonly (string name, int atk, int hp)[] UnitDefs =
     {
-        ("剑士",   8, 12),
-        ("弓手",  10,  8),
-        ("骑士",   7, 14),
-        ("牧师",   4, 10),
-        ("枪兵",   9,  9),
+        ("剑士",     4,  5),
+        ("重装步兵",  5,  8),
+        ("巫师",    10,  7),
+        ("骑士",    12, 12),
+        ("皇家近卫", 20, 25),
     };
 
     public HumanUnit(int unitIndex)
