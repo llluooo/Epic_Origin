@@ -16,14 +16,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Scene Flow & Lifecycle
 
-<<<<<<< Updated upstream
-`MainScene.unity` is the only scene. The scene sets up:
-- A `MapGenerator` GameObject that creates the map at startup
-- A `MapManager` singleton that provides grid query APIs
-- A `GameManager` singleton controlling turn flow
-- A `Hero` GameObject for the player unit
-- A `UIManager` for HUD
-=======
 Three scenes form the game flow:
 
 1. **`MainMenuScene.unity`** — Entry point. Simple menu with New Game / Load Game / Settings / Exit buttons. "New Game" navigates to RaceSelectScene.
@@ -38,15 +30,11 @@ Three scenes form the game flow:
    - A `CameraFollow` script on Main Camera to track the hero
 
 **`GameSetupData`** (`Assets/Scripts/Core/GameSetupData.cs`) — Static bridge class that carries race selection across scenes. Fields: `PlayerRace`, `EnemyRace`, `IsNewGame`. `GameManager.StartGame()` reads from it to initialize both players with the correct races.
->>>>>>> Stashed changes
 
 ### Core Managers (Singleton Pattern)
 
 All managers use the Unity `MonoBehaviour` singleton pattern with a public static `Instance` field set in `Awake()`.
 
-<<<<<<< Updated upstream
-- **`GameManager`** (`Assets/Scripts/Core/GameManager.cs`) — Turn-based game loop: `PlayerTurn → AITurn → PlayerTurn → ...`. Tracks `currentTurn`, `isPlayerTurn`, and `hasPlayerActed` (one action per turn). AI turn is simulated with a 1.5-second delay (`Invoke`). Players must act before ending their turn.
-=======
 - **`GameManager`** (`Assets/Scripts/Core/GameManager.cs`) — Central game controller. Manages:
   - **Turn flow**: `PlayerTurn → AITurn → PlayerTurn → ...` with 20-turn limit
   - **Player data**: Holds `player` and `aiPlayer` (`Player` instances) with resources, stronghold level, and deck. Races are determined by `GameSetupData` (defaults: Human for player, Ghost for AI).
@@ -55,45 +43,52 @@ All managers use the Unity `MonoBehaviour` singleton pattern with a public stati
   - **Summoning**: `SummonUnit()` creates cards from the player's race at a given level, deducts gold. `CreateInitialCard()` gives each player a Lv3 unit of their race at game start.
   - **Win/loss**: `OnHeroEnterEnemyStronghold()` compares deck combat power; `JudgeByScore()` decides winner at turn 20
   - AI turn is simulated with a 1.5-second delay (`Invoke`). AI does not make decisions yet.
->>>>>>> Stashed changes
-- **`MapManager`** (`Assets/Scripts/Map/MapManager.cs`) — Holds a 2D array of `Tile` references. Provides `GetTileAt(Vector2Int)`, `WorldToGrid()`, and `GridToWorld()` for coordinate conversion. Configured with `width`, `height`, and `tileSize` (default: 10×10, 1.2 spacing).
+- **`MapManager`** (`Assets/Scripts/Map/MapManager.cs`) — Holds a 2D array of `Tile` references. Provides `GetTileAt(Vector2Int)`, `WorldToGrid()`, and `GridToWorld()` for coordinate conversion. Configured with `width`, `height`, `tileSize`, and `worldOrigin` offset (set by MapGenerator at runtime).
 - **`InputManager`** (`Assets/Scripts/Core/InputManager.cs`) — Translates mouse clicks into grid coordinates and delegates to `Hero.TryMove()`. References the `Hero` directly.
 - **`UIManager`** (`Assets/Scripts/UI/UIManager.cs`) — Updates turn/state text each frame via `UpdateUI()`. Exposes `OnEndTurnButton()` bound to the end-turn button.
 
 ### Map System
 
-<<<<<<< Updated upstream
-- **`MapGenerator`** (`Assets/Scripts/Map/MapGenerator.cs`) — Spawns tiles in a 10×10 grid at startup, selecting prefabs randomly (70% empty, 10% resource, 10% army camp, 5% event, 5% stronghold). Pushes the tile array to `MapManager.SetMap()`.
-=======
 - **`MapGenerator`** (`Assets/Scripts/Map/MapGenerator.cs`) — Spawns a 10×10 tile grid at startup with fixed counts matching the design spec:
   - 2 strongholds (player at (0,0), enemy at (9,9))
   - 8 resource tiles, 6 army camp tiles, 4 event tiles
   - Remaining 80 tiles are empty
   - Guarantees at least 1 resource + 1 army camp in the 3×3 area around each stronghold
+  - Minimum spacing between special tiles (configurable via `minSpecialTileDistance`)
+  - **Visual system**: Uses `MapVisualConfig` to assign per-race ground sprites, POI sprites, and stronghold sprites. Generates Voronoi-based neutral ground patches with noise for visual variety. Race ground areas surround each stronghold (radius 2).
   - Sets hero starting position to (0,0), calls `hero.SetRaceAppearance()` with the player's race from `GameSetupData`, and passes `StrongholdUI` reference to the player's stronghold tile
->>>>>>> Stashed changes
+  - Supports `centerMapOnGenerator` option for aligned or centered map output
 - **`Tile`** (abstract base, `Assets/Scripts/Map/Tile.cs`) — Holds `gridPosition` (Vector2Int) and a virtual `OnHeroEnter()` callback. All tile types inherit from this:
   - `EmptyTile` — passable, no effect
   - `ResourceTile` — placeholder for resource collection
   - `ArmyCampTile` — placeholder for battle encounters
   - `EventTile` — placeholder for random events
-  - `StrongholdTile` — placeholder for stronghold interactions
-- Tile prefabs live in `Assets/Prefabs/Tile/` and have the corresponding script component attached.
+  - `StrongholdTile` — stronghold interactions. Has `strongholdType` (Player/Enemy) and `visualRace` for sprite selection. Player stronghold opens `StrongholdUI`; enemy stronghold triggers `GameManager.OnHeroEnterEnemyStronghold()`.
+- Tile prefabs live in `Assets/Prefabs/Tile/` and each has a `TileVisual` component + tile script attached.
+
+### Map Visual System
+
+- **`MapVisualConfig`** (`Assets/Scripts/Map/MapVisualConfig.cs`) — `ScriptableObject` asset (`Assets/Map Visual Config.asset`) defining all tile graphics:
+  - Stronghold sprites per race (Human/Heaven/Ghost)
+  - Race ground sprites per race
+  - Neutral ground sprite array (randomly assigned via patch generation)
+  - POI sprites: resource, army camp, event
+  - Overlay sprites: selected, reachable, target
+  - Provides `GetStrongholdSprite(RaceType)`, `GetRaceGroundSprite(RaceType)`, `GetNeutralGroundSprite()` lookup methods
+- **`TileVisual`** (`Assets/Scripts/Map/TileVisual.cs`) — Per-tile component managing three `SpriteRenderer` layers:
+  - `groundRenderer` — background ground texture (sorting order 0)
+  - `poiRenderer` — point-of-interest icon (sorting order 10)
+  - `overlayRenderer` — selection/reachable/target highlight (sorting order 20)
+  - Auto-binds renderers from child GameObjects named "Ground", "POI", "Overlay", with fallback to root `SpriteRenderer`
+  - `FitRendererToWorldSize()` scales each sprite to a target world size based on configurable scale parameters in MapGenerator
 
 ### Unit System
 
-<<<<<<< Updated upstream
-- **`Hero`** (`Assets/Scripts/Units/Hero.cs`) — Player-controlled unit with grid-based movement. Movement constraints:
-=======
 - **`Hero`** (`Assets/Scripts/Units/Hero.cs`) — Player-controlled unit with grid-based movement and race-based appearance. Behavior:
->>>>>>> Stashed changes
   - Only during player turn (`GameManager.Instance.isPlayerTurn`)
   - Only once per turn (`GameManager.Instance.hasPlayerActed`)
   - Manhattan distance ≤ 3 from current position
   - Uses `Vector3.MoveTowards` for smooth interpolation at `moveSpeed`
-<<<<<<< Updated upstream
-  - Calls `tile.OnHeroEnter()` when arrival completes, after which the tile subclass triggers its specific logic
-=======
   - **distance = 0** (clicking current tile): triggers `tile.OnHeroEnter()` **without consuming the action** — enables stronghold interaction without spending the turn
   - **distance > 0**: consumes the player's action via `GameManager.OnPlayerAction()`, then calls `tile.OnHeroEnter()` upon arrival
   - **`SetRaceAppearance(RaceType)`**: tints the `SpriteRenderer.color` based on race (Human=blue, Heaven=gold, Ghost=purple)
@@ -123,7 +118,6 @@ All managers use the Unity `MonoBehaviour` singleton pattern with a public stati
   - **离开**: closes the panel
   - Buttons are only interactable when the player has not yet acted this turn and can afford the cost. All actions call `GameManager.OnPlayerAction()`.
 - Uses `TMP_Text` (TextMeshPro) for all text. Requires a Chinese TMP font asset (see below).
->>>>>>> Stashed changes
 
 ### AI-Generated Art Assets
 
@@ -133,11 +127,15 @@ All managers use the Unity `MonoBehaviour` singleton pattern with a public stati
 - **`Units/Cards/`** — Card illustrations for all 15 units (5 per race × 3 races). Each file is named `{race}_{unit}_card.png`.
 - **`Units/MapSprites/`** — 8-directional 4-frame walk cycle spritesheets per race (`hero_{race}_walk_8dir_4f.png`) for on-map hero animation.
 - **`Units/Cards/_raw/`** — Raw AI outputs before card-frame compositing. Source material for future card frame redesigns.
-- **`_chroma_sources/`** — Chroma-keyable character renders used as source for sprite generation. Contains hero portraits and walk spritesheets with solid-color backgrounds for easy background removal.
+- **`Map/Tiles/`** — Map tile sprites organized by layer:
+  - **`Ground/`** — 5 ground textures: grass, dirt, stone, holy, corrupted, plus a parchment backdrop
+  - **`POI/`** — POI icons: resource, army_camp, event_ruin, plus per-race strongholds (human/heaven/ghost)
+  - **`Overlay/`** — Selection/reachable/target highlight sprites
+- **`_chroma_sources/`** — Chroma-keyable character renders used as source for sprite generation. Contains hero portraits, walk spritesheets, and tile sprite sources with solid-color backgrounds for easy background removal.
 
 Sprite import settings: TextureType=Sprite, PixelsPerUnit=100, FilterMode=Point (for pixel art style).
 
-Note: The current hero system uses `SpriteRenderer.color` tinting for race differentiation (`SetRaceAppearance()`). The walk spritesheets and card images exist as assets but are not yet wired into the game logic — they represent the next integration step.
+Note: The current hero system uses `SpriteRenderer.color` tinting for race differentiation (`SetRaceAppearance()`). The walk spritesheets and card images exist as assets but are not yet wired into the game logic — they represent the next integration step. Map tiles are now integrated via `MapVisualConfig` and `TileVisual`.
 
 ### Key Dependencies
 
@@ -159,24 +157,13 @@ Note: The current hero system uses `SpriteRenderer.color` tinting for race diffe
 
 - **Branch naming**: `feature/<feature-name>` for feature branches, `feature-<name>` for older branches
 - **Base branch**: `main`
-<<<<<<< Updated upstream
-- Current active branches: `feature/Map_logic` (map + hero movement), `feature/game-manager`, `feature-ui-mainmenu`
-=======
-- Current active branch: `feature/Art_AI_Generated` (AI-generated art assets + race selection system)
->>>>>>> Stashed changes
+- Current active branch: `feature/MainScene_UI+Art` (map visual system + tile art integration)
 - No CI checks or hooks are configured
 
 ## Design Documents
 
-<<<<<<< Updated upstream
-The `docs/` directory contains the game design documents (PRD, proposals, workflow diagrams) in Chinese. Key reference files:
-- `《史诗起点》游戏设计需求文档（PRD）.docx` — Full PRD
-- `史诗起点_简化版策划案（终稿-目前需求）.docx` — Current simplified design spec
-- `Game Logic.png`, `Work Flow.png` — Architecture diagrams
-=======
 - `plans/` directory contains dated design documents for implemented features (e.g., `2026-05-11-race-selection-design.md`)
 - `docs/` directory contains original game design documents in Chinese:
   - `《史诗起点》游戏设计需求文档（PRD）.docx` — Full PRD
   - `史诗起点_简化版策划案（终稿-目前需求）.docx` — Current simplified design spec (follow this for implementation)
   - `Game Logic.png`, `Work Flow.png` — Architecture diagrams
->>>>>>> Stashed changes
