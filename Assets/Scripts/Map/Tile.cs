@@ -6,6 +6,7 @@ using UnityEngine;
 public abstract class Tile : MonoBehaviour
 {
     public Vector2Int gridPosition; // 格子坐标
+    public virtual bool IsWalkable => true;
 
     /// <summary>
     /// 英雄进入该格子时触发

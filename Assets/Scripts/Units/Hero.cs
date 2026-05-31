@@ -56,20 +56,20 @@ public class Hero : MonoBehaviour
 
         if (isMoving) return;
 
-        int distance = Mathf.Abs(targetGridPos.x - currentGridPos.x) +
-                       Mathf.Abs(targetGridPos.y - currentGridPos.y);
-
-        if (distance > 3)
+        // Standing on the current tile opens/interacts without spending the turn.
+        if (targetGridPos == currentGridPos)
         {
-            Debug.Log("超出移动范围！");
+            Tile tile = MapManager.Instance.GetTileAt(currentGridPos);
+            if (tile != null)
+            {
+                tile.OnHeroEnter();
+            }
             return;
         }
 
-        // 站在当前格子上点自己 → 触发交互但不消耗行动
-        if (distance == 0)
+        if (!MapManager.Instance.CanReachWithinSteps(currentGridPos, targetGridPos, 3))
         {
-            Tile tile = MapManager.Instance.GetTileAt(currentGridPos);
-            tile.OnHeroEnter();
+            Debug.Log("Target is blocked or outside movement range.");
             return;
         }
 

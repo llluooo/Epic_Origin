@@ -20,6 +20,7 @@ public class MapVisualConfig : ScriptableObject
     public Sprite resourcePoi;
     public Sprite armyCampPoi;
     public Sprite eventPoi;
+    public Sprite[] obstaclePois;
 
     [Header("Backdrop")]
     public Sprite backdropSprite;
@@ -70,5 +71,15 @@ public class MapVisualConfig : ScriptableObject
         }
 
         return GetRaceGroundSprite(fallbackRace);
+    }
+
+    public Sprite GetObstaclePoiSprite()
+    {
+        if (obstaclePois != null && obstaclePois.Length > 0)
+        {
+            return obstaclePois[Random.Range(0, obstaclePois.Length)];
+        }
+
+        return null;
     }
 }

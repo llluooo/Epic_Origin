@@ -6,31 +6,35 @@ using UnityEditor;
 
 public class MapGenerator : MonoBehaviour
 {
-    public int width = 10;
+    public int width = 16;
     public int height = 10;
     public float tileSize = 1.2f;
     public bool centerMapOnGenerator = true;
+    public bool renderTileGrounds = false;
     public float groundVisualScale = 1.0f;
     public float poiVisualScale = 0.72f;
     public float strongholdVisualScale = 0.92f;
     public float overlayVisualScale = 0.98f;
+    public float backdropMarginTiles = 1.0f;
     public int neutralGroundPatchCount = 6;
     public float neutralGroundNoiseChance = 0.12f;
     public int minSpecialTileDistance = 2;
+    public int resourceCount = 12;
+    public int armyCampCount = 8;
+    public int eventCount = 6;
+    public int obstacleCount = 22;
 
     public GameObject emptyTilePrefab;
     public GameObject resourceTilePrefab;
     public GameObject armyCampTilePrefab;
     public GameObject eventTilePrefab;
     public GameObject strongholdTilePrefab;
+    public GameObject obstacleTilePrefab;
 
     public MapVisualConfig visualConfig;
     public StrongholdUI strongholdUI;
     public Hero hero;
 
-    private const int ResourceCount = 8;
-    private const int ArmyCampCount = 6;
-    private const int EventCount = 4;
     private const int StrongholdGroundRadius = 2;
 
     private readonly Dictionary<Vector2Int, RaceType> raceGroundOverrides = new();
@@ -45,7 +49,8 @@ public class MapGenerator : MonoBehaviour
         Resource,
         ArmyCamp,
         Event,
-        Stronghold
+        Stronghold,
+        Obstacle
     }
 
     void Start()
@@ -101,9 +106,9 @@ public class MapGenerator : MonoBehaviour
 
         Shuffle(free);
 
-        int remainingResource = ResourceCount;
-        int remainingArmyCamp = ArmyCampCount;
-        int remainingEvent = EventCount;
+        int remainingResource = Mathf.Max(0, resourceCount);
+        int remainingArmyCamp = Mathf.Max(0, armyCampCount);
+        int remainingEvent = Mathf.Max(0, eventCount);
 
         foreach (var strongholdPos in new[] { playerStronghold, enemyStronghold })
         {
@@ -132,6 +137,7 @@ public class MapGenerator : MonoBehaviour
         PlaceSpecialTiles(resourceTilePrefab, TileVisualRole.Resource, remainingResource, free, used, specialPositions);
         PlaceSpecialTiles(armyCampTilePrefab, TileVisualRole.ArmyCamp, remainingArmyCamp, free, used, specialPositions);
         PlaceSpecialTiles(eventTilePrefab, TileVisualRole.Event, remainingEvent, free, used, specialPositions);
+        PlaceObstacleTiles(free, used, specialPositions, playerStronghold, enemyStronghold);
 
         foreach (Vector2Int pos in free)
         {
@@ -180,7 +186,7 @@ public class MapGenerator : MonoBehaviour
 
     void ApplyTileVisual(GameObject obj, Vector2Int pos, Sprite poiSprite, TileVisualRole visualRole)
     {
-        Sprite groundSprite = GetGroundSprite(pos);
+        Sprite groundSprite = renderTileGrounds ? GetGroundSprite(pos) : null;
         TileVisual tileVisual = obj.GetComponent<TileVisual>();
         if (tileVisual != null)
         {
@@ -252,7 +258,7 @@ public class MapGenerator : MonoBehaviour
         Vector2 spriteSize = visualConfig.backdropSprite.bounds.size;
         float mapWorldWidth = width * tileSize;
         float mapWorldHeight = height * tileSize;
-        float margin = tileSize * 8f;
+        float margin = tileSize * Mathf.Max(0f, backdropMarginTiles);
         float scaleX = (mapWorldWidth + margin) / spriteSize.x;
         float scaleY = (mapWorldHeight + margin) / spriteSize.y;
         float scale = Mathf.Max(scaleX, scaleY);
@@ -309,6 +315,7 @@ public class MapGenerator : MonoBehaviour
             TileVisualRole.Resource => visualConfig.resourcePoi,
             TileVisualRole.ArmyCamp => visualConfig.armyCampPoi,
             TileVisualRole.Event => visualConfig.eventPoi,
+            TileVisualRole.Obstacle => visualConfig.GetObstaclePoiSprite(),
             _ => null
         };
     }
@@ -389,6 +396,150 @@ public class MapGenerator : MonoBehaviour
             used.Add(pos);
             specialPositions.Add(pos);
         }
+    }
+
+    void PlaceObstacleTiles(
+        List<Vector2Int> free,
+        HashSet<Vector2Int> used,
+        HashSet<Vector2Int> specialPositions,
+        Vector2Int playerStronghold,
+        Vector2Int enemyStronghold)
+    {
+        if (obstacleTilePrefab == null)
+        {
+            if (obstacleCount > 0)
+            {
+                Debug.LogWarning("MapGenerator.obstacleTilePrefab is not assigned. Obstacles will not be generated.");
+            }
+
+            return;
+        }
+
+        int placed = 0;
+        int requestedCount = Mathf.Max(0, obstacleCount);
+        HashSet<Vector2Int> blockedPositions = new HashSet<Vector2Int>();
+
+        for (int i = 0; i < requestedCount && free.Count > 0; i++)
+        {
+            int candidateIndex = FindObstacleCandidate(
+                free,
+                blockedPositions,
+                specialPositions,
+                playerStronghold,
+                enemyStronghold);
+
+            if (candidateIndex < 0)
+            {
+                break;
+            }
+
+            Vector2Int pos = free[candidateIndex];
+            free.RemoveAt(candidateIndex);
+
+            PlaceTile(obstacleTilePrefab, pos, TileVisualRole.Obstacle);
+            used.Add(pos);
+            blockedPositions.Add(pos);
+            placed++;
+        }
+
+        if (placed < requestedCount)
+        {
+            Debug.LogWarning($"Generated {placed}/{requestedCount} obstacles. Remaining candidates would block required paths.");
+        }
+    }
+
+    int FindObstacleCandidate(
+        List<Vector2Int> free,
+        HashSet<Vector2Int> blockedPositions,
+        HashSet<Vector2Int> specialPositions,
+        Vector2Int playerStronghold,
+        Vector2Int enemyStronghold)
+    {
+        for (int i = 0; i < free.Count; i++)
+        {
+            Vector2Int candidate = free[i];
+            if (IsNearStronghold(candidate, playerStronghold) || IsNearStronghold(candidate, enemyStronghold))
+            {
+                continue;
+            }
+
+            HashSet<Vector2Int> testBlocked = new HashSet<Vector2Int>(blockedPositions)
+            {
+                candidate
+            };
+
+            if (CanReachAllRequiredTiles(playerStronghold, specialPositions, testBlocked))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    bool CanReachAllRequiredTiles(
+        Vector2Int start,
+        HashSet<Vector2Int> requiredPositions,
+        HashSet<Vector2Int> blockedPositions)
+    {
+        HashSet<Vector2Int> reachable = FloodFillWalkable(start, blockedPositions);
+        foreach (Vector2Int required in requiredPositions)
+        {
+            if (!reachable.Contains(required))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    HashSet<Vector2Int> FloodFillWalkable(Vector2Int start, HashSet<Vector2Int> blockedPositions)
+    {
+        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
+        Queue<Vector2Int> frontier = new Queue<Vector2Int>();
+
+        if (!IsInsideMap(start) || blockedPositions.Contains(start))
+        {
+            return visited;
+        }
+
+        frontier.Enqueue(start);
+        visited.Add(start);
+
+        while (frontier.Count > 0)
+        {
+            Vector2Int current = frontier.Dequeue();
+            foreach (Vector2Int next in GetCardinalNeighbors(current))
+            {
+                if (!IsInsideMap(next) || blockedPositions.Contains(next) || !visited.Add(next))
+                {
+                    continue;
+                }
+
+                frontier.Enqueue(next);
+            }
+        }
+
+        return visited;
+    }
+
+    bool IsInsideMap(Vector2Int pos)
+    {
+        return pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height;
+    }
+
+    static bool IsNearStronghold(Vector2Int pos, Vector2Int stronghold)
+    {
+        return Mathf.Abs(pos.x - stronghold.x) <= 1 && Mathf.Abs(pos.y - stronghold.y) <= 1;
+    }
+
+    static IEnumerable<Vector2Int> GetCardinalNeighbors(Vector2Int pos)
+    {
+        yield return new Vector2Int(pos.x + 1, pos.y);
+        yield return new Vector2Int(pos.x - 1, pos.y);
+        yield return new Vector2Int(pos.x, pos.y + 1);
+        yield return new Vector2Int(pos.x, pos.y - 1);
     }
 
     int FindSpecialTileCandidate(List<Vector2Int> free, HashSet<Vector2Int> specialPositions)

@@ -763,7 +763,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 3.8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -809,6 +809,10 @@ MonoBehaviour:
   target: {fileID: 715086417}
   smoothSpeed: 5
   offset: {x: 0, y: 0, z: -10}
+  clampToMapBounds: 1
+  autoUseMapBounds: 1
+  minBounds: {x: 0, y: 0}
+  maxBounds: {x: 0, y: 0}
 --- !u!1 &577096593
 GameObject:
   m_ObjectHideFlags: 0
@@ -2053,14 +2057,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67092222a63bfdf4a9ac63343e947893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 10
+  width: 16
   height: 10
   tileSize: 1.2
+  centerMapOnGenerator: 1
+  renderTileGrounds: 0
+  groundVisualScale: 1
+  poiVisualScale: 0.72
+  strongholdVisualScale: 0.92
+  overlayVisualScale: 0.98
+  backdropMarginTiles: 1
+  neutralGroundPatchCount: 6
+  neutralGroundNoiseChance: 0.12
+  minSpecialTileDistance: 2
+  resourceCount: 12
+  armyCampCount: 8
+  eventCount: 6
+  obstacleCount: 22
   emptyTilePrefab: {fileID: 8343713931974742664, guid: 74d7b3d66b418cc4bb57c9e9f1dcfdc2, type: 3}
   resourceTilePrefab: {fileID: 2655170348639587224, guid: a2eb68b75d409784da2966c3f0c60d41, type: 3}
   armyCampTilePrefab: {fileID: 2754643412272696156, guid: 4fb7d99ba6ff2864a987e6737123db11, type: 3}
   eventTilePrefab: {fileID: 4980036873677663673, guid: 931674f8d49c0264990770ba5f0a3e06, type: 3}
   strongholdTilePrefab: {fileID: 4506693176646921201, guid: bef255a46b2bd8049b77c82bd2de1040, type: 3}
+  obstacleTilePrefab: {fileID: 8343713931974742664, guid: ed02d8b6f06b407fb77f52fe98fd280a, type: 3}
+  visualConfig: {fileID: 11400000, guid: e938070cc166cff4890cad1f1d6ce4ef, type: 2}
   strongholdUI: {fileID: 2059973117}
   hero: {fileID: 715086415}
 --- !u!1 &1536901499
@@ -2831,7 +2851,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ffdacb69c57c874d8e8ebed55411839, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 10
+  width: 16
   height: 10
   tileSize: 1.2
 --- !u!4 &2002452426
