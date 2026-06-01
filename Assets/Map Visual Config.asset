@@ -15,13 +15,6 @@ MonoBehaviour:
   humanStronghold: {fileID: 21300000, guid: 7b5c2ab5eea91dc4ea1fbdbd7524f648, type: 3}
   heavenStronghold: {fileID: 21300000, guid: 09ceefd4da3151d40b3f7e75db1ca637, type: 3}
   ghostStronghold: {fileID: 21300000, guid: e4b80ddad4c001b489e8f87840dce838, type: 3}
-  humanGround: {fileID: 21300000, guid: 19d574fb189b4d04fb47be0c21ead084, type: 3}
-  heavenGround: {fileID: 21300000, guid: acdcacb6755c47f44baaef26337fad81, type: 3}
-  ghostGround: {fileID: 21300000, guid: ef87e31072d53f1429392c5f5e0a70fe, type: 3}
-  neutralGrounds:
-  - {fileID: 21300000, guid: 19d574fb189b4d04fb47be0c21ead084, type: 3}
-  - {fileID: 21300000, guid: b51a7cf1fce787a4ebd23f95961bf1d2, type: 3}
-  - {fileID: 21300000, guid: ff108f7b9c84cc24ab788d02615a862d, type: 3}
   resourcePoi: {fileID: 21300000, guid: f9f9383ff320a364d841d8211be34272, type: 3}
   armyCampPoi: {fileID: 21300000, guid: 949496e4a6bbbf14488905dab27c8349, type: 3}
   eventPoi: {fileID: 21300000, guid: e50042f52e137ae43b2007afaa01af68, type: 3}
@@ -30,7 +23,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5140c899cf554aa8bbd4bd3108ed9e22, type: 3}
   - {fileID: 21300000, guid: 5f116d25ad984f0c9fa756fb7cde281b, type: 3}
   - {fileID: 21300000, guid: 74101ace8ad84b23954781d6ecfa9acb, type: 3}
-  backdropSprite: {fileID: 21300000, guid: 8b6f87fdc6aa497cb5a0ee610c4bc001, type: 3}
+  backdropSprite: {fileID: 21300000, guid: 8278ca4dedcc47cea788c35ff7f9e6e5, type: 3}
   selectedOverlay: {fileID: 21300000, guid: d7648b0f805224b4991962664008333b, type: 3}
   reachableOverlay: {fileID: 21300000, guid: ee5f1d23144efd64a95dfaf3db704bd8, type: 3}
   targetOverlay: {fileID: 21300000, guid: 25ffc544d5b18e94785398e3b201730e, type: 3}

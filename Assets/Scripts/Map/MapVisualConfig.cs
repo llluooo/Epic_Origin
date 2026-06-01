@@ -8,14 +8,6 @@ public class MapVisualConfig : ScriptableObject
     public Sprite heavenStronghold;
     public Sprite ghostStronghold;
 
-    [Header("Race Grounds")]
-    public Sprite humanGround;
-    public Sprite heavenGround;
-    public Sprite ghostGround;
-
-    [Header("Neutral Grounds")]
-    public Sprite[] neutralGrounds;
-
     [Header("Points of Interest")]
     public Sprite resourcePoi;
     public Sprite armyCampPoi;
@@ -39,38 +31,6 @@ public class MapVisualConfig : ScriptableObject
             RaceType.Ghost => ghostStronghold,
             _ => null
         };
-    }
-
-    public Sprite GetRaceGroundSprite(RaceType race)
-    {
-        return race switch
-        {
-            RaceType.Human => humanGround,
-            RaceType.Heaven => heavenGround,
-            RaceType.Ghost => ghostGround,
-            _ => null
-        };
-    }
-
-    public Sprite GetNeutralGroundSprite(RaceType fallbackRace)
-    {
-        if (neutralGrounds != null && neutralGrounds.Length > 0)
-        {
-            return neutralGrounds[Random.Range(0, neutralGrounds.Length)];
-        }
-
-        return GetRaceGroundSprite(fallbackRace);
-    }
-
-    public Sprite GetNeutralGroundSprite(int index, RaceType fallbackRace)
-    {
-        if (neutralGrounds != null && neutralGrounds.Length > 0)
-        {
-            int safeIndex = Mathf.Abs(index) % neutralGrounds.Length;
-            return neutralGrounds[safeIndex];
-        }
-
-        return GetRaceGroundSprite(fallbackRace);
     }
 
     public Sprite GetObstaclePoiSprite()
