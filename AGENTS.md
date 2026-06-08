@@ -99,6 +99,13 @@ All managers use the Unity `MonoBehaviour` singleton pattern with a public stati
 
 ## Development Conventions
 
+### Communication Language
+
+- All Codex-facing communication for this project must be in Chinese.
+- This includes clarifying questions, progress updates, implementation plans, proposed plans, review findings, test/verification summaries, and final responses.
+- Keep code identifiers, file paths, commands, logs, API names, package names, and quoted source text in their original language when that is clearer or technically required.
+- If the user explicitly asks for another language in a later message, follow that request for that interaction only.
+
 ### Code Style
 
 - C# scripts follow Unity conventions: `MonoBehaviour` classes, public fields for Inspector-exposed properties, `[SerializeField]` not used (public fields instead)

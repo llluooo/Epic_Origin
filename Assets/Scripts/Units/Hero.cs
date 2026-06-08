@@ -1,8 +1,7 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 英雄控制（玩家单位）
+/// Hero controller for the player unit.
 /// </summary>
 public class Hero : MonoBehaviour
 {
@@ -11,18 +10,24 @@ public class Hero : MonoBehaviour
 
     private bool isMoving = false;
     private Vector3 targetPos;
+    private HeroWalkAnimator walkAnimator;
 
-    private static readonly Dictionary<RaceType, Color> RaceColors = new()
+    private void Awake()
     {
-        { RaceType.Human, new Color(0.3f, 0.5f, 1f) },
-        { RaceType.Heaven, new Color(1f, 0.85f, 0.3f) },
-        { RaceType.Ghost, new Color(0.6f, 0.3f, 0.8f) },
-    };
+        walkAnimator = GetComponent<HeroWalkAnimator>();
+    }
 
     public void SetRaceAppearance(RaceType race)
     {
-        if (RaceColors.TryGetValue(race, out var color))
-            GetComponent<SpriteRenderer>().color = color;
+        if (walkAnimator == null)
+        {
+            walkAnimator = GetComponent<HeroWalkAnimator>();
+        }
+
+        if (walkAnimator != null)
+        {
+            walkAnimator.SetRace(race);
+        }
     }
 
     void Update()
@@ -35,22 +40,22 @@ public class Hero : MonoBehaviour
             {
                 transform.position = targetPos;
                 isMoving = false;
+                if (walkAnimator != null)
+                {
+                    walkAnimator.StopWalking();
+                }
 
-                // 到达后触发格子事件
                 Tile tile = MapManager.Instance.GetTileAt(currentGridPos);
                 tile.OnHeroEnter();
             }
         }
     }
 
-    /// <summary>
-    /// 尝试移动到目标格子
-    /// </summary>
     public void TryMove(Vector2Int targetGridPos)
     {
         if (!GameManager.Instance.isPlayerTurn)
         {
-            Debug.Log("现在不是你的回合！");
+            Debug.Log("It is not the player's turn.");
             return;
         }
 
@@ -73,17 +78,20 @@ public class Hero : MonoBehaviour
             return;
         }
 
-        // 如果已经操作过，禁止移动
         if (GameManager.Instance.hasPlayerActed)
         {
-            Debug.Log("本回合你已经行动过了！");
+            Debug.Log("The player has already acted this turn.");
             return;
         }
 
-        // 开始移动
+        Vector2Int movementDelta = targetGridPos - currentGridPos;
         currentGridPos = targetGridPos;
         targetPos = MapManager.Instance.GridToWorld(targetGridPos);
         isMoving = true;
+        if (walkAnimator != null)
+        {
+            walkAnimator.StartWalking(new Vector2(movementDelta.x, movementDelta.y));
+        }
 
         GameManager.Instance.OnPlayerAction();
     }

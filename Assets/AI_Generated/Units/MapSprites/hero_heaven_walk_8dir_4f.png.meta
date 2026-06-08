@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -43,12 +43,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 256
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -72,7 +72,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 3
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -95,7 +95,679 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_0
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 1320
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0a2c965b1a142444696b8b241e3676a3
+      internalID: 580748990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_1
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 1318
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 68a3e47c1bb14ae40888d0c17c76c400
+      internalID: 2145197968
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_2
+      rect:
+        serializedVersion: 2
+        x: 506
+        y: 1319
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 469972c5f47448c4e9df13d4ba6d89cd
+      internalID: -2034962522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_3
+      rect:
+        serializedVersion: 2
+        x: 731
+        y: 1319
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9bad0ad42df02ab46bb8b0dd01de1855
+      internalID: -1120845239
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_4
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 1128
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8057ccd5cf0b7947b1041dc9fac8e65
+      internalID: 9702003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_5
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 1130
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9255e6973e7003341bd0d262cef489ae
+      internalID: 1175370095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_6
+      rect:
+        serializedVersion: 2
+        x: 508
+        y: 1129
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 08f0bdbfe28885442821de956bf067d1
+      internalID: 762308082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_7
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 1127
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 968cfe5d5fcb9e74da956a38265ad888
+      internalID: 222934859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_8
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 940
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3cb3bc41364aeea45b6834e3383400df
+      internalID: -676601202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_9
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 939
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c6cc3a91a44e8444e9d2adce6a0d1edf
+      internalID: -279631866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_10
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 940
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b0d50eac4fa222845bcb16fa8c8911cf
+      internalID: -261110838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_11
+      rect:
+        serializedVersion: 2
+        x: 727
+        y: 939
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ebc37332fe3ba84b9a71bf41c7c673a
+      internalID: 1728182666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_12
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 750
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b6c04433632c5704095955b784599b7f
+      internalID: -1476653095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_13
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 750
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 010f7edf4f4fd6345b4b8a6994024b58
+      internalID: -616693468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_14
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 750
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 778c372f0ac122c4b9e447b9ed19d82a
+      internalID: -1310457478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_15
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 750
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df58b5a4e82ba2b48a8ae5b5ef6760d6
+      internalID: 1944581273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_16
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 564
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8cf4c6fac6abb744f8a06644f10a44c0
+      internalID: -251627744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_17
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 564
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8b6e90a7cb519ad4aa113606432257b7
+      internalID: 77904914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_18
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 564
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e1df5fde325b1454c9b26a4ec41b9d37
+      internalID: -1432204651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_19
+      rect:
+        serializedVersion: 2
+        x: 730
+        y: 562
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2c26783626154db40969037c578db569
+      internalID: -1351777187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_20
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 372
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d5bc87a73d21c3409331d3825e3d65f
+      internalID: -1890166083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_21
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 371
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 67c7cc63e0260754db33746151fbcaf1
+      internalID: 1261710012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_22
+      rect:
+        serializedVersion: 2
+        x: 508
+        y: 371
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7764c930ad916904d9a51a99a05e40e3
+      internalID: -1759123702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_23
+      rect:
+        serializedVersion: 2
+        x: 731
+        y: 371
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 96cdd419de83753458f80d71af31eecf
+      internalID: 1783217347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_24
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 189
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dd797eab5620d4a479ce571c49fae4f4
+      internalID: -1558651285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_25
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 187
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71bc9fe22abff5a459bd786ae4bb5b0d
+      internalID: -1569480018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_26
+      rect:
+        serializedVersion: 2
+        x: 510
+        y: 187
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d11465824ca6136438c2fa0422bd6cb4
+      internalID: -864479632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_27
+      rect:
+        serializedVersion: 2
+        x: 733
+        y: 189
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ba373fe2074c2bc408efc494539f7af6
+      internalID: 1448998146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_28
+      rect:
+        serializedVersion: 2
+        x: 57
+        y: 4
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39fd99dcada67114c949858accb08c5e
+      internalID: 1439477533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_29
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 5
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d1c46f888159bd4e91ae1c710168c2d
+      internalID: 621355631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_30
+      rect:
+        serializedVersion: 2
+        x: 513
+        y: 7
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f74fc737fc7d90446b3e5ad377fae5cc
+      internalID: 1123719173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_heaven_walk_8dir_4f_31
+      rect:
+        serializedVersion: 2
+        x: 733
+        y: 5
+        width: 180
+        height: 180
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a5067e842a2bdf44aa027f71d185edbf
+      internalID: 56077583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -106,7 +778,40 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      hero_heaven_walk_8dir_4f_0: 580748990
+      hero_heaven_walk_8dir_4f_1: 2145197968
+      hero_heaven_walk_8dir_4f_10: -261110838
+      hero_heaven_walk_8dir_4f_11: 1728182666
+      hero_heaven_walk_8dir_4f_12: -1476653095
+      hero_heaven_walk_8dir_4f_13: -616693468
+      hero_heaven_walk_8dir_4f_14: -1310457478
+      hero_heaven_walk_8dir_4f_15: 1944581273
+      hero_heaven_walk_8dir_4f_16: -251627744
+      hero_heaven_walk_8dir_4f_17: 77904914
+      hero_heaven_walk_8dir_4f_18: -1432204651
+      hero_heaven_walk_8dir_4f_19: -1351777187
+      hero_heaven_walk_8dir_4f_2: -2034962522
+      hero_heaven_walk_8dir_4f_20: -1890166083
+      hero_heaven_walk_8dir_4f_21: 1261710012
+      hero_heaven_walk_8dir_4f_22: -1759123702
+      hero_heaven_walk_8dir_4f_23: 1783217347
+      hero_heaven_walk_8dir_4f_24: -1558651285
+      hero_heaven_walk_8dir_4f_25: -1569480018
+      hero_heaven_walk_8dir_4f_26: -864479632
+      hero_heaven_walk_8dir_4f_27: 1448998146
+      hero_heaven_walk_8dir_4f_28: 1439477533
+      hero_heaven_walk_8dir_4f_29: 621355631
+      hero_heaven_walk_8dir_4f_3: -1120845239
+      hero_heaven_walk_8dir_4f_30: 1123719173
+      hero_heaven_walk_8dir_4f_31: 56077583
+      hero_heaven_walk_8dir_4f_32: -1570496980
+      hero_heaven_walk_8dir_4f_4: 9702003
+      hero_heaven_walk_8dir_4f_5: 1175370095
+      hero_heaven_walk_8dir_4f_6: 762308082
+      hero_heaven_walk_8dir_4f_7: 222934859
+      hero_heaven_walk_8dir_4f_8: -676601202
+      hero_heaven_walk_8dir_4f_9: -279631866
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
