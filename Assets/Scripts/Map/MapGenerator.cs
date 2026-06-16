@@ -10,9 +10,12 @@ public class MapGenerator : MonoBehaviour
     public int height = 10;
     public float tileSize = 1.2f;
     public bool centerMapOnGenerator = true;
-    public float poiVisualScale = 0.72f;
-    public float strongholdVisualScale = 0.92f;
-    public float overlayVisualScale = 0.98f;
+    public float resourcePoiScale = 0.55f;
+    public float armyCampPoiScale = 0.55f;
+    public float eventPoiScale = 0.55f;
+    public float obstaclePoiScale = 0.55f;
+    public float strongholdVisualScale = 0.75f;
+    public float overlayVisualScale = 0.85f;
     public float backdropMarginTiles = 2.5f;
     public int minSpecialTileDistance = 2;
     public int resourceCount = 12;
@@ -143,7 +146,7 @@ public class MapGenerator : MonoBehaviour
         if (hero != null)
         {
             hero.currentGridPos = playerStronghold;
-            hero.transform.position = GridToWorld(playerStronghold);
+            hero.transform.position = GridToWorld(playerStronghold) + hero.visualOffset;
             hero.SetRaceAppearance(playerRace);
         }
 
@@ -262,7 +265,15 @@ public class MapGenerator : MonoBehaviour
 
     float GetPoiScale(TileVisualRole visualRole)
     {
-        return visualRole == TileVisualRole.Stronghold ? strongholdVisualScale : poiVisualScale;
+        return visualRole switch
+        {
+            TileVisualRole.Resource => resourcePoiScale,
+            TileVisualRole.ArmyCamp => armyCampPoiScale,
+            TileVisualRole.Event => eventPoiScale,
+            TileVisualRole.Obstacle => obstaclePoiScale,
+            TileVisualRole.Stronghold => strongholdVisualScale,
+            _ => resourcePoiScale
+        };
     }
 
     static void FitRendererToWorldSize(SpriteRenderer renderer, float targetWorldSize)

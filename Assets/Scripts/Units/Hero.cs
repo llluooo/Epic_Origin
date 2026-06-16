@@ -6,7 +6,8 @@ using UnityEngine;
 public class Hero : MonoBehaviour
 {
     public Vector2Int currentGridPos;
-    public float moveSpeed = 5f;
+    public float moveSpeed = 2.5f;
+    public Vector3 visualOffset = new Vector3(0, -0.35f, 0);
 
     private bool isMoving = false;
     private Vector3 targetPos;
@@ -86,7 +87,7 @@ public class Hero : MonoBehaviour
 
         Vector2Int movementDelta = targetGridPos - currentGridPos;
         currentGridPos = targetGridPos;
-        targetPos = MapManager.Instance.GridToWorld(targetGridPos);
+        targetPos = MapManager.Instance.GridToWorld(targetGridPos) + visualOffset;
         isMoving = true;
         if (walkAnimator != null)
         {

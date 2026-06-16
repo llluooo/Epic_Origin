@@ -7,6 +7,7 @@ public class CameraFollow : MonoBehaviour
 {
     public Transform target;       // 跟随目标（Hero）
     public float smoothSpeed = 5f;
+    public float targetOrthographicSize = 2f;
     public Vector3 offset = new Vector3(0, 0, -10);  // 2D相机Z轴通常-10
     public bool clampToMapBounds = true;
     public bool autoUseMapBounds = true;
@@ -19,6 +20,10 @@ public class CameraFollow : MonoBehaviour
     void Start()
     {
         followCamera = GetComponent<Camera>();
+        if (followCamera != null)
+        {
+            followCamera.orthographicSize = targetOrthographicSize;
+        }
         TryBindMapBounds();
 
         if (target != null)
