@@ -175,36 +175,57 @@ public class GameManager : MonoBehaviour
     // ================== 召唤单位 ==================
 
     /// <summary>
-    /// 为指定玩家召唤单位
+    /// 为指定玩家召唤1个单位
     /// </summary>
     public bool SummonUnit(Player owner, int unitIndex)
     {
+        return SummonUnits(owner, unitIndex, 1) > 0;
+    }
+
+    /// <summary>
+    /// 为指定玩家批量召唤N个单位（据点操作，不消耗回合行动）
+    /// 返回实际成功召唤的数量
+    /// </summary>
+    public int SummonUnits(Player owner, int unitIndex, int count)
+    {
+        if (count <= 0) return 0;
+
         int level = unitIndex + 1;
-        ResourceData cost = owner.GetSummonCost(level);
+        ResourceData singleCost = owner.GetSummonCost(level);
+
         if (!owner.CanSummon(level))
         {
-            Debug.Log($"无法召唤！需要据点Lv{level}、{cost.gold}金币、{cost.buildingMaterials}建材");
-            return false;
+            Debug.Log($"无法召唤！需要据点Lv{level}、{singleCost.gold}金币、{singleCost.buildingMaterials}建材");
+            return 0;
         }
 
-        owner.resources.gold -= cost.gold;
-        owner.resources.buildingMaterials -= cost.buildingMaterials;
+        // 计算实际可召唤数量（受资源限制）
+        int maxByGold = owner.resources.gold / singleCost.gold;
+        int maxByMat = owner.resources.buildingMaterials / singleCost.buildingMaterials;
+        int actualCount = Mathf.Min(count, maxByGold, maxByMat);
+        if (actualCount <= 0) return 0;
 
-        Card card = owner.race switch
-        {
-            RaceType.Human => HumanUnit.CreateCard(unitIndex),
-            RaceType.Heaven => HeavenUnit.CreateCard(unitIndex),
-            RaceType.Ghost => GhostUnit.CreateCard(unitIndex),
-            _ => null
-        };
+        // 批量扣除资源
+        owner.resources.gold -= singleCost.gold * actualCount;
+        owner.resources.buildingMaterials -= singleCost.buildingMaterials * actualCount;
 
-        if (card != null)
+        // 批量创建卡牌
+        for (int i = 0; i < actualCount; i++)
         {
-            owner.deck.AddCard(card);
-            Debug.Log($"{owner.playerName} 召唤了 Lv{level} {card.cardName}！");
+            Card card = owner.race switch
+            {
+                RaceType.Human => HumanUnit.CreateCard(unitIndex),
+                RaceType.Heaven => HeavenUnit.CreateCard(unitIndex),
+                RaceType.Ghost => GhostUnit.CreateCard(unitIndex),
+                _ => null
+            };
+
+            if (card != null)
+                owner.deck.AddCard(card);
         }
 
-        return true;
+        Debug.Log($"{owner.playerName} 批量召唤了 {actualCount} 张 Lv{level} 卡牌！");
+        return actualCount;
     }
 
     void DeckInit(Player p)
