@@ -54,6 +54,12 @@ public class UnitCardUI : MonoBehaviour
         this.unitIndex = unitIndex;
         this.playerCache = player;
 
+        // 初始隐藏覆盖层
+        if (lockOverlay != null)
+            lockOverlay.gameObject.SetActive(false);
+        if (highlightBorder != null)
+            highlightBorder.gameObject.SetActive(false);
+
         // 卡牌美术
         if (cardArtImage != null)
         {
