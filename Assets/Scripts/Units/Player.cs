@@ -130,4 +130,75 @@ public class Player
             return new ResourceData(0, 0);
         return BaseProduction[strongholdLevel];
     }
+
+    // ================== 兵种查询 ==================
+
+    /// <summary>
+    /// 据点当前等级下可召唤的兵种索引列表（unitIndex从0开始计）
+    /// </summary>
+    public int[] GetAvailableUnitIndices()
+    {
+        int maxIndex = Mathf.Min(strongholdLevel, 5);
+        int[] indices = new int[maxIndex];
+        for (int i = 0; i < maxIndex; i++)
+            indices[i] = i;
+        return indices;
+    }
+
+    /// <summary>
+    /// 获取卡组中指定unitIndex兵种的已有数量
+    /// </summary>
+    public int GetOwnedCount(int unitIndex)
+    {
+        int count = 0;
+        for (int i = 0; i < deck.CardCount; i++)
+        {
+            if (deck[i].unitIndex == unitIndex)
+                count++;
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// 获取指定兵种在当前资源下最大可召唤数量（最少为0）
+    /// </summary>
+    public int GetMaxAffordableCount(int unitIndex)
+    {
+        if (!CanSummon(unitIndex + 1))
+            return 0;
+
+        ResourceData cost = GetSummonCost(unitIndex + 1);
+        int maxByGold = resources.gold / cost.gold;
+        int maxByMat = resources.buildingMaterials / cost.buildingMaterials;
+        int max = Mathf.Min(maxByGold, maxByMat);
+        return Mathf.Min(max, 99);
+    }
+
+    /// <summary>
+    /// 获取指定兵种对应的卡牌Sprite文件名前缀（用于Resources加载）
+    /// </summary>
+    public string GetCardSpritePath(int unitIndex)
+    {
+        string raceFolder = race switch
+        {
+            RaceType.Human => "Human",
+            RaceType.Heaven => "Heaven",
+            RaceType.Ghost => "Ghost",
+            _ => "Human"
+        };
+
+        string[] humanFiles = { "human_swordsman_card", "human_heavy_infantry_card", "human_wizard_card", "human_knight_card", "human_royal_guard_card" };
+        string[] heavenFiles = { "heaven_soldier_card", "heaven_sky_mage_card", "heaven_unicorn_card", "heaven_giant_card", "heaven_archangel_card" };
+        string[] ghostFiles = { "ghost_skeleton_card", "ghost_zombie_card", "ghost_will_o_wisp_card", "ghost_death_knight_card", "ghost_reaper_card" };
+
+        string fileName = race switch
+        {
+            RaceType.Human => (unitIndex >= 0 && unitIndex < humanFiles.Length) ? humanFiles[unitIndex] : humanFiles[0],
+            RaceType.Heaven => (unitIndex >= 0 && unitIndex < heavenFiles.Length) ? heavenFiles[unitIndex] : heavenFiles[0],
+            RaceType.Ghost => (unitIndex >= 0 && unitIndex < ghostFiles.Length) ? ghostFiles[unitIndex] : ghostFiles[0],
+            _ => humanFiles[0]
+        };
+
+        return $"Cards/{raceFolder}/{fileName}";
+    }
 }

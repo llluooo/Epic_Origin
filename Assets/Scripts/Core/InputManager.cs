@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// ÊäÈë¹ÜÀí£¨Êó±êµã»÷£©
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class InputManager : MonoBehaviour
 {
@@ -17,6 +17,8 @@ public class InputManager : MonoBehaviour
 
     void HandleClick()
     {
+        if (Camera.main == null) return;
+
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;
 
