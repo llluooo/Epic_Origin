@@ -1,14 +1,14 @@
 /// <summary>
-/// 人族单位定义 — Lv1=剑士, Lv2=重装步兵, Lv3=巫师, Lv4=骑士, Lv5=皇家近卫
+/// 人族单位定义：Lv1=剑士, Lv2=重装步兵, Lv3=巫师, Lv4=骑士, Lv5=皇家近卫
 /// </summary>
 public class HumanUnit : Unit
 {
     private static readonly (string name, int atk, int hp)[] UnitDefs =
     {
-        ("剑士",     4,  5),
-        ("重装步兵",  5,  8),
-        ("巫师",    10,  7),
-        ("骑士",    12, 12),
+        ("剑士", 4, 5),
+        ("重装步兵", 5, 8),
+        ("巫师", 10, 7),
+        ("骑士", 12, 12),
         ("皇家近卫", 20, 25),
     };
 

@@ -1,15 +1,15 @@
 /// <summary>
-/// 天族单位定义 — Lv1=天兵, Lv2=天穹法师, Lv3=独角兽, Lv4=巨人, Lv5=大天使
+/// 天族单位定义：Lv1=天兵, Lv2=天空法师, Lv3=独角兽, Lv4=巨人, Lv5=大天使
 /// </summary>
 public class HeavenUnit : Unit
 {
     private static readonly (string name, int atk, int hp)[] UnitDefs =
     {
-        ("天兵",     5,  6),
-        ("天穹法师",  9,  8),
-        ("独角兽",   10, 16),
-        ("巨人",      8, 35),
-        ("大天使",   25, 28),
+        ("天兵", 5, 6),
+        ("天空法师", 9, 8),
+        ("独角兽", 10, 16),
+        ("巨人", 8, 35),
+        ("大天使", 25, 28),
     };
 
     public HeavenUnit(int unitIndex)

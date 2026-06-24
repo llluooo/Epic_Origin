@@ -54,6 +54,12 @@ public class Hero : MonoBehaviour
 
     public void TryMove(Vector2Int targetGridPos)
     {
+        if (GameManager.Instance != null && GameManager.Instance.isBattleActive)
+        {
+            Debug.Log("Battle is active. Map movement is locked.");
+            return;
+        }
+
         if (!GameManager.Instance.isPlayerTurn)
         {
             Debug.Log("It is not the player's turn.");

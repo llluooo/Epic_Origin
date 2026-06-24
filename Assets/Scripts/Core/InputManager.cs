@@ -9,6 +9,11 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance != null && GameManager.Instance.isBattleActive)
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             HandleClick();

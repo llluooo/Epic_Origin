@@ -22,13 +22,19 @@ public class StrongholdTile : Tile
             }
             else
             {
-                Debug.Log("Entered player stronghold, but StrongholdUI is not assigned.");
+                Debug.Log("进入己方据点，但 StrongholdUI 未绑定。");
             }
+
+            return;
         }
-        else
+
+        GameManager gameManager = GameManager.Instance;
+        if (gameManager == null)
         {
-            GameManager gm = GameManager.Instance;
-            gm.OnHeroEnterEnemyStronghold(gm.player, gm.aiPlayer);
+            Debug.LogError("无法进入敌方据点：GameManager 未初始化。");
+            return;
         }
+
+        gameManager.StartEnemyStrongholdBattle();
     }
 }
