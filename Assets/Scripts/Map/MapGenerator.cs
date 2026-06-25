@@ -34,6 +34,7 @@ public class MapGenerator : MonoBehaviour
     public SpriteRenderer backdropRenderer;
     public StrongholdUI strongholdUI;
     public Hero hero;
+    public GameObject aiHeroPrefab;
 
     private Tile[,] map;
     private Vector3 mapOrigin;
@@ -163,6 +164,8 @@ public class MapGenerator : MonoBehaviour
             hero.SetRaceAppearance(playerRace);
         }
 
+        SpawnAIHero(enemyStronghold, enemyRace);
+
         MapManager.Instance.SetMap(map, mapOrigin, tileSize);
         Debug.Log("地图已生成。");
     }
@@ -265,6 +268,47 @@ public class MapGenerator : MonoBehaviour
 
         RaceType playerRace = GameSession.RunState.player != null ? GameSession.RunState.player.race : RaceType.Human;
         hero.SetRaceAppearance(playerRace);
+
+        RaceType aiRace = GameSession.RunState.aiPlayer != null ? GameSession.RunState.aiPlayer.race : RaceType.Ghost;
+        Vector2Int aiPos = GameSession.RunState.aiPlayer != null ? GameSession.RunState.aiPlayer.strongholdPos : new Vector2Int(width - 1, height - 1);
+        SpawnAIHero(aiPos, aiRace);
+    }
+
+    void SpawnAIHero(Vector2Int startPos, RaceType race)
+    {
+        if (aiHeroPrefab == null)
+        {
+            Debug.LogWarning("地图生成器未绑定 AI 英雄预制体，不会生成 AI 英雄。");
+            return;
+        }
+
+        GameObject aiHeroObj = Instantiate(aiHeroPrefab);
+        AIHero aiHeroComponent = aiHeroObj.GetComponent<AIHero>();
+
+        if (aiHeroComponent == null)
+        {
+            Debug.LogError("AI 英雄预制体上没有 AIHero 组件！");
+            Destroy(aiHeroObj);
+            return;
+        }
+
+        aiHeroComponent.SetPosition(startPos, GridToWorld(startPos));
+        aiHeroComponent.SetRaceAppearance(race);
+
+        SpriteRenderer sr = aiHeroObj.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.sortingOrder = 30;
+        }
+
+        aiHeroObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.aiHero = aiHeroComponent;
+        }
+
+        Debug.Log($"AI 英雄已生成在格子 {startPos}，种族 {race}");
     }
 
     static bool IsInsideState(MapState state, Vector2Int pos)

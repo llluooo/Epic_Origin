@@ -18,6 +18,8 @@ public class MainMenuUI : MonoBehaviour
         loadGameButton.onClick.AddListener(OnLoadGame);
         settingsButton.onClick.AddListener(OnSettings);
         exitButton.onClick.AddListener(OnExit);
+
+        loadGameButton.interactable = SaveSystem.HasAnySave();
     }
 
     void OnNewGame()
@@ -27,7 +29,7 @@ public class MainMenuUI : MonoBehaviour
 
     void OnLoadGame()
     {
-        // 预留：载入存档
+        SceneManager.LoadScene("SaveSelectScene");
     }
 
     void OnSettings()

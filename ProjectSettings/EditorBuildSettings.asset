@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BattleScene.unity
     guid: 78ce5c9e4473bf4429d493f8b05cd65b
+  - enabled: 1
+    path: Assets/Scenes/SaveSelectScene.unity
+    guid: 4c4f911ace3ae4e4882a8de80ac6faf6
   m_configObjects: {}

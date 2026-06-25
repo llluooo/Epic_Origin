@@ -120,29 +120,19 @@ public class BattleManager
         attacker.hasActed = true;
 
         float attackModifier = BattleCalculator.GetRaceModifier(attacker.card.race, defender.card.race);
-        float counterModifier = BattleCalculator.GetRaceModifier(defender.card.race, attacker.card.race);
         int attackDamage = BattleCalculator.CalculateAttackDamage(attacker, defender);
-        int counterDamage = BattleCalculator.CalculateCounterDamage(defender, attacker);
 
         int defenderHPBefore = defender.currentHP;
-        int attackerHPBefore = attacker.currentHP;
         int defenderCountBefore = defender.currentCount;
-        int attackerCountBefore = attacker.currentCount;
         defender.TakeDamage(attackDamage);
-        attacker.TakeDamage(counterDamage);
 
         Debug.Log($"[{GetBattleStatus()}] {attackerName} {attacker.card.cardName} 出牌，{defenderName} {defender.card.cardName} 应战。");
-        Debug.Log($"伤害：主动 {attacker.GetTotalAttack()}x{attackModifier:0.0#}={attackDamage}，反击 {defender.GetTotalAttack()}x0.5x{counterModifier:0.0#}={counterDamage}。");
-        Debug.Log($"结果：{defender.card.cardName} 生命 {defenderHPBefore}->{defender.currentHP} 数量 {defenderCountBefore}->{defender.currentCount}；{attacker.card.cardName} 生命 {attackerHPBefore}->{attacker.currentHP} 数量 {attackerCountBefore}->{attacker.currentCount}。");
+        Debug.Log($"伤害：主动 {attacker.GetTotalAttack()}x{attackModifier:0.0#}={attackDamage}。");
+        Debug.Log($"结果：{defender.card.cardName} 生命 {defenderHPBefore}->{defender.currentHP} 数量 {defenderCountBefore}->{defender.currentCount}。");
 
         if (!defender.IsAlive())
         {
             Debug.Log($"{defender.card.cardName} 已阵亡。");
-        }
-
-        if (!attacker.IsAlive())
-        {
-            Debug.Log($"{attacker.card.cardName} 已阵亡。");
         }
 
         CheckBattleEnd();
