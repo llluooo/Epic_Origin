@@ -10,26 +10,26 @@ public class BattleUI : MonoBehaviour
 {
     public BattleManager battleManager;
 
-    [Header("Slots")]
+    [Header("卡槽")]
     public Button[] playerSlotButtons;
     public TMP_Text[] playerSlotTexts;
     public TMP_Text[] enemySlotTexts;
     public CardView[] playerSlotViews;
     public CardView[] enemySlotViews;
 
-    [Header("Phase Display")]
+    [Header("阶段显示")]
     public GameObject playerSlotGroup;
     public GameObject enemySlotGroup;
     public bool hideInactiveSideCards = false;
 
-    [Header("Controls")]
+    [Header("控制")]
     public TMP_Text turnText;
     public Button attackButton;
     public Toggle autoPlayToggle;
     public Button surrenderButton;
     public float returnToMapDelay = 0.8f;
 
-    [Header("AI Surrender")]
+    [Header("电脑投降")]
     public int enemySurrenderMinRound = 4;
     [Range(0.01f, 1f)] public float enemyCriticalPowerRatio = 0.12f;
     [Range(0.01f, 1f)] public float enemyOpponentAdvantageRatio = 0.35f;
@@ -295,7 +295,7 @@ public class BattleUI : MonoBehaviour
         }
 
         float roll = Random.value;
-        Debug.Log($"敌方投降评估：{decision.currentPower}/{decision.initialPower} vs 玩家{decision.opponentPower}，概率 {decision.chance:0.00}，掷点 {roll:0.00}");
+        Debug.Log($"敌方投降评估：{decision.currentPower}/{decision.initialPower}，玩家战力 {decision.opponentPower}，概率 {decision.chance:0.00}，掷点 {roll:0.00}");
 
         if (roll <= decision.chance)
         {

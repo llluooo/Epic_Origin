@@ -7,7 +7,7 @@ using TMPro;
 /// </summary>
 public class CardView : MonoBehaviour
 {
-    [Header("Card Frame")]
+    [Header("卡牌边框")]
     public Image cardFrame;
     public Sprite cardFrameSprite;
     public Image iconImage;
@@ -16,7 +16,7 @@ public class CardView : MonoBehaviour
     public Image selectionOverlay;
     public Color selectedColor = new Color(1f, 0.9f, 0.4f, 0.5f);
 
-    [Header("Card Text")]
+    [Header("卡牌文本")]
     public TMP_Text titleText;
     public TMP_Text raceText;
     public TMP_Text levelText;
@@ -24,12 +24,12 @@ public class CardView : MonoBehaviour
     public TMP_Text hpText;
     public TMP_Text quantityText;
 
-    [Header("Card Sprites")]
+    [Header("卡牌贴图")]
     public Sprite[] humanCardSprites;
     public Sprite[] heavenCardSprites;
     public Sprite[] ghostCardSprites;
 
-    [Header("Optional Race Colors")]
+    [Header("可选种族颜色")]
     public Color humanFrameColor = new Color(0.5f, 0.7f, 1f);
     public Color heavenFrameColor = new Color(1f, 0.9f, 0.5f);
     public Color ghostFrameColor = new Color(0.8f, 0.6f, 1f);

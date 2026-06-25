@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Hero controller for the player unit.
+/// 玩家英雄控制器，负责格子移动和到达格子的交互。
 /// </summary>
 public class Hero : MonoBehaviour
 {
@@ -56,19 +56,19 @@ public class Hero : MonoBehaviour
     {
         if (GameManager.Instance != null && GameManager.Instance.isBattleActive)
         {
-            Debug.Log("Battle is active. Map movement is locked.");
+            Debug.Log("战斗正在进行，主地图移动已锁定。");
             return;
         }
 
         if (!GameManager.Instance.isPlayerTurn)
         {
-            Debug.Log("It is not the player's turn.");
+            Debug.Log("当前不是玩家回合。");
             return;
         }
 
         if (isMoving) return;
 
-        // Standing on the current tile opens/interacts without spending the turn.
+        // 点击当前所在格子时只触发交互，不消耗本回合行动。
         if (targetGridPos == currentGridPos)
         {
             Tile tile = MapManager.Instance.GetTileAt(currentGridPos);
@@ -81,13 +81,13 @@ public class Hero : MonoBehaviour
 
         if (!MapManager.Instance.CanReachWithinSteps(currentGridPos, targetGridPos, 3))
         {
-            Debug.Log("Target is blocked or outside movement range.");
+            Debug.Log("目标格子被阻挡或超出移动范围。");
             return;
         }
 
         if (GameManager.Instance.hasPlayerActed)
         {
-            Debug.Log("The player has already acted this turn.");
+            Debug.Log("玩家本回合已经行动过。");
             return;
         }
 

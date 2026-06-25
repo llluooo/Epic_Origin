@@ -51,6 +51,19 @@ public class MapGenerator : MonoBehaviour
     void Start()
     {
         TryAutoAssignVisualConfigInEditor();
+
+        if (GameSession.HasRunState && GameSession.RunState.mapState != null)
+        {
+            MapState state = GameSession.RunState.mapState;
+            width = state.width;
+            height = state.height;
+            tileSize = state.tileSize;
+            mapOrigin = state.worldOrigin;
+            ConfigureBackdrop();
+            RestoreMap(state);
+            return;
+        }
+
         ConfigureBackdrop();
         GenerateMap();
     }
@@ -70,7 +83,7 @@ public class MapGenerator : MonoBehaviour
 
         if (visualConfig == null)
         {
-            Debug.LogWarning("MapGenerator.visualConfig is not assigned. POI sprites will be empty until Map Visual Config is linked.");
+            Debug.LogWarning("地图生成器未绑定地图视觉配置。在关联配置前，兴趣点贴图会为空。");
         }
 
         RaceType playerRace = GameSetupData.IsNewGame ? GameSetupData.PlayerRace : RaceType.Human;
@@ -151,7 +164,112 @@ public class MapGenerator : MonoBehaviour
         }
 
         MapManager.Instance.SetMap(map, mapOrigin, tileSize);
-        Debug.Log("Map generated.");
+        Debug.Log("地图已生成。");
+    }
+
+    public MapState CaptureMapState()
+    {
+        if (map == null)
+        {
+            Debug.LogError("地图生成器：地图尚未初始化，无法捕获地图状态。");
+            return null;
+        }
+
+        return MapState.Capture(map, mapOrigin, tileSize);
+    }
+
+    void RestoreMap(MapState state)
+    {
+        map = new Tile[state.width, state.height];
+        mapOrigin = state.worldOrigin;
+
+        if (visualConfig == null)
+        {
+            Debug.LogWarning("地图生成器未绑定地图视觉配置。恢复地图时兴趣点贴图会为空，直到关联配置。");
+        }
+
+        foreach (TileState tileState in state.tiles)
+        {
+            if (tileState == null || !IsInsideState(state, tileState.position))
+            {
+                continue;
+            }
+
+            PlaceRestoredTile(tileState);
+        }
+
+        for (int x = 0; x < state.width; x++)
+        {
+            for (int y = 0; y < state.height; y++)
+            {
+                if (map[x, y] == null)
+                {
+                    PlaceTile(emptyTilePrefab, new Vector2Int(x, y), TileVisualRole.Empty);
+                }
+            }
+        }
+
+        RestoreHeroPosition();
+
+        MapManager.Instance.SetMap(map, mapOrigin, tileSize);
+        Debug.Log("已从运行会话恢复地图。");
+    }
+
+    void PlaceRestoredTile(TileState state)
+    {
+        if (state.kind == TileKind.Stronghold)
+        {
+            PlaceStronghold(state.position, state.strongholdType, state.visualRace);
+            return;
+        }
+
+        PlaceTile(GetPrefabForTileKind(state.kind), state.position, GetVisualRoleForTileKind(state.kind));
+    }
+
+    GameObject GetPrefabForTileKind(TileKind kind)
+    {
+        GameObject prefab = kind switch
+        {
+            TileKind.Resource => resourceTilePrefab,
+            TileKind.ArmyCamp => armyCampTilePrefab,
+            TileKind.Event => eventTilePrefab,
+            TileKind.Obstacle => obstacleTilePrefab,
+            _ => emptyTilePrefab
+        };
+
+        return prefab != null ? prefab : emptyTilePrefab;
+    }
+
+    TileVisualRole GetVisualRoleForTileKind(TileKind kind)
+    {
+        return kind switch
+        {
+            TileKind.Resource => TileVisualRole.Resource,
+            TileKind.ArmyCamp => TileVisualRole.ArmyCamp,
+            TileKind.Event => TileVisualRole.Event,
+            TileKind.Obstacle => TileVisualRole.Obstacle,
+            _ => TileVisualRole.Empty
+        };
+    }
+
+    void RestoreHeroPosition()
+    {
+        if (hero == null || !GameSession.HasRunState)
+        {
+            return;
+        }
+
+        Vector2Int heroPos = GameSession.RunState.heroGridPos;
+        hero.currentGridPos = heroPos;
+        hero.transform.position = GridToWorld(heroPos) + hero.visualOffset;
+
+        RaceType playerRace = GameSession.RunState.player != null ? GameSession.RunState.player.race : RaceType.Human;
+        hero.SetRaceAppearance(playerRace);
+    }
+
+    static bool IsInsideState(MapState state, Vector2Int pos)
+    {
+        return pos.x >= 0 && pos.x < state.width && pos.y >= 0 && pos.y < state.height;
     }
 
     void PlaceStronghold(Vector2Int pos, StrongholdType type, RaceType race)
@@ -357,7 +475,7 @@ public class MapGenerator : MonoBehaviour
         {
             if (obstacleCount > 0)
             {
-                Debug.LogWarning("MapGenerator.obstacleTilePrefab is not assigned. Obstacles will not be generated.");
+                Debug.LogWarning("地图生成器未绑定障碍物格子预制体，不会生成障碍物。");
             }
 
             return;
@@ -392,7 +510,7 @@ public class MapGenerator : MonoBehaviour
 
         if (placed < requestedCount)
         {
-            Debug.LogWarning($"Generated {placed}/{requestedCount} obstacles. Remaining candidates would block required paths.");
+            Debug.LogWarning($"已生成 {placed}/{requestedCount} 个障碍物。剩余候选位置会阻断必要路径。");
         }
     }
 

@@ -8,13 +8,13 @@ public class ArmyCampTile : Tile
         GameManager gameManager = GameManager.Instance;
         if (gameManager == null)
         {
-            Debug.LogError("ArmyCampTile: GameManager 未初始化。");
+            Debug.LogError("兵营格子：游戏管理器未初始化。");
             return;
         }
 
         List<Card> enemyDeck = CreateEnemyEncounterDeck();
         Debug.Log("进入兵营，切换到战斗场景。");
-        gameManager.StartArmyCampBattle(enemyDeck);
+        gameManager.StartArmyCampBattle(enemyDeck, gridPosition);
     }
 
     private List<Card> CreateEnemyEncounterDeck()

@@ -1,31 +1,31 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class ButtonFeedback : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [Tooltip("°´ÏÂÊ±Ëõ·ÅµÄ±ÈÀı£¬0.9 ±íÊ¾ËõĞ¡µ½Ô­À´µÄ 90%")]
+    [Tooltip("æŒ‰ä¸‹æ—¶ç¼©æ”¾çš„æ¯”ä¾‹ï¼Œ0.9 è¡¨ç¤ºç¼©å°åˆ°åŸæ¥çš„ 90%")]
     public float pressScale = 0.9f;
 
-    [Tooltip("»Ö¸´µ½Ô­Ê¼´óĞ¡µÄÊ±¼ä£¨Ãë£©")]
+    [Tooltip("æ¢å¤åˆ°åŸå§‹å¤§å°çš„æ—¶é—´ï¼ˆç§’ï¼‰")]
     public float restoreDuration = 0.1f;
 
     private Vector3 originalScale;
 
     void Start()
     {
-        // ¼ÇÂ¼°´Å¥×î¿ªÊ¼µÄËõ·Å´óĞ¡
+        // è®°å½•æŒ‰é’®åˆå§‹ç¼©æ”¾ã€‚
         originalScale = transform.localScale;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        // °´ÏÂÊ±Á¢¿ÌËõĞ¡
+        // æŒ‰ä¸‹æ—¶ç«‹åˆ»ç¼©å°ã€‚
         transform.localScale = originalScale * pressScale;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        // ËÉ¿ªÊ±»Ö¸´Ô­Ê¼´óĞ¡£¨¿ÉÒÔÓÃÆ½»¬»Ö¸´£¬Ò²¿ÉÒÔÖ±½Ó¸³Öµ£©
+        // æ¾å¼€æ—¶æ¢å¤åŸå§‹å¤§å°ã€‚
         transform.localScale = originalScale;
     }
 }

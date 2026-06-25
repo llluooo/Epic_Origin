@@ -22,7 +22,7 @@ public class StrongholdTile : Tile
             }
             else
             {
-                Debug.Log("进入己方据点，但 StrongholdUI 未绑定。");
+                Debug.Log("进入己方据点，但据点界面未绑定。");
             }
 
             return;
@@ -31,10 +31,10 @@ public class StrongholdTile : Tile
         GameManager gameManager = GameManager.Instance;
         if (gameManager == null)
         {
-            Debug.LogError("无法进入敌方据点：GameManager 未初始化。");
+            Debug.LogError("无法进入敌方据点：游戏管理器未初始化。");
             return;
         }
 
-        gameManager.StartEnemyStrongholdBattle();
+        gameManager.StartEnemyStrongholdBattle(gridPosition);
     }
 }

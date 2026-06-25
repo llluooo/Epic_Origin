@@ -1,18 +1,18 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// µØÍ¼¸ñ×Ó»ùÀà£¨ËùÓĞ¸ñ×ÓµÄ¸¸Àà£©
+/// åœ°å›¾æ ¼å­åŸºç±»ï¼Œæ‰€æœ‰åœ°å›¾æ ¼å­è„šæœ¬çš„çˆ¶ç±»ã€‚
 /// </summary>
 public abstract class Tile : MonoBehaviour
 {
-    public Vector2Int gridPosition; // ¸ñ×Ó×ø±ê
+    public Vector2Int gridPosition; // æ ¼å­åæ ‡
     public virtual bool IsWalkable => true;
 
     /// <summary>
-    /// Ó¢ĞÛ½øÈë¸Ã¸ñ×ÓÊ±´¥·¢
+    /// è‹±é›„è¿›å…¥è¯¥æ ¼å­æ—¶è§¦å‘ã€‚
     /// </summary>
     public virtual void OnHeroEnter()
     {
-        Debug.Log("½øÈëÆÕÍ¨¸ñ×Ó: " + gridPosition);
+        Debug.Log("è¿›å…¥æ™®é€šæ ¼å­: " + gridPosition);
     }
 }

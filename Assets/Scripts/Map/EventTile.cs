@@ -39,7 +39,7 @@ public class EventTile : Tile
         Player p = GameManager.Instance.player;
         for (int i = 0; i < 2; i++)
         {
-            Card card = CreateCard(p.race, 0);  // unitIndex 0 = Lv1
+            Card card = CreateCard(p.race, 0);  // 兵种索引 0 对应 Lv1
             p.deck.AddCard(card);
             Debug.Log($"触发事件【英雄遇仙】: 获得 {card.cardName} Lv1！");
         }
@@ -67,7 +67,7 @@ public class EventTile : Tile
         Player p = GameManager.Instance.player;
         Deck deck = p.deck;
 
-        // 按 unitIndex 分组
+        // 按兵种索引分组
         var groups = new Dictionary<int, List<Card>>();
         for (int i = deck.CardCount - 1; i >= 0; i--)
         {

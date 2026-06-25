@@ -12,7 +12,7 @@ public enum RaceType
 
 /// <summary>
 /// 单位抽象基类（数据模型，非 MonoBehaviour）
-/// 每个种族 5 级 = 5 种兵种，unitIndex 0→Lv1, 1→Lv2, ...
+/// 每个种族 5 级对应 5 种兵种，兵种索引 0 对应 Lv1，索引 1 对应 Lv2，以此类推。
 /// </summary>
 [Serializable]
 public abstract class Unit

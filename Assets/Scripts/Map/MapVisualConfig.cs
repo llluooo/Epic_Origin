@@ -3,21 +3,21 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Epic Origin/Map Visual Config")]
 public class MapVisualConfig : ScriptableObject
 {
-    [Header("Strongholds")]
+    [Header("据点")]
     public Sprite humanStronghold;
     public Sprite heavenStronghold;
     public Sprite ghostStronghold;
 
-    [Header("Points of Interest")]
+    [Header("兴趣点")]
     public Sprite resourcePoi;
     public Sprite armyCampPoi;
     public Sprite eventPoi;
     public Sprite[] obstaclePois;
 
-    [Header("Backdrop")]
+    [Header("地图背景")]
     public Sprite backdropSprite;
 
-    [Header("Overlays")]
+    [Header("覆盖层")]
     public Sprite selectedOverlay;
     public Sprite reachableOverlay;
     public Sprite targetOverlay;

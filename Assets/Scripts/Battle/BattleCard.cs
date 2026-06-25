@@ -74,6 +74,17 @@ public class BattleCard
 
     public override string ToString()
     {
-        return $"{card.cardName}({card.race} Lv{card.level}) 数量:{currentCount}/{initialCount} HP:{currentHP}/{initialHP} ATK:{card.GetAttack()}";
+        return $"{card.cardName}({GetRaceDisplayName(card.race)} Lv{card.level}) 数量:{currentCount}/{initialCount} 生命:{currentHP}/{initialHP} 攻击:{card.GetAttack()}";
+    }
+
+    private static string GetRaceDisplayName(RaceType race)
+    {
+        return race switch
+        {
+            RaceType.Human => "人族",
+            RaceType.Heaven => "天族",
+            RaceType.Ghost => "鬼族",
+            _ => "未知种族"
+        };
     }
 }

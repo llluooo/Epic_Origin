@@ -4,7 +4,7 @@ using TMPro;
 
 /// <summary>
 /// 单张兵种卡牌UI组件
-/// 包含：卡牌美术图、名称/等级/ATK/HP、消耗、已有数量、数量选择器、召唤按钮
+/// 包含：卡牌美术图、名称/等级、攻击、生命、消耗、已有数量、数量选择器、召唤按钮
 /// </summary>
 public class UnitCardUI : MonoBehaviour
 {
@@ -35,7 +35,7 @@ public class UnitCardUI : MonoBehaviour
     private bool isUnlocked;
     private float lastSummonTime;
 
-    // 回调：unitIndex, quantity
+    // 回调参数：兵种索引、召唤数量
     public System.Action<int, int> onSummonRequested;
 
     void Start()
@@ -284,7 +284,7 @@ public class UnitCardUI : MonoBehaviour
         };
 
         if (unitIndex >= 0 && unitIndex < atk.Length)
-            return $"ATK:{atk[unitIndex]}  HP:{hp[unitIndex]}";
-        return "ATK:? HP:?";
+            return $"攻击:{atk[unitIndex]}  生命:{hp[unitIndex]}";
+        return "攻击:? 生命:?";
     }
 }

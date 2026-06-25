@@ -16,7 +16,7 @@ public static class BattleAI
         public string reason;
     }
 
-    // 进攻选择：选择等级最高的存活卡牌，Tiebreaker：总攻击更高
+    // 进攻选择：选择等级最高的存活卡牌；同等级时选择总攻击更高的卡牌。
     public static int ChooseAttackerIndex(List<BattleCard> own)
     {
         int best = -1;
@@ -38,7 +38,7 @@ public static class BattleAI
         return best >= 0 ? best : 0;
     }
 
-    // 防守选择：优先选择种族克制（modifier>1）的卡牌，按实际伤害潜力排序
+    // 防守选择：优先选择种族克制倍率大于 1 的卡牌，按实际伤害潜力排序。
     public static int ChooseDefenderIndex(List<BattleCard> own, BattleCard incoming)
     {
         int best = -1;
@@ -52,7 +52,7 @@ public static class BattleAI
             float mod = BattleCalculator.GetRaceModifier(c.card.race, incoming.card.race);
             if (mod > 1.0f)
             {
-                // 评价：攻击力 * modifier + 一点HP权重
+                // 评价：攻击力乘以克制倍率，再加少量生命值权重。
                 float score = c.GetTotalAttack() * mod + c.currentHP * 0.1f;
                 if (score > bestScore)
                 {
@@ -82,7 +82,7 @@ public static class BattleAI
 
         if (best >= 0) return best;
 
-        // 3) 回退：选择HP最高的存活卡
+        // 3) 回退：选择生命值最高的存活卡
         best = -1;
         int bestHP = int.MinValue;
         for (int i = 0; i < own.Count; i++)

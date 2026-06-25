@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// 全屏据点管理面板（Screen Space Overlay，切换显隐）
+/// 全屏据点管理面板，使用全屏覆盖方式切换显隐。
 /// 进入据点时全屏覆盖，展示据点信息、升级、5张兵种卡牌（含数量选择器）、卡组信息
 /// 据点内所有操作不消耗回合行动
 /// </summary>
@@ -15,7 +15,7 @@ public class StrongholdUI : MonoBehaviour
     [Header("主相机（进入据点时关闭，离开时恢复）")]
     public Camera mainCamera;
 
-    [Header("据点背景相机（纯色背景，无Audio Listener）")]
+    [Header("据点背景相机（纯色背景，无音频监听器）")]
     public Camera strongholdCamera;
 
     [Header("顶部信息")]

@@ -1,5 +1,5 @@
-/// <summary>
-/// 新游戏设置数据桥接 — 从选择场景传递种族到MainScene
+﻿/// <summary>
+/// 新游戏设置数据桥接，从种族选择场景传递初始阵营到主场景。
 /// </summary>
 public static class GameSetupData
 {

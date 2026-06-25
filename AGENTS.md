@@ -111,6 +111,7 @@ All managers use the Unity `MonoBehaviour` singleton pattern with a public stati
 - C# scripts follow Unity conventions: `MonoBehaviour` classes, public fields for Inspector-exposed properties, `[SerializeField]` not used (public fields instead)
 - Data classes (`Player`, `Card`, `Deck`, `ResourceData`, `Unit`) are plain C# classes marked `[Serializable]` for future save/load support
 - Chinese comments and debug log messages throughout
+- Project-owned C# code must use Chinese for human-readable comments, XML documentation, Inspector-facing `[Header]`/`[Tooltip]` text, and Unity console output (`Debug.Log`, `Debug.LogWarning`, `Debug.LogError`). Keep code identifiers, API names, class names, scene names, resource paths, and third-party/imported sample code in their original form when changing them would create technical risk.
 - No namespaces are used; all scripts are in the global namespace
 - Scripts are organized by system in `Assets/Scripts/`: `Core/`, `Map/`, `Units/`, `UI/`, `Data/`
 

@@ -80,12 +80,12 @@ public class BattleManager
 
         foreach (BattleCard card in playerCards)
         {
-            state.playerCardStates.Add(card == null ? "null" : card.ToString());
+            state.playerCardStates.Add(card == null ? "空" : card.ToString());
         }
 
         foreach (BattleCard card in enemyCards)
         {
-            state.enemyCardStates.Add(card == null ? "null" : card.ToString());
+            state.enemyCardStates.Add(card == null ? "空" : card.ToString());
         }
 
         return state;
@@ -133,7 +133,7 @@ public class BattleManager
 
         Debug.Log($"[{GetBattleStatus()}] {attackerName} {attacker.card.cardName} 出牌，{defenderName} {defender.card.cardName} 应战。");
         Debug.Log($"伤害：主动 {attacker.GetTotalAttack()}x{attackModifier:0.0#}={attackDamage}，反击 {defender.GetTotalAttack()}x0.5x{counterModifier:0.0#}={counterDamage}。");
-        Debug.Log($"结果：{defender.card.cardName} HP {defenderHPBefore}->{defender.currentHP} 数量 {defenderCountBefore}->{defender.currentCount}；{attacker.card.cardName} HP {attackerHPBefore}->{attacker.currentHP} 数量 {attackerCountBefore}->{attacker.currentCount}。");
+        Debug.Log($"结果：{defender.card.cardName} 生命 {defenderHPBefore}->{defender.currentHP} 数量 {defenderCountBefore}->{defender.currentCount}；{attacker.card.cardName} 生命 {attackerHPBefore}->{attacker.currentHP} 数量 {attackerCountBefore}->{attacker.currentCount}。");
 
         if (!defender.IsAlive())
         {

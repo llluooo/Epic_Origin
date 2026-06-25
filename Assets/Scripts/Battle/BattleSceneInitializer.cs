@@ -24,7 +24,7 @@ public class BattleSceneInitializer : MonoBehaviour
             battleUI = FindObjectOfType<BattleUI>();
             if (battleUI == null)
             {
-                Debug.LogError("未找到 BattleUI，请在场景中创建并绑定 BattleUI。初始化终止。");
+                Debug.LogError("未找到战斗界面组件，请在场景中创建并绑定战斗界面。初始化终止。");
                 return;
             }
         }
@@ -40,13 +40,13 @@ public class BattleSceneInitializer : MonoBehaviour
             playerDeck = BattleSceneBridge.PlayerDeck;
             enemyDeck = BattleSceneBridge.EnemyDeck;
             playerStartsAttacking = BattleSceneBridge.PlayerStartsAttacking;
-            Debug.Log("BattleSceneInitializer: 使用地图桥接数据初始化战斗。");
+            Debug.Log("战斗场景初始化器：使用地图桥接数据初始化战斗。");
         }
         else
         {
             playerDeck = CreateRandomTestDeck("玩家");
             enemyDeck = CreateRandomTestDeck("敌方");
-            Debug.Log("BattleSceneInitializer: 使用随机测试卡组初始化战斗。");
+            Debug.Log("战斗场景初始化器：使用随机测试卡组初始化战斗。");
         }
 
         manager.Initialize(playerDeck, enemyDeck, playerStartsAttacking);

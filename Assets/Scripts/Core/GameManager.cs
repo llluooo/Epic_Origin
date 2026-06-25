@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 游戏管理器：控制回合、玩家数据、资源产出、召唤升级和战斗结算。
-/// </summary>
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -26,6 +23,8 @@ public class GameManager : MonoBehaviour
     public Player player;
     public Player aiPlayer;
 
+    public bool IsGameEnded => gameEnded;
+
     private bool gameEnded = false;
     private BattleEncounterType pendingBattleType = BattleEncounterType.None;
 
@@ -43,6 +42,12 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        if (GameSession.HasRunState)
+        {
+            RestoreGameFromSession();
+            return;
+        }
+
         StartGame();
     }
 
@@ -69,7 +74,7 @@ public class GameManager : MonoBehaviour
 
         aiPlayer = new Player
         {
-            playerName = "AI",
+            playerName = "电脑",
             race = aiRace,
             resources = new ResourceData(100, 100),
             strongholdLevel = 1,
@@ -79,6 +84,38 @@ public class GameManager : MonoBehaviour
         DeckInit(aiPlayer);
 
         StartPlayerTurn();
+    }
+
+    private void RestoreGameFromSession()
+    {
+        GameRunState state = GameSession.RunState;
+        if (state == null)
+        {
+            StartGame();
+            return;
+        }
+
+        currentTurn = state.currentTurn;
+        maxTurn = state.maxTurn;
+        isPlayerTurn = state.isPlayerTurn;
+        hasPlayerActed = state.hasPlayerActed;
+        isBattleActive = false;
+        gameEnded = state.gameEnded;
+        currentState = state.currentState;
+        player = GameRunState.ClonePlayer(state.player);
+        aiPlayer = GameRunState.ClonePlayer(state.aiPlayer);
+        pendingBattleType = BattleEncounterType.None;
+
+        if (GameSession.HasPendingBattleResult)
+        {
+            PendingBattleResult result = GameSession.PendingBattleResult.Clone();
+            pendingBattleType = result.encounterType;
+            ResolveBattleResult(result.encounterType, result.outcome);
+            GameSession.ClearPendingBattleAfterResolution();
+            GameSession.UpdateRunState(GameRunState.Capture(this, state.heroGridPos, state.mapState));
+        }
+
+        Debug.Log("游戏管理器：已从运行会话恢复主地图运行状态。");
     }
 
     void StartPlayerTurn()
@@ -122,14 +159,14 @@ public class GameManager : MonoBehaviour
         currentState = GameState.AITurn;
         isPlayerTurn = false;
 
-        Debug.Log("AI回合开始");
+        Debug.Log("电脑回合开始");
 
         Invoke(nameof(EndAITurn), 1.5f);
     }
 
     void EndAITurn()
     {
-        Debug.Log("AI回合结束");
+        Debug.Log("电脑回合结束");
         NextTurn();
     }
 
@@ -161,7 +198,7 @@ public class GameManager : MonoBehaviour
 
         ResourceData aiProd = aiPlayer.GetTurnProduction();
         aiPlayer.resources.Add(aiProd);
-        Debug.Log($"AI据点产出: {aiProd.gold}金币, {aiProd.buildingMaterials}建材");
+        Debug.Log($"电脑据点产出: {aiProd.gold}金币, {aiProd.buildingMaterials}建材");
     }
 
     public bool SummonUnit(Player owner, int unitIndex)
@@ -218,12 +255,22 @@ public class GameManager : MonoBehaviour
 
     public void StartArmyCampBattle(List<Card> enemyDeck)
     {
-        StartBattle(BattleEncounterType.ArmyCamp, enemyDeck);
+        StartArmyCampBattle(enemyDeck, Vector2Int.zero);
+    }
+
+    public void StartArmyCampBattle(List<Card> enemyDeck, Vector2Int sourceTilePos)
+    {
+        StartBattle(BattleEncounterType.ArmyCamp, enemyDeck, sourceTilePos);
     }
 
     public void StartEnemyStrongholdBattle()
     {
-        StartBattle(BattleEncounterType.EnemyStronghold, aiPlayer.deck.cards);
+        StartEnemyStrongholdBattle(aiPlayer.strongholdPos);
+    }
+
+    public void StartEnemyStrongholdBattle(Vector2Int sourceTilePos)
+    {
+        StartBattle(BattleEncounterType.EnemyStronghold, aiPlayer.deck.cards, sourceTilePos);
     }
 
     public void ResolveBattleResult(BattleEncounterType encounterType, BattleOutcome outcome)
@@ -251,7 +298,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void StartBattle(BattleEncounterType encounterType, List<Card> enemyDeck)
+    private void StartBattle(BattleEncounterType encounterType, List<Card> enemyDeck, Vector2Int sourceTilePos)
     {
         if (gameEnded)
         {
@@ -270,9 +317,34 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        Hero hero = FindObjectOfType<Hero>();
+        MapGenerator mapGenerator = FindObjectOfType<MapGenerator>();
+        if (hero == null || mapGenerator == null)
+        {
+            Debug.LogError("无法开始战斗：缺少英雄或地图生成器，不能保存主地图状态。");
+            return;
+        }
+
+        MapState mapState = mapGenerator.CaptureMapState();
+        if (mapState == null)
+        {
+            Debug.LogError("无法开始战斗：主地图状态保存失败。");
+            return;
+        }
+
+        GameRunState runState = GameRunState.Capture(this, hero, mapState);
+        PendingBattleState battleState = new PendingBattleState
+        {
+            encounterType = encounterType,
+            sourceTilePos = sourceTilePos,
+            playerStartsAttacking = true,
+            playerDeck = GameRunState.CloneCardList(player.deck.cards),
+            enemyDeck = GameRunState.CloneCardList(enemyDeck)
+        };
+
         isBattleActive = true;
         pendingBattleType = encounterType;
-        BattleSceneBridge.LoadBattleScene(player.deck.cards, enemyDeck, encounterType, playerStartsAttacking: true);
+        BattleSceneBridge.LoadBattleScene(runState, battleState);
     }
 
     private void ResolveArmyCampBattle(BattleOutcome outcome)
@@ -358,8 +430,8 @@ public class GameManager : MonoBehaviour
         int playerScore = player.deck.GetTotalCombatPower() + player.resources.gold + player.resources.buildingMaterials;
         int aiScore = aiPlayer.deck.GetTotalCombatPower() + aiPlayer.resources.gold + aiPlayer.resources.buildingMaterials;
 
-        Debug.Log("20回合结束，按战力+资源判定：");
-        Debug.Log($"玩家总分:{playerScore} vs AI总分:{aiScore}");
+        Debug.Log("20回合结束，按战力+资源判定。");
+        Debug.Log($"玩家总分:{playerScore}，电脑总分:{aiScore}");
 
         if (playerScore > aiScore)
         {

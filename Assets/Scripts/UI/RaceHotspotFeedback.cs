@@ -4,27 +4,27 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// Lightweight hover and click feedback for race map hotspots.
+/// 种族地图热点的轻量悬停与点击反馈。
 /// </summary>
 public class RaceHotspotFeedback : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
-    [Header("Visuals")]
+    [Header("视觉")]
     public Graphic highlightGraphic;
     public RectTransform animatedTarget;
 
-    [Header("Alpha")]
+    [Header("透明度")]
     [Range(0f, 1f)] public float hiddenAlpha = 0f;
     [Range(0f, 1f)] public float hoverAlpha = 0.28f;
     [Range(0f, 1f)] public float pressedAlpha = 0.45f;
     [Range(0f, 1f)] public float clickAlpha = 0.65f;
 
-    [Header("Scale")]
+    [Header("缩放")]
     public float normalScale = 1f;
     public float hoverScale = 1.015f;
     public float pressedScale = 0.985f;
     public float clickScale = 1.035f;
 
-    [Header("Timing")]
+    [Header("时间")]
     public float fadeDuration = 0.12f;
     public float clickDuration = 0.22f;
 

@@ -134,7 +134,7 @@ public class Player
     // ================== 兵种查询 ==================
 
     /// <summary>
-    /// 据点当前等级下可召唤的兵种索引列表（unitIndex从0开始计）
+    /// 据点当前等级下可召唤的兵种索引列表，索引从 0 开始计。
     /// </summary>
     public int[] GetAvailableUnitIndices()
     {
@@ -146,7 +146,7 @@ public class Player
     }
 
     /// <summary>
-    /// 获取卡组中指定unitIndex兵种的已有数量
+    /// 获取卡组中指定兵种索引的已有数量。
     /// </summary>
     public int GetOwnedCount(int unitIndex)
     {
@@ -175,7 +175,7 @@ public class Player
     }
 
     /// <summary>
-    /// 获取指定兵种对应的卡牌Sprite文件名前缀（用于Resources加载）
+    /// 获取指定兵种对应的卡牌贴图文件名前缀，用于从资源目录加载。
     /// </summary>
     public string GetCardSpritePath(int unitIndex)
     {

@@ -6,6 +6,6 @@ public class ObstacleTile : Tile
 
     public override void OnHeroEnter()
     {
-        Debug.Log("Obstacle blocks movement: " + gridPosition);
+        Debug.Log("障碍物阻挡移动: " + gridPosition);
     }
 }

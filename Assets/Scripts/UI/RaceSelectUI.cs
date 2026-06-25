@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// Race selection screen.
+/// 种族选择界面。
 /// </summary>
 public class RaceSelectUI : MonoBehaviour
 {
@@ -29,25 +29,25 @@ public class RaceSelectUI : MonoBehaviour
         public string storyDescription;
     }
 
-    [Header("Panels")]
+    [Header("面板")]
     public GameObject mapPanel;
     public GameObject detailPanel;
 
-    [Header("Race Options")]
+    [Header("种族选项")]
     public RaceOption[] raceOptions;
 
-    [Header("Detail View")]
+    [Header("详情视图")]
     public Image detailHeroImage;
     public Image heroFrameImage;
     public Image textFrameImage;
     public TMP_Text detailTitleText;
     public TMP_Text detailBodyText;
 
-    [Header("Buttons")]
+    [Header("按钮")]
     public Button backButton;
     public Button confirmButton;
 
-    [Header("Map Feedback")]
+    [Header("地图反馈")]
     public float mapClickTransitionDelay = 0.22f;
 
     private const string MainMenuSceneName = "MainMenuScene";

@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EmptyTile : Tile
 {
     public override void OnHeroEnter()
     {
-        Debug.Log("�յ�");
+        Debug.Log("空地");
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Map query helper for generated grid tiles.
+/// 地图查询辅助组件，保存生成后的格子数组并提供坐标换算。
 /// </summary>
 public class MapManager : MonoBehaviour
 {
