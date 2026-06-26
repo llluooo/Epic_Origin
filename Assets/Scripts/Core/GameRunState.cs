@@ -25,6 +25,8 @@ public class GameRunState
     public Player player;
     public Player aiPlayer;
     public Vector2Int heroGridPos;
+    public Vector2Int aiHeroGridPos;
+    public bool hasAIHeroGridPos;
     public MapState mapState;
 
     public static GameRunState Capture(GameManager gameManager, Hero hero, MapState mapState)
@@ -33,6 +35,16 @@ public class GameRunState
     }
 
     public static GameRunState Capture(GameManager gameManager, Vector2Int heroGridPos, MapState mapState)
+    {
+        Vector2Int aiHeroGridPos = gameManager.aiHero != null
+            ? gameManager.aiHero.currentGridPos
+            : gameManager.aiPlayer != null
+                ? gameManager.aiPlayer.strongholdPos
+                : Vector2Int.zero;
+        return Capture(gameManager, heroGridPos, aiHeroGridPos, mapState);
+    }
+
+    public static GameRunState Capture(GameManager gameManager, Vector2Int heroGridPos, Vector2Int aiHeroGridPos, MapState mapState)
     {
         return new GameRunState
         {
@@ -46,6 +58,8 @@ public class GameRunState
             player = ClonePlayer(gameManager.player),
             aiPlayer = ClonePlayer(gameManager.aiPlayer),
             heroGridPos = heroGridPos,
+            aiHeroGridPos = aiHeroGridPos,
+            hasAIHeroGridPos = true,
             mapState = mapState?.Clone()
         };
     }
@@ -64,6 +78,8 @@ public class GameRunState
             player = ClonePlayer(player),
             aiPlayer = ClonePlayer(aiPlayer),
             heroGridPos = heroGridPos,
+            aiHeroGridPos = aiHeroGridPos,
+            hasAIHeroGridPos = hasAIHeroGridPos,
             mapState = mapState?.Clone()
         };
     }

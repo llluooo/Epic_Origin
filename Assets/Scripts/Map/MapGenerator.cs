@@ -270,7 +270,11 @@ public class MapGenerator : MonoBehaviour
         hero.SetRaceAppearance(playerRace);
 
         RaceType aiRace = GameSession.RunState.aiPlayer != null ? GameSession.RunState.aiPlayer.race : RaceType.Ghost;
-        Vector2Int aiPos = GameSession.RunState.aiPlayer != null ? GameSession.RunState.aiPlayer.strongholdPos : new Vector2Int(width - 1, height - 1);
+        Vector2Int aiPos = GameSession.RunState.hasAIHeroGridPos
+            ? GameSession.RunState.aiHeroGridPos
+            : GameSession.RunState.aiPlayer != null
+                ? GameSession.RunState.aiPlayer.strongholdPos
+                : new Vector2Int(width - 1, height - 1);
         SpawnAIHero(aiPos, aiRace);
     }
 
@@ -294,6 +298,7 @@ public class MapGenerator : MonoBehaviour
 
         aiHeroComponent.SetPosition(startPos, GridToWorld(startPos));
         aiHeroComponent.SetRaceAppearance(race);
+        MatchAIHeroScaleToPlayer(aiHeroObj);
 
         SpriteRenderer sr = aiHeroObj.GetComponent<SpriteRenderer>();
         if (sr != null)
@@ -301,14 +306,45 @@ public class MapGenerator : MonoBehaviour
             sr.sortingOrder = 30;
         }
 
-        aiHeroObj.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-
         if (GameManager.Instance != null)
         {
             GameManager.Instance.aiHero = aiHeroComponent;
         }
 
         Debug.Log($"AI 英雄已生成在格子 {startPos}，种族 {race}");
+    }
+
+    void MatchAIHeroScaleToPlayer(GameObject aiHeroObj)
+    {
+        if (hero == null || aiHeroObj == null)
+        {
+            return;
+        }
+
+        SpriteRenderer playerRenderer = hero.GetComponent<SpriteRenderer>();
+        SpriteRenderer aiRenderer = aiHeroObj.GetComponent<SpriteRenderer>();
+        if (playerRenderer == null || aiRenderer == null)
+        {
+            return;
+        }
+
+        aiHeroObj.transform.localScale = CalculateScaleToMatchRendererSize(
+            aiHeroObj.transform.localScale,
+            new Vector2(aiRenderer.bounds.size.x, aiRenderer.bounds.size.y),
+            new Vector2(playerRenderer.bounds.size.x, playerRenderer.bounds.size.y));
+    }
+
+    public static Vector3 CalculateScaleToMatchRendererSize(Vector3 currentScale, Vector2 currentRendererWorldSize, Vector2 targetRendererWorldSize)
+    {
+        float currentLargestSide = Mathf.Max(currentRendererWorldSize.x, currentRendererWorldSize.y);
+        float targetLargestSide = Mathf.Max(targetRendererWorldSize.x, targetRendererWorldSize.y);
+        if (currentLargestSide <= 0f || targetLargestSide <= 0f)
+        {
+            return currentScale;
+        }
+
+        float scaleRatio = targetLargestSide / currentLargestSide;
+        return new Vector3(currentScale.x * scaleRatio, currentScale.y * scaleRatio, currentScale.z);
     }
 
     static bool IsInsideState(MapState state, Vector2Int pos)

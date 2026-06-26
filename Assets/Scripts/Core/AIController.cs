@@ -33,6 +33,27 @@ public abstract class AIController
     /// </summary>
     public abstract bool ExecuteTurn();
 
+    public bool TryUpgradeStronghold()
+    {
+        if (aiPlayer == null || !aiPlayer.CanUpgrade())
+        {
+            return false;
+        }
+
+        aiPlayer.UpgradeStronghold();
+        return true;
+    }
+
+    public bool TrySummonUnit(int unitIndex)
+    {
+        if (gameManager == null || aiPlayer == null)
+        {
+            return false;
+        }
+
+        return gameManager.SummonUnit(aiPlayer, unitIndex);
+    }
+
     /// <summary>
     /// 获取 AI 当前在地图上的格子位置
     /// </summary>
@@ -169,78 +190,25 @@ public class EasyAI : AIController
             }
         }
 
-        if (aiPlayer.resources.gold < 100)
-        {
-            Debug.Log("[EasyAI] 资源不足，等待");
-            return false;
-        }
-
         if (aiPlayer.strongholdLevel < 3)
         {
-            if (CanUpgradeStronghold())
+            if (TryUpgradeStronghold())
             {
-                UpgradeStronghold();
                 Debug.Log("[EasyAI] 升级据点");
                 gameManager.ShowAILog($"AI 升级据点到 Lv{aiPlayer.strongholdLevel}");
                 return true;
             }
         }
 
-        if (CanSummonUnit())
+        int summonIndex = Mathf.Clamp(aiPlayer.strongholdLevel - 1, 0, 4);
+        if (TrySummonUnit(summonIndex))
         {
-            SummonUnit();
             Debug.Log("[EasyAI] 召唤单位");
             gameManager.ShowAILog("AI 召唤了单位");
             return true;
         }
 
         return false;
-    }
-
-    private bool CanUpgradeStronghold()
-    {
-        int upgradeCost = (int)(80 * Mathf.Pow(aiPlayer.strongholdLevel + 1, 1.5f));
-        return aiPlayer.resources.buildingMaterials >= upgradeCost && aiPlayer.strongholdLevel < 5;
-    }
-
-    private void UpgradeStronghold()
-    {
-        int upgradeCost = (int)(80 * Mathf.Pow(aiPlayer.strongholdLevel + 1, 1.5f));
-        aiPlayer.resources.Subtract(new ResourceData(0, upgradeCost));
-        aiPlayer.strongholdLevel++;
-    }
-
-    private bool CanSummonUnit()
-    {
-        int unitLevel = Mathf.Min(aiPlayer.strongholdLevel, 3);
-        int summonCost = (int)(30 * GetLevelMultiplier(unitLevel));
-        return aiPlayer.resources.gold >= summonCost;
-    }
-
-    private void SummonUnit()
-    {
-        int unitLevel = Mathf.Min(aiPlayer.strongholdLevel, 5);
-        int unitIndex = Mathf.Min(unitLevel - 1, 4);
-        Card card = gameManager.CreateCardForRace(aiPlayer.race, unitIndex, unitLevel);
-        if (card != null)
-        {
-            aiPlayer.deck.AddCard(card);
-            int summonCost = (int)(30 * GetLevelMultiplier(unitLevel));
-            aiPlayer.resources.Subtract(new ResourceData(summonCost, 0));
-        }
-    }
-
-    private float GetLevelMultiplier(int level)
-    {
-        return level switch
-        {
-            1 => 1.0f,
-            2 => 1.5f,
-            3 => 2.5f,
-            4 => 4.0f,
-            5 => 6.5f,
-            _ => 1.0f
-        };
     }
 
     private static void Shuffle(Vector2Int[] arr)
@@ -275,11 +243,8 @@ public class HardAI : AIController
         // 优先升级据点
         if (aiPlayer.strongholdLevel < 5)
         {
-            int upgradeCost = (int)(80 * Mathf.Pow(aiPlayer.strongholdLevel + 1, 1.5f));
-            if (aiPlayer.resources.buildingMaterials >= upgradeCost)
+            if (TryUpgradeStronghold())
             {
-                aiPlayer.resources.Subtract(new ResourceData(0, upgradeCost));
-                aiPlayer.strongholdLevel++;
                 Debug.Log($"[HardAI] 升级据点到等级 {aiPlayer.strongholdLevel}");
                 gameManager.ShowAILog($"AI 升级据点到 Lv{aiPlayer.strongholdLevel}");
                 return true;
@@ -290,15 +255,11 @@ public class HardAI : AIController
         int maxUnitLevel = Mathf.Min(aiPlayer.strongholdLevel, 5);
         for (int level = maxUnitLevel; level >= 1; level--)
         {
-            int summonCost = (int)(30 * GetLevelMultiplier(level));
-            if (aiPlayer.resources.gold >= summonCost && Random.value < 0.7f)
+            if (aiPlayer.CanSummon(level) && Random.value < 0.7f)
             {
                 int unitIndex = Mathf.Min(level - 1, 4);
-                Card card = gameManager.CreateCardForRace(aiPlayer.race, unitIndex, level);
-                if (card != null)
+                if (TrySummonUnit(unitIndex))
                 {
-                    aiPlayer.deck.AddCard(card);
-                    aiPlayer.resources.Subtract(new ResourceData(summonCost, 0));
                     Debug.Log($"[HardAI] 召唤等级 {level} 单位");
                     gameManager.ShowAILog($"AI 召唤了 Lv{level} 单位");
                     return true;
@@ -324,18 +285,5 @@ public class HardAI : AIController
         }
 
         return false;
-    }
-
-    private float GetLevelMultiplier(int level)
-    {
-        return level switch
-        {
-            1 => 1.0f,
-            2 => 1.5f,
-            3 => 2.5f,
-            4 => 4.0f,
-            5 => 6.5f,
-            _ => 1.0f
-        };
     }
 }

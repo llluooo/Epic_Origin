@@ -4,13 +4,31 @@ using UnityEngine;
 
 public static class SaveSystem
 {
-    public const int MaxSaveSlots = 3;
+    public const int MaxManualSaveSlots = 3;
+    public const int MaxSaveSlots = MaxManualSaveSlots;
     private const string NextSlotKey = "SaveSystem_NextSlot";
+    private const string AutoSaveFileName = "autosave.json";
+
+    public static string SaveDirectoryOverride { get; set; }
+
+    private static string SaveDirectory => string.IsNullOrEmpty(SaveDirectoryOverride)
+        ? Application.persistentDataPath
+        : SaveDirectoryOverride;
+
+    public static string GetAutoSaveFilePath()
+    {
+        return Path.Combine(SaveDirectory, AutoSaveFileName);
+    }
+
+    public static string GetManualSaveFilePath(int slot)
+    {
+        slot = Mathf.Clamp(slot, 1, MaxManualSaveSlots);
+        return Path.Combine(SaveDirectory, $"save_slot_{slot}.json");
+    }
 
     public static string GetSaveFilePath(int slot)
     {
-        slot = Mathf.Clamp(slot, 1, MaxSaveSlots);
-        return Path.Combine(Application.persistentDataPath, $"save_slot_{slot}.json");
+        return GetManualSaveFilePath(slot);
     }
 
     /// <summary>
@@ -19,7 +37,7 @@ public static class SaveSystem
     public static int GetNextSaveSlot()
     {
         int nextSlot = PlayerPrefs.GetInt(NextSlotKey, 1);
-        if (nextSlot < 1 || nextSlot > MaxSaveSlots)
+        if (nextSlot < 1 || nextSlot > MaxManualSaveSlots)
         {
             nextSlot = 1;
         }
@@ -34,7 +52,7 @@ public static class SaveSystem
     {
         int nextSlot = GetNextSaveSlot();
         nextSlot++;
-        if (nextSlot > MaxSaveSlots)
+        if (nextSlot > MaxManualSaveSlots)
         {
             nextSlot = 1;
         }
@@ -45,25 +63,51 @@ public static class SaveSystem
 
     public static bool SaveGame(GameRunState runState, int slot)
     {
+        return SaveManualGame(runState, slot);
+    }
+
+    public static bool SaveAutoGame(GameRunState runState)
+    {
+        return SaveGameToPath(runState, GetAutoSaveFilePath(), "自动档");
+    }
+
+    public static bool SaveManualGame(GameRunState runState, int slot)
+    {
         if (runState == null)
         {
             Debug.LogError("保存失败：无效的游戏状态。");
             return false;
         }
 
-        if (slot < 1 || slot > MaxSaveSlots)
+        if (slot < 1 || slot > MaxManualSaveSlots)
         {
             Debug.LogError($"保存失败：存档槽编号无效 ({slot})。");
             return false;
         }
 
+        bool saved = SaveGameToPath(runState, GetManualSaveFilePath(slot), $"存档槽 {slot}");
+        if (saved)
+        {
+            AdvanceNextSlot();
+        }
+
+        return saved;
+    }
+
+    private static bool SaveGameToPath(GameRunState runState, string path, string label)
+    {
+        if (runState == null)
+        {
+            Debug.LogError("保存失败：无效的游戏状态。");
+            return false;
+        }
+
         try
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
             string json = JsonUtility.ToJson(runState, true);
-            string path = GetSaveFilePath(slot);
             File.WriteAllText(path, json);
-            Debug.Log($"游戏已保存到存档槽 {slot}: {path}");
-            AdvanceNextSlot();
+            Debug.Log($"游戏已保存到{label}: {path}");
             return true;
         }
         catch (Exception ex)
@@ -75,13 +119,27 @@ public static class SaveSystem
 
     public static GameRunState LoadGame(int slot)
     {
-        if (slot < 1 || slot > MaxSaveSlots)
+        return LoadManualGame(slot);
+    }
+
+    public static GameRunState LoadAutoGame()
+    {
+        return LoadGameFromPath(GetAutoSaveFilePath(), "自动档");
+    }
+
+    public static GameRunState LoadManualGame(int slot)
+    {
+        if (slot < 1 || slot > MaxManualSaveSlots)
         {
             Debug.LogError($"加载失败：存档槽编号无效 ({slot})。");
             return null;
         }
 
-        string path = GetSaveFilePath(slot);
+        return LoadGameFromPath(GetManualSaveFilePath(slot), $"存档槽 {slot}");
+    }
+
+    private static GameRunState LoadGameFromPath(string path, string label)
+    {
         if (!File.Exists(path))
         {
             Debug.LogWarning($"载入失败：未找到存档文件 {path}");
@@ -98,7 +156,7 @@ public static class SaveSystem
                 return null;
             }
 
-            Debug.Log($"已从存档槽 {slot} 读取游戏状态。");
+            Debug.Log($"已从{label}读取游戏状态。");
             return runState;
         }
         catch (Exception ex)
@@ -110,15 +168,30 @@ public static class SaveSystem
 
     public static bool HasSave(int slot)
     {
-        if (slot < 1 || slot > MaxSaveSlots) return false;
-        return File.Exists(GetSaveFilePath(slot));
+        return HasManualSave(slot);
+    }
+
+    public static bool HasAutoSave()
+    {
+        return File.Exists(GetAutoSaveFilePath());
+    }
+
+    public static bool HasManualSave(int slot)
+    {
+        if (slot < 1 || slot > MaxManualSaveSlots) return false;
+        return File.Exists(GetManualSaveFilePath(slot));
     }
 
     public static bool HasAnySave()
     {
-        for (int i = 1; i <= MaxSaveSlots; i++)
+        if (HasAutoSave())
         {
-            if (HasSave(i)) return true;
+            return true;
+        }
+
+        for (int i = 1; i <= MaxManualSaveSlots; i++)
+        {
+            if (HasManualSave(i)) return true;
         }
 
         return false;
@@ -126,20 +199,34 @@ public static class SaveSystem
 
     public static SaveSlotInfo GetSaveSlotInfo(int slot)
     {
+        return GetManualSaveSlotInfo(slot);
+    }
+
+    public static SaveSlotInfo GetAutoSaveSlotInfo()
+    {
+        return GetSaveSlotInfoFromPath(0, GetAutoSaveFilePath(), "自动档");
+    }
+
+    public static SaveSlotInfo GetManualSaveSlotInfo(int slot)
+    {
+        return GetSaveSlotInfoFromPath(slot, GetManualSaveFilePath(slot), $"槽{slot}");
+    }
+
+    private static SaveSlotInfo GetSaveSlotInfoFromPath(int slot, string path, string emptyLabel)
+    {
         SaveSlotInfo info = new SaveSlotInfo
         {
             slot = slot,
             hasSave = false,
-            displayText = "空",
+            displayText = $"{emptyLabel}: 空",
             lastModified = DateTime.MinValue
         };
 
-        if (!HasSave(slot))
+        if (!File.Exists(path))
         {
             return info;
         }
 
-        string path = GetSaveFilePath(slot);
         try
         {
             string json = File.ReadAllText(path);
@@ -148,16 +235,16 @@ public static class SaveSystem
             info.lastModified = File.GetLastWriteTime(path);
             if (runState != null)
             {
-                info.displayText = $"回合 {runState.currentTurn}  玩家: {runState.player?.playerName ?? "未知"}  英雄: ({runState.heroGridPos.x},{runState.heroGridPos.y})";
+                info.displayText = $"{emptyLabel}: 回合 {runState.currentTurn}  玩家: {runState.player?.playerName ?? "未知"}  英雄: ({runState.heroGridPos.x},{runState.heroGridPos.y})";
             }
             else
             {
-                info.displayText = "存档损坏";
+                info.displayText = $"{emptyLabel}: 存档损坏";
             }
         }
         catch (Exception ex)
         {
-            info.displayText = $"读取失败: {ex.Message}";
+            info.displayText = $"{emptyLabel}: 读取失败: {ex.Message}";
         }
 
         return info;

@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     private BattleEncounterType pendingBattleType = BattleEncounterType.None;
     private AIController aiController;
     public AIHero aiHero;
+    public bool showDeveloperAILog = false;
     private CameraFollow cameraFollow;
 
     private void Awake()
@@ -52,6 +53,16 @@ public class GameManager : MonoBehaviour
         }
 
         StartGame();
+    }
+
+    private void OnEnable()
+    {
+        AIDifficultySelector.DifficultyChanged += OnAIDifficultyChanged;
+    }
+
+    private void OnDisable()
+    {
+        AIDifficultySelector.DifficultyChanged -= OnAIDifficultyChanged;
     }
 
     void StartGame()
@@ -106,6 +117,17 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void OnAIDifficultyChanged(AIDifficulty difficulty)
+    {
+        if (aiPlayer == null || gameEnded)
+        {
+            return;
+        }
+
+        InitializeAIController();
+        ShowAILog($"AI 难度切换为 {difficulty}");
+    }
+
     private void RestoreGameFromSession()
     {
         GameRunState state = GameSession.RunState;
@@ -134,7 +156,8 @@ public class GameManager : MonoBehaviour
             pendingBattleType = result.encounterType;
             ResolveBattleResult(result.encounterType, result.outcome);
             GameSession.ClearPendingBattleAfterResolution();
-            GameSession.UpdateRunState(GameRunState.Capture(this, state.heroGridPos, state.mapState));
+            Vector2Int restoredAIHeroPos = state.hasAIHeroGridPos ? state.aiHeroGridPos : aiPlayer.strongholdPos;
+            GameSession.UpdateRunState(GameRunState.Capture(this, state.heroGridPos, restoredAIHeroPos, state.mapState));
         }
 
         Debug.Log("游戏管理器：已从运行会话恢复主地图运行状态。");
@@ -158,8 +181,7 @@ public class GameManager : MonoBehaviour
         }
 
         GameRunState runState = GameRunState.Capture(this, hero, mapState);
-        int slot = SaveSystem.GetNextSaveSlot();
-        return SaveSystem.SaveGame(runState, slot);
+        return SaveSystem.SaveAutoGame(runState);
     }
 
     void StartPlayerTurn()
@@ -472,8 +494,14 @@ public class GameManager : MonoBehaviour
                 for (int i = 0; i < rewardCount; i++)
                 {
                     Card source = enemyDeck[indices[i]];
-                    Card rewardCard = CreateCard(source.race, source.unitIndex);
+                    if (source == null)
+                    {
+                        continue;
+                    }
+
+                    Card rewardCard = source.Clone();
                     rewardCard.quantity = 1;
+                    rewardCard.currentHP = rewardCard.GetMaxHP();
                     player.deck.AddCard(rewardCard);
                     Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
                 }
@@ -534,16 +562,40 @@ public class GameManager : MonoBehaviour
         List<Card> battleCards = GetPendingBattlePlayerDeck();
         if (battleCards == null || battleCards.Count == 0) return;
 
+        RemoveCardsByBattleSnapshot(player.deck, battleCards);
+    }
+
+    public static void RemoveCardsByBattleSnapshot(Deck deck, List<Card> battleCards)
+    {
+        if (deck == null || battleCards == null)
+        {
+            return;
+        }
+
         foreach (Card battleCard in battleCards)
         {
-            for (int i = player.deck.CardCount - 1; i >= 0; i--)
+            if (battleCard == null)
             {
-                Card deckCard = player.deck[i];
-                if (deckCard.race == battleCard.race && deckCard.unitIndex == battleCard.unitIndex)
+                continue;
+            }
+
+            int remaining = Mathf.Max(1, battleCard.quantity);
+            for (int i = deck.CardCount - 1; i >= 0 && remaining > 0; i--)
+            {
+                Card deckCard = deck[i];
+                if (deckCard.race == battleCard.race
+                    && deckCard.unitIndex == battleCard.unitIndex
+                    && deckCard.level == battleCard.level)
                 {
-                    player.deck.cards.RemoveAt(i);
-                    Debug.Log($"损失参战卡牌：{deckCard.cardName} Lv{deckCard.level}");
-                    break;
+                    int removedQuantity = Mathf.Min(deckCard.quantity, remaining);
+                    deckCard.quantity -= removedQuantity;
+                    remaining -= removedQuantity;
+                    Debug.Log($"损失参战卡牌：{deckCard.cardName} Lv{deckCard.level} x{removedQuantity}");
+
+                    if (deckCard.quantity <= 0)
+                    {
+                        deck.cards.RemoveAt(i);
+                    }
                 }
             }
         }
@@ -685,7 +737,7 @@ public class GameManager : MonoBehaviour
 
     void OnGUI()
     {
-        if (aiLogTimer > 0)
+        if (showDeveloperAILog && aiLogTimer > 0)
         {
             aiLogTimer -= Time.deltaTime;
             GUIStyle logStyle = new GUIStyle(GUI.skin.label)

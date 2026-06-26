@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +9,7 @@ using UnityEngine.SceneManagement;
 public class AIDifficultySelector : MonoBehaviour
 {
     public static AIDifficulty CurrentDifficulty { get; private set; } = AIDifficulty.Easy;
+    public static event Action<AIDifficulty> DifficultyChanged;
 
     private bool showMenu = false;
     private GUIStyle titleStyle;
@@ -82,10 +84,16 @@ public class AIDifficultySelector : MonoBehaviour
         GUILayout.EndArea();
     }
 
-    private void SetDifficulty(AIDifficulty difficulty)
+    public static void SetDifficulty(AIDifficulty difficulty)
     {
+        if (CurrentDifficulty == difficulty)
+        {
+            return;
+        }
+
         CurrentDifficulty = difficulty;
         Debug.Log($"AI 难度已切换为: {difficulty}");
+        DifficultyChanged?.Invoke(difficulty);
     }
 
     private void InitializeStyles()

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
+using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -10,10 +12,11 @@ public class RuntimeStateTests
     public void TearDown()
     {
         GameSession.ResetForTests();
+        GameManager.Instance = null;
 
         foreach (GameObject createdObject in createdObjects)
         {
-            Object.DestroyImmediate(createdObject);
+            UnityEngine.Object.DestroyImmediate(createdObject);
         }
 
         createdObjects.Clear();
@@ -111,6 +114,125 @@ public class RuntimeStateTests
         Assert.AreNotSame(battleState.playerDeck[0], GameSession.PendingBattle.playerDeck[0]);
     }
 
+    [Test]
+    public void GameRunState_capture_and_clone_preserve_ai_hero_position()
+    {
+        GameObject managerObject = new GameObject("GameManager");
+        createdObjects.Add(managerObject);
+        GameManager gameManager = managerObject.AddComponent<GameManager>();
+        gameManager.player = CreatePlayer("Player", RaceType.Human, new Vector2Int(0, 0));
+        gameManager.aiPlayer = CreatePlayer("AI", RaceType.Ghost, new Vector2Int(9, 9));
+
+        GameObject heroObject = new GameObject("Hero");
+        createdObjects.Add(heroObject);
+        Hero hero = heroObject.AddComponent<Hero>();
+        hero.currentGridPos = new Vector2Int(2, 3);
+
+        GameObject aiHeroObject = new GameObject("AIHero");
+        createdObjects.Add(aiHeroObject);
+        AIHero aiHero = aiHeroObject.AddComponent<AIHero>();
+        aiHero.currentGridPos = new Vector2Int(6, 7);
+        gameManager.aiHero = aiHero;
+
+        GameRunState state = GameRunState.Capture(gameManager, hero, new MapState());
+        GameRunState clone = state.Clone();
+
+        Assert.AreEqual(new Vector2Int(2, 3), state.heroGridPos);
+        Assert.AreEqual(new Vector2Int(6, 7), state.aiHeroGridPos);
+        Assert.AreEqual(new Vector2Int(6, 7), clone.aiHeroGridPos);
+    }
+
+    [Test]
+    public void SaveSystem_keeps_auto_save_separate_from_manual_slots()
+    {
+        string saveDirectory = Path.Combine(Path.GetTempPath(), $"EpicOriginSaveSystemTests_{Guid.NewGuid():N}");
+        SaveSystem.SaveDirectoryOverride = saveDirectory;
+        try
+        {
+            GameRunState manualState = new GameRunState { currentTurn = 3 };
+            GameRunState autoState = new GameRunState { currentTurn = 9 };
+
+            Assert.IsTrue(SaveSystem.SaveManualGame(manualState, 1));
+            Assert.IsTrue(SaveSystem.SaveAutoGame(autoState));
+
+            Assert.IsTrue(File.Exists(SaveSystem.GetManualSaveFilePath(1)));
+            Assert.IsTrue(File.Exists(SaveSystem.GetAutoSaveFilePath()));
+            Assert.AreNotEqual(SaveSystem.GetManualSaveFilePath(1), SaveSystem.GetAutoSaveFilePath());
+            Assert.AreEqual(3, SaveSystem.LoadManualGame(1).currentTurn);
+            Assert.AreEqual(9, SaveSystem.LoadAutoGame().currentTurn);
+        }
+        finally
+        {
+            SaveSystem.SaveDirectoryOverride = null;
+            if (Directory.Exists(saveDirectory))
+            {
+                Directory.Delete(saveDirectory, true);
+            }
+        }
+    }
+
+    [Test]
+    public void AIController_actions_use_player_cost_rules()
+    {
+        GameObject managerObject = new GameObject("GameManager");
+        createdObjects.Add(managerObject);
+        GameManager gameManager = managerObject.AddComponent<GameManager>();
+        Player aiPlayer = CreatePlayer("AI", RaceType.Heaven, new Vector2Int(9, 9));
+        aiPlayer.resources = new ResourceData(65, 130);
+        gameManager.aiPlayer = aiPlayer;
+
+        EasyAI easyAI = new EasyAI(gameManager, aiPlayer);
+
+        Assert.IsTrue(easyAI.TryUpgradeStronghold());
+        Assert.AreEqual(2, aiPlayer.strongholdLevel);
+        Assert.AreEqual(0, aiPlayer.resources.gold);
+        Assert.AreEqual(0, aiPlayer.resources.buildingMaterials);
+
+        aiPlayer.resources = new ResourceData(78, 39);
+        Assert.IsTrue(easyAI.TrySummonUnit(1));
+        Assert.AreEqual(0, aiPlayer.resources.gold);
+        Assert.AreEqual(0, aiPlayer.resources.buildingMaterials);
+        Assert.AreEqual(1, aiPlayer.deck.CardCount);
+        Assert.AreEqual(1, aiPlayer.deck[0].unitIndex);
+    }
+
+    [Test]
+    public void RemoveCardsBySnapshot_matches_level_and_quantity()
+    {
+        Player player = CreatePlayer("Player", RaceType.Human, new Vector2Int(0, 0));
+        Card levelOne = HumanUnit.CreateCard(0);
+        levelOne.quantity = 3;
+        Card sameUnitDifferentLevel = HumanUnit.CreateCard(0);
+        sameUnitDifferentLevel.level = 2;
+        sameUnitDifferentLevel.quantity = 5;
+        Card levelTwoSnapshot = HumanUnit.CreateCard(0);
+        levelTwoSnapshot.level = 2;
+        levelTwoSnapshot.quantity = 2;
+
+        player.deck.AddCard(levelOne);
+        player.deck.AddCard(sameUnitDifferentLevel);
+
+        GameManager.RemoveCardsByBattleSnapshot(player.deck, new List<Card> { levelTwoSnapshot });
+
+        Assert.AreEqual(2, player.deck.CardCount);
+        Assert.AreEqual(3, player.deck[0].quantity);
+        Assert.AreEqual(3, player.deck[1].quantity);
+        Assert.AreEqual(2, player.deck[1].level);
+    }
+
+    [Test]
+    public void CalculateScaleToMatchRendererSize_preserves_aspect_and_matches_largest_side()
+    {
+        Vector3 scale = MapGenerator.CalculateScaleToMatchRendererSize(
+            new Vector3(0.5f, 0.5f, 0.5f),
+            new Vector2(2f, 4f),
+            new Vector2(1f, 1f));
+
+        Assert.AreEqual(0.125f, scale.x);
+        Assert.AreEqual(0.125f, scale.y);
+        Assert.AreEqual(0.5f, scale.z);
+    }
+
     private T CreateTile<T>(int x, int y) where T : Tile
     {
         GameObject tileObject = new GameObject(typeof(T).Name);
@@ -118,5 +240,18 @@ public class RuntimeStateTests
         T tile = tileObject.AddComponent<T>();
         tile.gridPosition = new Vector2Int(x, y);
         return tile;
+    }
+
+    private static Player CreatePlayer(string playerName, RaceType race, Vector2Int strongholdPos)
+    {
+        return new Player
+        {
+            playerName = playerName,
+            race = race,
+            resources = new ResourceData(100, 100),
+            strongholdLevel = 1,
+            strongholdPos = strongholdPos,
+            deck = new Deck()
+        };
     }
 }
