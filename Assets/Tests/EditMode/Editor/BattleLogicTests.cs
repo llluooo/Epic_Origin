@@ -4,14 +4,13 @@ using NUnit.Framework;
 public class BattleLogicTests
 {
     [Test]
-    public void BattleCalculator_applies_race_modifier_to_attack_and_counter_damage()
+    public void BattleCalculator_applies_race_modifier_to_attack_damage()
     {
         BattleCard human = new BattleCard(HumanUnit.CreateCard(0), 2);
         BattleCard heaven = new BattleCard(HeavenUnit.CreateCard(0), 2);
 
         Assert.AreEqual(1.2f, BattleCalculator.GetRaceModifier(RaceType.Human, RaceType.Heaven));
         Assert.AreEqual(9, BattleCalculator.CalculateAttackDamage(human, heaven));
-        Assert.AreEqual(4, BattleCalculator.CalculateCounterDamage(heaven, human));
     }
 
     [Test]
@@ -40,6 +39,26 @@ public class BattleLogicTests
 
         Assert.IsTrue(manager.IsBattleOver());
         Assert.AreEqual(BattleOutcome.PlayerSurrender, manager.outcome);
+    }
+
+    [Test]
+    public void BattleManager_keeps_up_to_six_distinct_battle_cards()
+    {
+        BattleManager manager = new BattleManager();
+        List<Card> playerDeck = new List<Card>
+        {
+            CreateCard(RaceType.Human, 0, 1),
+            CreateCard(RaceType.Human, 1, 1),
+            CreateCard(RaceType.Human, 2, 1),
+            CreateCard(RaceType.Human, 3, 1),
+            CreateCard(RaceType.Human, 4, 1),
+            CreateCard(RaceType.Heaven, 0, 1),
+            CreateCard(RaceType.Heaven, 1, 1),
+        };
+
+        manager.Initialize(playerDeck, new List<Card> { CreateCard(RaceType.Ghost, 0, 1) });
+
+        Assert.AreEqual(6, manager.playerCards.Count);
     }
 
     [Test]

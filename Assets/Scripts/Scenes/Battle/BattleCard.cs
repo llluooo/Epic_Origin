@@ -10,7 +10,6 @@ public class BattleCard
     public int initialCount;
     public int currentHP;
     public int initialHP;
-    public bool hasActed;
 
     public BattleCard(Card source, int count = 1)
     {
@@ -19,7 +18,6 @@ public class BattleCard
         currentCount = initialCount;
         initialHP = card.GetMaxHP() * initialCount;
         currentHP = initialHP;
-        hasActed = false;
     }
 
     public bool IsAlive()
@@ -27,24 +25,9 @@ public class BattleCard
         return currentCount > 0;
     }
 
-    public void ResetRound()
-    {
-        hasActed = false;
-    }
-
     public int GetTotalAttack()
     {
         return card.GetAttack() * currentCount;
-    }
-
-    public int GetTotalHP()
-    {
-        return currentHP;
-    }
-
-    public int GetMaxTotalHP()
-    {
-        return initialHP;
     }
 
     public void AddUnits(int count)
@@ -61,7 +44,9 @@ public class BattleCard
     public int TakeDamage(int damage)
     {
         if (damage <= 0 || !IsAlive())
+        {
             return 0;
+        }
 
         int oldCount = currentCount;
         int singleHP = Math.Max(1, card.GetMaxHP());

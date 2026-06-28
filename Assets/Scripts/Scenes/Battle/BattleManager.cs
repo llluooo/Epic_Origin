@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 战斗主循环管理器，仅负责逻辑运算和流程控制。
+/// 战斗主循环管理器，只负责逻辑运算和流程控制。
 /// </summary>
 public class BattleManager
 {
+    public const int MaxBattleCardTypes = 6;
+
     public List<BattleCard> playerCards = new List<BattleCard>();
     public List<BattleCard> enemyCards = new List<BattleCard>();
     public int currentRound;
@@ -34,66 +36,9 @@ public class BattleManager
         CheckBattleEnd();
     }
 
-    public void ResetRoundStates()
-    {
-        foreach (BattleCard card in playerCards)
-        {
-            card.ResetRound();
-        }
-
-        foreach (BattleCard card in enemyCards)
-        {
-            card.ResetRound();
-        }
-    }
-
     public bool IsBattleOver()
     {
         return battleEnded;
-    }
-
-    public List<int> GetAlivePlayerIndices()
-    {
-        return GetAliveIndices(playerCards);
-    }
-
-    public List<int> GetAliveEnemyIndices()
-    {
-        return GetAliveIndices(enemyCards);
-    }
-
-    public string GetBattleStatus()
-    {
-        return $"回合{currentRound}，当前攻方：{(isPlayerAttacking ? "玩家" : "敌方")}";
-    }
-
-    public BattleState GetBattleState()
-    {
-        var state = new BattleState
-        {
-            currentRound = currentRound,
-            isPlayerAttacking = isPlayerAttacking
-        };
-
-        state.playerCardStates.Clear();
-        state.enemyCardStates.Clear();
-
-        foreach (BattleCard card in playerCards)
-        {
-            state.playerCardStates.Add(card == null ? "空" : card.ToString());
-        }
-
-        foreach (BattleCard card in enemyCards)
-        {
-            state.enemyCardStates.Add(card == null ? "空" : card.ToString());
-        }
-
-        return state;
-    }
-
-    public string GetDetailedStatus()
-    {
-        return GetBattleState().ToString();
     }
 
     public void ExecuteRound(int attackerIndex, int defenderIndex)
@@ -110,14 +55,12 @@ public class BattleManager
 
         if (!IsValidSelection(attackerList, attackerIndex) || !IsValidSelection(defenderList, defenderIndex))
         {
-            Debug.LogWarning("无效的出牌选择，回合跳过。");
+            Debug.LogWarning("无效的出牌选择，回合未执行。");
             return;
         }
 
         BattleCard attacker = attackerList[attackerIndex];
         BattleCard defender = defenderList[defenderIndex];
-
-        attacker.hasActed = true;
 
         float attackModifier = BattleCalculator.GetRaceModifier(attacker.card.race, defender.card.race);
         int attackDamage = BattleCalculator.CalculateAttackDamage(attacker, defender);
@@ -126,8 +69,8 @@ public class BattleManager
         int defenderCountBefore = defender.currentCount;
         defender.TakeDamage(attackDamage);
 
-        Debug.Log($"[{GetBattleStatus()}] {attackerName} {attacker.card.cardName} 出牌，{defenderName} {defender.card.cardName} 应战。");
-        Debug.Log($"伤害：主动 {attacker.GetTotalAttack()}x{attackModifier:0.0#}={attackDamage}。");
+        Debug.Log($"[回合{currentRound} 当前攻方:{attackerName}] {attackerName} {attacker.card.cardName} 出牌，{defenderName} {defender.card.cardName} 应战。");
+        Debug.Log($"伤害：{attacker.GetTotalAttack()}x{attackModifier:0.0#}={attackDamage}。");
         Debug.Log($"结果：{defender.card.cardName} 生命 {defenderHPBefore}->{defender.currentHP} 数量 {defenderCountBefore}->{defender.currentCount}。");
 
         if (!defender.IsAlive())
@@ -141,7 +84,6 @@ public class BattleManager
         {
             isPlayerAttacking = !isPlayerAttacking;
             currentRound++;
-            ResetRoundStates();
         }
     }
 
@@ -160,7 +102,11 @@ public class BattleManager
 
     private bool IsValidSelection(List<BattleCard> list, int index)
     {
-        return index >= 0 && index < list.Count && list[index] != null && list[index].IsAlive();
+        return list != null &&
+               index >= 0 &&
+               index < list.Count &&
+               list[index] != null &&
+               list[index].IsAlive();
     }
 
     private void BuildBattleCards(List<Card> sourceDeck, List<BattleCard> target)
@@ -186,7 +132,7 @@ public class BattleManager
             {
                 battleCard.AddUnits(quantity);
             }
-            else if (target.Count < 5)
+            else if (target.Count < MaxBattleCardTypes)
             {
                 battleCard = new BattleCard(card, quantity);
                 cardsByKey.Add(key, battleCard);
@@ -195,24 +141,10 @@ public class BattleManager
         }
     }
 
-    private List<int> GetAliveIndices(List<BattleCard> list)
-    {
-        var alive = new List<int>();
-        for (int i = 0; i < list.Count; i++)
-        {
-            if (list[i].IsAlive())
-            {
-                alive.Add(i);
-            }
-        }
-
-        return alive;
-    }
-
     private void CheckBattleEnd()
     {
-        bool playerAlive = playerCards.Exists(card => card.IsAlive());
-        bool enemyAlive = enemyCards.Exists(card => card.IsAlive());
+        bool playerAlive = playerCards.Exists(card => card != null && card.IsAlive());
+        bool enemyAlive = enemyCards.Exists(card => card != null && card.IsAlive());
 
         if (playerAlive && enemyAlive)
         {
