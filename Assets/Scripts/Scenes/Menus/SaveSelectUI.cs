@@ -1,41 +1,59 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// 存档槽选择场景逻辑，支持三个独立存档槽。
+/// 存档选择界面，使用卡牌式槽位视图，与战斗场景暗金风格统一。
+/// 支持自动存档 + 3个手动存档槽，入场动画，悬停/选中反馈。
 /// </summary>
 public class SaveSelectUI : MonoBehaviour
 {
-    public Button autoSaveButton;
-    public TMP_Text autoSaveLabel;
-    public Button[] slotButtons = new Button[SaveSystem.MaxManualSaveSlots];
-    public TMP_Text[] slotLabels = new TMP_Text[SaveSystem.MaxManualSaveSlots];
+    [Header("面板")]
+    public Image panelBackground;
+    public CanvasGroup panelCanvasGroup;
+
+    [Header("标题")]
+    public TMP_Text titleText;
+
+    [Header("存档槽位视图")]
+    public SaveSlotView autoSaveSlotView;
+    public SaveSlotView[] manualSlotViews = new SaveSlotView[SaveSystem.MaxManualSaveSlots];
+
+    [Header("底部按钮")]
     public Button backButton;
+    public TMP_Text backButtonText;
+
+    [Header("消息")]
+    public TMP_Text messageText;
+
+    [Header("动画")]
+    public float panelFadeInDuration = 0.25f;
+
+    private int selectedSlotIndex = -1;
+    private bool selectedIsAuto = false;
 
     private void Awake()
     {
-        EnsureAutoSaveControls();
+        if (panelCanvasGroup == null)
+            panelCanvasGroup = GetComponent<CanvasGroup>();
+        if (panelCanvasGroup == null)
+            panelCanvasGroup = gameObject.AddComponent<CanvasGroup>();
 
-        if (slotButtons.Length != SaveSystem.MaxManualSaveSlots || slotLabels.Length != SaveSystem.MaxManualSaveSlots)
+        if (autoSaveSlotView != null)
         {
-            Debug.LogWarning($"SaveSelectUI: 需要 {SaveSystem.MaxManualSaveSlots} 个手动存档槽按钮和文本。当前配置可能不完整。");
+            autoSaveSlotView.Setup(0, true);
+            autoSaveSlotView.onSlotClicked = OnSlotClicked;
         }
 
-        if (autoSaveButton != null)
+        for (int i = 0; i < manualSlotViews.Length; i++)
         {
-            autoSaveButton.onClick.RemoveAllListeners();
-            autoSaveButton.onClick.AddListener(OnAutoSaveButton);
-        }
-
-        for (int i = 0; i < slotButtons.Length; i++)
-        {
-            int slot = i + 1;
-            if (slotButtons[i] != null)
+            if (manualSlotViews[i] != null)
             {
-                slotButtons[i].onClick.RemoveAllListeners();
-                slotButtons[i].onClick.AddListener(() => OnSlotButton(slot));
+                int slot = i + 1;
+                manualSlotViews[i].Setup(slot, false);
+                manualSlotViews[i].onSlotClicked = OnSlotClicked;
             }
         }
 
@@ -44,55 +62,75 @@ public class SaveSelectUI : MonoBehaviour
             backButton.onClick.RemoveAllListeners();
             backButton.onClick.AddListener(OnBackButton);
         }
+
+        ApplyTheme();
     }
 
     private void Start()
     {
-        RefreshSlotInfo();
+        RefreshAllSlots();
+        StartCoroutine(PlayPanelEnterAnimation());
     }
 
-    public void RefreshSlotInfo()
+    void Update()
     {
-        SaveSlotInfo autoInfo = SaveSystem.GetAutoSaveSlotInfo();
-        if (autoSaveLabel != null)
+        if (Input.GetKeyDown(KeyCode.Escape))
+            OnBackButton();
+    }
+
+    void ApplyTheme()
+    {
+        if (panelBackground != null)
+            panelBackground.color = UITheme.PanelBgDark;
+
+        if (titleText != null)
         {
-            autoSaveLabel.text = autoInfo.hasSave
-                ? $"{autoInfo.displayText}\n{autoInfo.lastModified:yyyy-MM-dd HH:mm:ss}"
-                : autoInfo.displayText;
+            titleText.color = UITheme.DarkGoldBright;
+            titleText.text = "选择存档";
         }
 
-        if (autoSaveButton != null)
+        if (backButtonText != null)
+            backButtonText.color = UITheme.TextPrimary;
+
+        if (messageText != null)
+            messageText.color = UITheme.TextSecondary;
+    }
+
+    void RefreshAllSlots()
+    {
+        if (autoSaveSlotView != null)
         {
-            autoSaveButton.interactable = autoInfo.hasSave;
+            SaveSlotInfo autoInfo = SaveSystem.GetAutoSaveSlotInfo();
+            autoSaveSlotView.Refresh(autoInfo);
+            autoSaveSlotView.SetInteractable(autoInfo.hasSave);
         }
 
-        for (int i = 0; i < SaveSystem.MaxManualSaveSlots; i++)
+        for (int i = 0; i < manualSlotViews.Length; i++)
         {
+            if (manualSlotViews[i] == null) continue;
+
             int slot = i + 1;
             SaveSlotInfo info = SaveSystem.GetManualSaveSlotInfo(slot);
-            string label = info.hasSave
-                ? $"{info.displayText}\n{info.lastModified:yyyy-MM-dd HH:mm:ss}"
-                : info.displayText;
-
-            if (slotLabels != null && i < slotLabels.Length && slotLabels[i] != null)
-            {
-                slotLabels[i].text = label;
-            }
-
-            if (slotButtons != null && i < slotButtons.Length && slotButtons[i] != null)
-            {
-                slotButtons[i].interactable = info.hasSave;
-            }
+            manualSlotViews[i].Refresh(info);
+            manualSlotViews[i].SetInteractable(info.hasSave);
         }
     }
 
-    public void OnSlotButton(int slot)
+    void OnSlotClicked(int slotIndex, bool isAuto)
     {
-        GameRunState loadedState = SaveSystem.LoadManualGame(slot);
+        selectedSlotIndex = slotIndex;
+        selectedIsAuto = isAuto;
+
+        UpdateSelectionHighlight();
+
+        GameRunState loadedState = isAuto
+            ? SaveSystem.LoadAutoGame()
+            : SaveSystem.LoadManualGame(slotIndex);
+
         if (loadedState == null)
         {
-            Debug.LogWarning($"存档槽 {slot} 无法加载。请检查存档是否存在或存档文件是否损坏。");
-            RefreshSlotInfo();
+            ShowMessage(isAuto ? "自动档加载失败" : $"存档槽 {slotIndex} 加载失败");
+            RefreshAllSlots();
             return;
         }
 
@@ -101,44 +139,60 @@ public class SaveSelectUI : MonoBehaviour
         SceneManager.LoadScene("MainScene");
     }
 
-    public void OnAutoSaveButton()
+    void UpdateSelectionHighlight()
     {
-        GameRunState loadedState = SaveSystem.LoadAutoGame();
-        if (loadedState == null)
-        {
-            Debug.LogWarning("自动档无法加载。请检查存档是否存在或存档文件是否损坏。");
-            RefreshSlotInfo();
-            return;
-        }
+        if (autoSaveSlotView != null)
+            autoSaveSlotView.SetSelected(selectedIsAuto);
 
-        GameSession.UpdateRunState(loadedState);
-        GameSetupData.IsNewGame = false;
-        SceneManager.LoadScene("MainScene");
+        for (int i = 0; i < manualSlotViews.Length; i++)
+        {
+            if (manualSlotViews[i] == null) continue;
+            int slot = i + 1;
+            manualSlotViews[i].SetSelected(!selectedIsAuto && slot == selectedSlotIndex);
+        }
     }
 
-    public void OnBackButton()
+    void OnBackButton()
     {
         SceneManager.LoadScene("MainMenuScene");
     }
 
-    private void EnsureAutoSaveControls()
+    void ShowMessage(string msg)
     {
-        if (autoSaveButton != null || slotButtons == null || slotButtons.Length == 0 || slotButtons[0] == null)
+        if (messageText != null)
         {
-            return;
+            messageText.text = msg;
+            messageText.color = UITheme.AccentRed;
+        }
+    }
+
+    IEnumerator PlayPanelEnterAnimation()
+    {
+        if (panelCanvasGroup != null)
+            panelCanvasGroup.alpha = 0f;
+
+        float elapsed = 0f;
+        while (elapsed < panelFadeInDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / panelFadeInDuration));
+            if (panelCanvasGroup != null)
+                panelCanvasGroup.alpha = t;
+            yield return null;
         }
 
-        autoSaveButton = Instantiate(slotButtons[0], slotButtons[0].transform.parent);
-        autoSaveButton.name = "AutoSaveButton";
-        autoSaveButton.transform.SetSiblingIndex(slotButtons[0].transform.GetSiblingIndex());
+        if (panelCanvasGroup != null)
+            panelCanvasGroup.alpha = 1f;
 
-        RectTransform sourceRect = slotButtons[0].GetComponent<RectTransform>();
-        RectTransform autoRect = autoSaveButton.GetComponent<RectTransform>();
-        if (sourceRect != null && autoRect != null)
+        float staggerDelay = UITheme.SlotEnterStaggerDelay;
+
+        if (autoSaveSlotView != null)
+            autoSaveSlotView.PlayEnterAnimation(0f);
+
+        for (int i = 0; i < manualSlotViews.Length; i++)
         {
-            autoRect.anchoredPosition = sourceRect.anchoredPosition + new Vector2(0f, 70f);
+            if (manualSlotViews[i] != null)
+                manualSlotViews[i].PlayEnterAnimation(staggerDelay * (i + 1));
         }
-
-        autoSaveLabel = autoSaveButton.GetComponentInChildren<TMP_Text>();
     }
 }

@@ -184,6 +184,32 @@ public class GameManager : MonoBehaviour
         return SaveSystem.SaveAutoGame(runState);
     }
 
+    public bool SaveToManualSlot(int slot)
+    {
+        Hero hero = FindObjectOfType<Hero>();
+        MapGenerator mapGenerator = FindObjectOfType<MapGenerator>();
+        if (hero == null || mapGenerator == null)
+        {
+            Debug.LogError("无法保存存档：缺少英雄或地图生成器。");
+            return false;
+        }
+
+        MapState mapState = mapGenerator.CaptureMapState();
+        if (mapState == null)
+        {
+            Debug.LogError("无法保存存档：地图状态捕获失败。");
+            return false;
+        }
+
+        GameRunState runState = GameRunState.Capture(this, hero, mapState);
+        return SaveSystem.SaveManualGame(runState, slot);
+    }
+
+    public int GetNextManualSaveSlot()
+    {
+        return SaveSystem.GetNextSaveSlot();
+    }
+
     void StartPlayerTurn()
     {
         if (gameEnded)

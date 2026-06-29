@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
@@ -10,6 +11,21 @@ public class UIManager : MonoBehaviour
     public TMP_Text turnText;
     public TMP_Text stateText;
     public TMP_Text resourceText;
+
+    [Header("存档按钮")]
+    public Button saveButton;
+
+    [Header("存档面板")]
+    public SaveGameUI saveGameUI;
+
+    void Start()
+    {
+        if (saveButton != null)
+        {
+            saveButton.onClick.RemoveAllListeners();
+            saveButton.onClick.AddListener(OnSaveButton);
+        }
+    }
 
     void Update()
     {
@@ -46,6 +62,12 @@ public class UIManager : MonoBehaviour
             Player p = gm.player;
             resourceText.text = $"金币:{p.resources.gold}  建材:{p.resources.buildingMaterials}  据点Lv{p.strongholdLevel}";
         }
+
+        // 存档按钮仅在玩家回合可用
+        if (saveButton != null)
+        {
+            saveButton.interactable = gm.isPlayerTurn && !gm.IsGameEnded;
+        }
     }
 
     /// <summary>
@@ -54,5 +76,13 @@ public class UIManager : MonoBehaviour
     public void OnEndTurnButton()
     {
         GameManager.Instance.EndPlayerTurn();
+    }
+
+    void OnSaveButton()
+    {
+        if (saveGameUI != null)
+        {
+            saveGameUI.Open();
+        }
     }
 }
