@@ -67,6 +67,8 @@ public class SaveGameUI : MonoBehaviour
     {
         if (panel != null)
             panel.SetActive(false);
+        if (messageText != null)
+            messageText.gameObject.SetActive(false);
     }
 
     void Update()
@@ -77,7 +79,10 @@ public class SaveGameUI : MonoBehaviour
         {
             messageTimer -= Time.deltaTime;
             if (messageTimer <= 0 && messageText != null)
+            {
                 messageText.text = "";
+                messageText.gameObject.SetActive(false);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -161,6 +166,7 @@ public class SaveGameUI : MonoBehaviour
         {
             messageText.text = msg;
             messageText.color = UITheme.AccentGreen;
+            messageText.gameObject.SetActive(!string.IsNullOrEmpty(msg));
         }
         messageTimer = 3f;
     }

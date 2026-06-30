@@ -69,6 +69,8 @@ public class SaveSelectUI : MonoBehaviour
     private void Start()
     {
         RefreshAllSlots();
+        if (messageText != null)
+            messageText.gameObject.SetActive(false);
         StartCoroutine(PlayPanelEnterAnimation());
     }
 
@@ -163,6 +165,7 @@ public class SaveSelectUI : MonoBehaviour
         {
             messageText.text = msg;
             messageText.color = UITheme.AccentRed;
+            messageText.gameObject.SetActive(!string.IsNullOrEmpty(msg));
         }
     }
 
