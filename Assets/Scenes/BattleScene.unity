@@ -1438,7 +1438,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   battleUI: {fileID: 0}
   playerStarts: 1
-  cardTypeCount: 5
+  cardTypeCount: 6
   minUnitsPerCard: 3
   maxUnitsPerCard: 8
   battleCameraDepth: 50
