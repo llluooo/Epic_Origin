@@ -9,7 +9,7 @@ public class BattleSceneInitializer : MonoBehaviour
 {
     public BattleUI battleUI;
     public bool playerStarts = true;
-    public int cardTypeCount = 5;
+    public int cardTypeCount = 6;
     public int minUnitsPerCard = 3;
     public int maxUnitsPerCard = 8;
     public float battleCameraDepth = 50f;
@@ -115,7 +115,7 @@ public class BattleSceneInitializer : MonoBehaviour
 
     private List<Card> CreateRandomTestDeck(string ownerName)
     {
-        int count = Mathf.Clamp(cardTypeCount, 1, 5);
+        int count = Mathf.Clamp(cardTypeCount, 1, 6);
         var deck = new List<Card>();
         var usedKeys = new HashSet<string>();
 
