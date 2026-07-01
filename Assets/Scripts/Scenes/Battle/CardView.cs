@@ -28,6 +28,8 @@ public class CardView : MonoBehaviour
     public float flipDuration = 0.5f;
 
     private Vector3 originalLocalPosition;
+    private Vector3 originalLocalScale;
+    private Quaternion originalLocalRotation;
     private Coroutine floatCoroutine;
     private Coroutine flipCoroutine;
     private Coroutine moveCoroutine;
@@ -38,10 +40,22 @@ public class CardView : MonoBehaviour
     private bool isFlipping;
 
     public Vector3 OriginalLocalPosition => originalLocalPosition;
+    public Vector3 OriginalLocalScale => originalLocalScale;
+    public Quaternion OriginalLocalRotation => originalLocalRotation;
+
+    /// <summary>
+    /// 更新卡牌"家"位置（居中汇集后调用）
+    /// </summary>
+    public void UpdateOriginalPosition(Vector3 newPosition)
+    {
+        originalLocalPosition = newPosition;
+    }
 
     private void Awake()
     {
         originalLocalPosition = transform.localPosition;
+        originalLocalScale = transform.localScale;
+        originalLocalRotation = transform.localRotation;
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null)
         {
@@ -236,6 +250,66 @@ public class CardView : MonoBehaviour
         {
             transform.position = targetPos;
         }
+    }
+
+    /// <summary>
+    /// 平滑移动到目标世界坐标，同时插值缩放和旋转（用于出击动画）
+    /// </summary>
+    public IEnumerator MoveWithScaleAndRotation(Vector3 targetWorldPos, Vector3 targetLocalScale, Quaternion targetLocalRotation, float duration)
+    {
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+        }
+
+        Vector3 startPos = transform.position;
+        Vector3 startScale = transform.localScale;
+        Quaternion startRotation = transform.localRotation;
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            transform.position = Vector3.Lerp(startPos, targetWorldPos, t);
+            transform.localScale = Vector3.Lerp(startScale, targetLocalScale, t);
+            transform.localRotation = Quaternion.Slerp(startRotation, targetLocalRotation, t);
+            yield return null;
+        }
+        transform.position = targetWorldPos;
+        transform.localScale = targetLocalScale;
+        transform.localRotation = targetLocalRotation;
+        moveCoroutine = null;
+    }
+
+    /// <summary>
+    /// 平滑移动到目标本地坐标，同时插值缩放和旋转（用于返回卡槽动画）
+    /// </summary>
+    public IEnumerator MoveLocalWithScaleAndRotation(Vector3 targetLocalPos, Vector3 targetLocalScale, Quaternion targetLocalRotation, float duration)
+    {
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+        }
+
+        Vector3 startPos = transform.localPosition;
+        Vector3 startScale = transform.localScale;
+        Quaternion startRotation = transform.localRotation;
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            transform.localPosition = Vector3.Lerp(startPos, targetLocalPos, t);
+            transform.localScale = Vector3.Lerp(startScale, targetLocalScale, t);
+            transform.localRotation = Quaternion.Slerp(startRotation, targetLocalRotation, t);
+            yield return null;
+        }
+        transform.localPosition = targetLocalPos;
+        transform.localScale = targetLocalScale;
+        transform.localRotation = targetLocalRotation;
+        moveCoroutine = null;
     }
 
     private IEnumerator MoveRoutine(Vector3 target, float duration)

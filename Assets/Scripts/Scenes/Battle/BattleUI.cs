@@ -26,6 +26,7 @@ public class BattleUI : MonoBehaviour
     public float resetStayDuration = 1f;
     public float resetFadeDuration = 0.5f;
     public float resetMoveDuration = 0.35f;
+    public float recenterDuration = 0.35f;
 
     [Header("动画锚点")]
     public Transform playerPlaceAnchor;
@@ -36,10 +37,17 @@ public class BattleUI : MonoBehaviour
     private bool resultSubmitted;
     private bool isAnimating;
 
+    // 居中汇集布局缓存（基于场景初始位置计算，不变）
+    private float playerSpacing;
+    private float playerCenterX;
+    private float enemySpacing;
+    private float enemyCenterX;
+
     void Start()
     {
         LoadCardBackSprites();
         BindControls();
+        CacheLayoutParams();
         RefreshUI();
     }
 
@@ -291,10 +299,21 @@ public class BattleUI : MonoBehaviour
         // ④ 隐藏非选中卡牌（敌我双方）
         HideNonSelectedCards(playerIndex, enemyIndex);
 
-        // ⑤ 我方选中卡牌移至出牌区（屏幕底侧中央）
+        // ⑤ 我方选中卡牌移至出牌区，同时标准化大小和旋转（以敌方世界缩放为准）
         if (playerPlaceAnchor != null && playerView != null)
         {
-            yield return MoveViewToPosition(playerView, playerPlaceAnchor.position, arenaMoveDuration);
+            // 用世界空间缩放确保视觉大小一致
+            Vector3 enemyWorldScale = enemyView.transform.lossyScale;
+            Vector3 playerParentWorldScale = playerView.transform.parent != null
+                ? playerView.transform.parent.lossyScale
+                : Vector3.one;
+            Vector3 standardScale = new Vector3(
+                enemyWorldScale.x / playerParentWorldScale.x,
+                enemyWorldScale.y / playerParentWorldScale.y,
+                enemyWorldScale.z / playerParentWorldScale.z);
+            Quaternion standardRotation = enemyView.transform.localRotation;
+            yield return playerView.StartCoroutine(
+                playerView.MoveWithScaleAndRotation(playerPlaceAnchor.position, standardScale, standardRotation, arenaMoveDuration));
         }
 
         // ⑥ 我方选中卡牌翻到背面
@@ -369,7 +388,7 @@ public class BattleUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 重置动画：对峙停留 → 归位 → 存活/死亡分支 → 其余淡入 → 敌方翻面
+    /// 重置动画：对峙停留 → 归位 → 存活/死亡分支 → 其余淡入 → 居中汇集 → 敌方翻面
     /// </summary>
     private IEnumerator ResetSequence(CardView playerView, CardView enemyView,
         int playerDataIndex, int enemyDataIndex, float flipDuration)
@@ -405,6 +424,8 @@ public class BattleUI : MonoBehaviour
 
         Vector3 pSlideStart = Vector3.zero, pSlideTarget = Vector3.zero;
         Vector3 eSlideStart = Vector3.zero, eSlideTarget = Vector3.zero;
+        Vector3 pScaleStart = Vector3.zero, pScaleTarget = Vector3.zero;
+        Quaternion pRotStart = Quaternion.identity, pRotTarget = Quaternion.identity;
         CanvasGroup pCG = null, eCG = null;
         float pFadeStart = 1f, eFadeStart = 1f;
 
@@ -415,6 +436,10 @@ public class BattleUI : MonoBehaviour
             {
                 pSlideStart = playerView.transform.localPosition;
                 pSlideTarget = playerView.OriginalLocalPosition;
+                pScaleStart = playerView.transform.localScale;
+                pScaleTarget = playerView.OriginalLocalScale;
+                pRotStart = playerView.transform.localRotation;
+                pRotTarget = playerView.OriginalLocalRotation;
             }
             else if (pCG != null) pFadeStart = pCG.alpha;
         }
@@ -441,6 +466,8 @@ public class BattleUI : MonoBehaviour
                 {
                     float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(branchElapsed / resetMoveDuration));
                     playerView.transform.localPosition = Vector3.Lerp(pSlideStart, pSlideTarget, t);
+                    playerView.transform.localScale = Vector3.Lerp(pScaleStart, pScaleTarget, t);
+                    playerView.transform.localRotation = Quaternion.Slerp(pRotStart, pRotTarget, t);
                 }
                 else if (pCG != null)
                 {
@@ -469,7 +496,12 @@ public class BattleUI : MonoBehaviour
         // 确保最终状态
         if (playerView != null)
         {
-            if (playerAlive) playerView.transform.localPosition = pSlideTarget;
+            if (playerAlive)
+            {
+                playerView.transform.localPosition = pSlideTarget;
+                playerView.transform.localScale = pScaleTarget;
+                playerView.transform.localRotation = pRotTarget;
+            }
             else { playerView.SetAlpha(0f); playerView.gameObject.SetActive(false); }
         }
         if (enemyView != null)
@@ -480,6 +512,10 @@ public class BattleUI : MonoBehaviour
 
         // ⑬ 其余卡牌淡入（敌方保持背面，我方正面）
         yield return StartCoroutine(FadeInOtherCards(playerDataIndex, enemyDataIndex));
+
+        // 居中汇集：卡牌死亡后剩余卡牌向中间靠拢
+        yield return StartCoroutine(RecenterCards(battleManager.playerCards, playerSlotViews, recenterDuration, playerSpacing, playerCenterX));
+        yield return StartCoroutine(RecenterCards(battleManager.enemyCards, enemySlotViews, recenterDuration, enemySpacing, enemyCenterX));
 
         // ⑭ 敌方卡牌翻回正面
         foreach (CardView view in enemySlotViews)
@@ -542,6 +578,95 @@ public class BattleUI : MonoBehaviour
         foreach (CardView view in toFadeIn)
         {
             view.SetAlpha(1f);
+        }
+    }
+
+    /// <summary>
+    /// 缓存双方卡牌布局参数（基于场景初始位置，只计算一次）
+    /// </summary>
+    private void CacheLayoutParams()
+    {
+        if (playerSlotViews != null && playerSlotViews.Length > 1)
+        {
+            float minX = float.MaxValue, maxX = float.MinValue;
+            foreach (CardView view in playerSlotViews)
+            {
+                if (view != null)
+                {
+                    float x = view.OriginalLocalPosition.x;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                }
+            }
+            playerSpacing = (maxX - minX) / (playerSlotViews.Length - 1);
+            playerCenterX = (maxX + minX) / 2f;
+        }
+
+        if (enemySlotViews != null && enemySlotViews.Length > 1)
+        {
+            float minX = float.MaxValue, maxX = float.MinValue;
+            foreach (CardView view in enemySlotViews)
+            {
+                if (view != null)
+                {
+                    float x = view.OriginalLocalPosition.x;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                }
+            }
+            enemySpacing = (maxX - minX) / (enemySlotViews.Length - 1);
+            enemyCenterX = (maxX + minX) / 2f;
+        }
+    }
+
+    /// <summary>
+    /// 存活卡牌居中汇集：当有卡牌死亡后，剩余卡牌向中心靠拢消除空位
+    /// </summary>
+    private IEnumerator RecenterCards(List<BattleCard> cards, CardView[] views, float duration, float spacing, float centerX)
+    {
+        if (cards == null || views == null || views.Length == 0) yield break;
+
+        // 收集存活卡牌
+        List<CardView> aliveViews = new List<CardView>();
+        for (int i = 0; i < views.Length && i < cards.Count; i++)
+        {
+            if (cards[i] != null && cards[i].IsAlive() && views[i] != null && views[i].gameObject.activeSelf)
+            {
+                aliveViews.Add(views[i]);
+            }
+        }
+
+        int aliveCount = aliveViews.Count;
+        if (aliveCount <= 1 || aliveCount >= views.Length) yield break;
+
+        // 计算每张存活卡牌的目标位置
+        Vector3[] startPositions = new Vector3[aliveCount];
+        Vector3[] targetPositions = new Vector3[aliveCount];
+        for (int i = 0; i < aliveCount; i++)
+        {
+            float targetX = centerX + (i - (aliveCount - 1) / 2f) * spacing;
+            CardView view = aliveViews[i];
+            startPositions[i] = view.transform.localPosition;
+            targetPositions[i] = new Vector3(targetX, view.OriginalLocalPosition.y, 0);
+        }
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            for (int i = 0; i < aliveCount; i++)
+            {
+                aliveViews[i].transform.localPosition = Vector3.Lerp(startPositions[i], targetPositions[i], t);
+            }
+            yield return null;
+        }
+
+        // 动画完成后更新卡牌"家"位置，下一轮不会回到原位
+        for (int i = 0; i < aliveCount; i++)
+        {
+            aliveViews[i].transform.localPosition = targetPositions[i];
+            aliveViews[i].UpdateOriginalPosition(targetPositions[i]);
         }
     }
 
