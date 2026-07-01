@@ -36,6 +36,12 @@ public class StrongholdUI : MonoBehaviour
     public Sprite[] heavenCardSprites;
     public Sprite[] ghostCardSprites;
 
+    [Header("据点背景图（每种族1张）")]
+    public Image backgroundImage;
+    public Sprite humanStrongholdBg;
+    public Sprite heavenStrongholdBg;
+    public Sprite ghostStrongholdBg;
+
     [Header("离开")]
     public Button leaveButton;
 
@@ -109,6 +115,10 @@ public class StrongholdUI : MonoBehaviour
             inputManager.enabled = false;
 
         isOpen = true;
+
+        // 设置种族据点背景图
+        if (backgroundImage != null)
+            backgroundImage.sprite = GetBackgroundForRace(p.race);
 
         // 初始化5张卡牌
         Sprite[] cardSprites = GetCardSpritesForRace(p.race);
@@ -234,6 +244,17 @@ public class StrongholdUI : MonoBehaviour
             RaceType.Heaven => heavenCardSprites,
             RaceType.Ghost => ghostCardSprites,
             _ => humanCardSprites
+        };
+    }
+
+    Sprite GetBackgroundForRace(RaceType race)
+    {
+        return race switch
+        {
+            RaceType.Human => humanStrongholdBg,
+            RaceType.Heaven => heavenStrongholdBg,
+            RaceType.Ghost => ghostStrongholdBg,
+            _ => humanStrongholdBg
         };
     }
 }
