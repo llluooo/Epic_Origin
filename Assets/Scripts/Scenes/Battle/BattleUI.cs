@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// 战斗界面只负责刷新手动摆放的卡牌图片和处理玩家选择。
@@ -19,6 +20,16 @@ public class BattleUI : MonoBehaviour
     public Button attackButton;
     public bool returnToMapWhenBattleEnds = true;
     public float returnToMapDelay = 0.8f;
+
+    [Header("结算面板")]
+    public GameObject battleResultPanel;
+    public GameObject battleVictoryResultPanel;
+    public GameObject battleDefeatResultPanel;
+    public TMP_Text battleResultTitleText;
+    public TMP_Text battleResultDetailText;
+    public Button battleResultContinueButton;
+    public bool showResultPanel = true;
+    public float resultPanelAutoCloseDelay = 0.8f;
 
     [Header("动画")]
     public float gatherDuration = 0.6f;
@@ -48,6 +59,8 @@ public class BattleUI : MonoBehaviour
         LoadCardBackSprites();
         BindControls();
         CacheLayoutParams();
+        AutoBindResultReferences();
+        HideBattleResultPanel();
         RefreshUI();
     }
 
@@ -728,6 +741,26 @@ public class BattleUI : MonoBehaviour
             attackButton.interactable = canShow;
             attackButton.gameObject.SetActive(canShow);
         }
+
+        if (battleManager != null && battleManager.IsBattleOver() && showResultPanel)
+        {
+            bool playerVictory = IsOutcomePlayerWin(battleManager.outcome);
+            if (battleVictoryResultPanel != null || battleDefeatResultPanel != null)
+            {
+                if (battleVictoryResultPanel != null)
+                {
+                    battleVictoryResultPanel.SetActive(playerVictory);
+                }
+                if (battleDefeatResultPanel != null)
+                {
+                    battleDefeatResultPanel.SetActive(!playerVictory);
+                }
+            }
+            else if (battleResultPanel != null)
+            {
+                battleResultPanel.SetActive(true);
+            }
+        }
     }
 
     private void TrySubmitBattleResult()
@@ -738,11 +771,16 @@ public class BattleUI : MonoBehaviour
         }
 
         resultSubmitted = true;
-        UpdateControlState();
-
-        if (returnToMapWhenBattleEnds)
+        if (showResultPanel)
         {
-            StartCoroutine(ReturnToMapAfterDelay());
+            ShowBattleResult();
+        }
+        else
+        {
+            if (returnToMapWhenBattleEnds)
+            {
+                StartCoroutine(ReturnToMapAfterDelay());
+            }
         }
     }
 
@@ -763,6 +801,335 @@ public class BattleUI : MonoBehaviour
 
         ApplyCardBackToViews(playerSlotViews, cardBack);
         ApplyCardBackToViews(enemySlotViews, cardBack);
+    }
+
+    private void ShowBattleResult()
+    {
+        if (battleManager == null)
+        {
+            return;
+        }
+
+        bool playerVictory = IsOutcomePlayerWin(battleManager.outcome);
+        HideBattleResultPanel();
+
+        GameObject targetPanel = playerVictory ? battleVictoryResultPanel : battleDefeatResultPanel;
+        if (targetPanel == null && battleResultPanel != null)
+        {
+            targetPanel = battleResultPanel;
+        }
+
+        if (targetPanel == null)
+        {
+            targetPanel = CreateFallbackResultPanel(playerVictory);
+        }
+
+        if (targetPanel != null)
+        {
+            ApplyResultTextToPanel(targetPanel);
+            BindContinueButton(targetPanel);
+            targetPanel.SetActive(true);
+        }
+
+        if (!showResultPanel)
+        {
+            StartCoroutine(AutoCloseResultPanel());
+        }
+    }
+
+    private string GetBattleDetailText(BattleOutcome outcome)
+    {
+        return outcome switch
+        {
+            BattleOutcome.PlayerVictory => "玩家获得胜利，返回地图继续冒险。",
+            BattleOutcome.EnemyVictory => "敌方获胜，玩家需要重整部队。",
+            BattleOutcome.Draw => "双方同归于尽，战斗结束。",
+            BattleOutcome.PlayerSurrender => "玩家投降，遭受逃跑惩罚。",
+            BattleOutcome.EnemySurrender => "敌方投降，玩家获得胜利。",
+            _ => string.Empty,
+        };
+    }
+
+    private IEnumerator AutoCloseResultPanel()
+    {
+        yield return new WaitForSeconds(Mathf.Max(0f, resultPanelAutoCloseDelay));
+        HideBattleResultPanel();
+        StartCoroutine(ReturnToMapAfterDelay());
+    }
+
+    private void HideBattleResultPanel()
+    {
+        if (battleResultPanel != null)
+        {
+            battleResultPanel.SetActive(false);
+        }
+        if (battleVictoryResultPanel != null)
+        {
+            battleVictoryResultPanel.SetActive(false);
+        }
+        if (battleDefeatResultPanel != null)
+        {
+            battleDefeatResultPanel.SetActive(false);
+        }
+    }
+
+    private void OnBattleResultContinue()
+    {
+        BattleSceneBridge.ResolveAndReturn(battleManager.outcome);
+    }
+
+    private void AutoBindResultReferences()
+    {
+        if (battleVictoryResultPanel == null)
+        {
+            battleVictoryResultPanel = FindChildByName("BattleResult_Victory");
+        }
+
+        if (battleDefeatResultPanel == null)
+        {
+            battleDefeatResultPanel = FindChildByName("BattleResult_Defeat");
+        }
+
+        if (battleResultPanel == null)
+        {
+            battleResultPanel = FindChildByName("BattleResultPanel");
+        }
+
+        if (battleResultTitleText == null)
+        {
+            if (battleVictoryResultPanel != null)
+            {
+                battleResultTitleText = FindFirstTextInPanel(battleVictoryResultPanel);
+            }
+            else if (battleDefeatResultPanel != null)
+            {
+                battleResultTitleText = FindFirstTextInPanel(battleDefeatResultPanel);
+            }
+        }
+
+        if (battleResultDetailText == null)
+        {
+            if (battleVictoryResultPanel != null)
+            {
+                battleResultDetailText = FindSecondTextInPanel(battleVictoryResultPanel);
+            }
+            else if (battleDefeatResultPanel != null)
+            {
+                battleResultDetailText = FindSecondTextInPanel(battleDefeatResultPanel);
+            }
+        }
+
+        if (battleResultContinueButton == null)
+        {
+            if (battleVictoryResultPanel != null)
+            {
+                battleResultContinueButton = FindFirstButtonInPanel(battleVictoryResultPanel);
+            }
+            else if (battleDefeatResultPanel != null)
+            {
+                battleResultContinueButton = FindFirstButtonInPanel(battleDefeatResultPanel);
+            }
+        }
+    }
+
+    private GameObject CreateFallbackResultPanel(bool playerVictory)
+    {
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas == null)
+        {
+            GameObject canvasObject = new GameObject("Canvas");
+            canvas = canvasObject.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvasObject.AddComponent<CanvasScaler>();
+            canvasObject.AddComponent<GraphicRaycaster>();
+        }
+
+        GameObject panelObject = new GameObject(playerVictory ? "BattleResult_Victory" : "BattleResult_Defeat");
+        panelObject.transform.SetParent(canvas.transform, false);
+
+        RectTransform rect = panelObject.AddComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        Image image = panelObject.AddComponent<Image>();
+        image.color = new Color(0f, 0f, 0f, 0.7f);
+
+        GameObject titleObject = new GameObject("TitleText");
+        titleObject.transform.SetParent(panelObject.transform, false);
+        RectTransform titleRect = titleObject.AddComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.5f, 0.6f);
+        titleRect.anchorMax = new Vector2(0.5f, 0.6f);
+        titleRect.sizeDelta = new Vector2(400f, 80f);
+        titleRect.anchoredPosition = Vector2.zero;
+
+        TMP_Text titleText = titleObject.AddComponent<TextMeshProUGUI>();
+        titleText.alignment = TextAlignmentOptions.Center;
+        titleText.fontSize = 42;
+        titleText.color = Color.white;
+        titleText.text = "战斗结果";
+
+        GameObject buttonObject = new GameObject("ContinueButton");
+        buttonObject.transform.SetParent(panelObject.transform, false);
+        RectTransform buttonRect = buttonObject.AddComponent<RectTransform>();
+        buttonRect.anchorMin = new Vector2(0.5f, 0.3f);
+        buttonRect.anchorMax = new Vector2(0.5f, 0.3f);
+        buttonRect.sizeDelta = new Vector2(220f, 70f);
+        buttonRect.anchoredPosition = Vector2.zero;
+
+        Image buttonImage = buttonObject.AddComponent<Image>();
+        buttonImage.color = new Color(0.9f, 0.7f, 0.2f, 1f);
+        Button button = buttonObject.AddComponent<Button>();
+        GameObject buttonTextObject = new GameObject("Text");
+        buttonTextObject.transform.SetParent(buttonObject.transform, false);
+        RectTransform buttonTextRect = buttonTextObject.AddComponent<RectTransform>();
+        buttonTextRect.anchorMin = Vector2.zero;
+        buttonTextRect.anchorMax = Vector2.one;
+        buttonTextRect.offsetMin = Vector2.zero;
+        buttonTextRect.offsetMax = Vector2.zero;
+        TMP_Text buttonText = buttonTextObject.AddComponent<TextMeshProUGUI>();
+        buttonText.alignment = TextAlignmentOptions.Center;
+        buttonText.fontSize = 24;
+        buttonText.color = Color.black;
+        buttonText.text = "继续";
+
+        if (playerVictory)
+        {
+            battleVictoryResultPanel = panelObject;
+        }
+        else
+        {
+            battleDefeatResultPanel = panelObject;
+        }
+
+        return panelObject;
+    }
+
+    private void ApplyResultTextToPanel(GameObject panel)
+    {
+        if (panel == null || battleManager == null)
+        {
+            return;
+        }
+
+        TMP_Text titleText = battleResultTitleText;
+        TMP_Text detailText = battleResultDetailText;
+
+        if (titleText == null)
+        {
+            titleText = FindFirstTextInPanel(panel);
+        }
+        if (detailText == null)
+        {
+            detailText = FindSecondTextInPanel(panel);
+        }
+
+        if (titleText != null)
+        {
+            titleText.text = battleManager.battleResult;
+        }
+
+        if (detailText != null)
+        {
+            detailText.text = GetBattleDetailText(battleManager.outcome);
+        }
+    }
+
+    private void BindContinueButton(GameObject panel)
+    {
+        if (panel == null)
+        {
+            return;
+        }
+
+        Button button = battleResultContinueButton;
+        if (button == null)
+        {
+            button = FindFirstButtonInPanel(panel);
+        }
+
+        if (button != null)
+        {
+            battleResultContinueButton = button;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(OnBattleResultContinue);
+        }
+    }
+
+    private GameObject FindChildByName(string name)
+    {
+        Transform target = transform.Find(name);
+        if (target != null)
+        {
+            return target.gameObject;
+        }
+
+        foreach (Transform child in transform)
+        {
+            if (child.name == name)
+            {
+                return child.gameObject;
+            }
+        }
+
+        foreach (Transform sceneObject in Resources.FindObjectsOfTypeAll<Transform>())
+        {
+            if (sceneObject == null || sceneObject.gameObject == null)
+            {
+                continue;
+            }
+
+            if (!sceneObject.gameObject.scene.IsValid())
+            {
+                continue;
+            }
+
+            if (sceneObject.name == name)
+            {
+                return sceneObject.gameObject;
+            }
+        }
+
+        return null;
+    }
+
+    private TMP_Text FindFirstTextInPanel(GameObject panel)
+    {
+        if (panel == null)
+        {
+            return null;
+        }
+
+        TMP_Text[] texts = panel.GetComponentsInChildren<TMP_Text>(true);
+        return texts != null && texts.Length > 0 ? texts[0] : null;
+    }
+
+    private TMP_Text FindSecondTextInPanel(GameObject panel)
+    {
+        if (panel == null)
+        {
+            return null;
+        }
+
+        TMP_Text[] texts = panel.GetComponentsInChildren<TMP_Text>(true);
+        return texts != null && texts.Length > 1 ? texts[1] : null;
+    }
+
+    private Button FindFirstButtonInPanel(GameObject panel)
+    {
+        if (panel == null)
+        {
+            return null;
+        }
+
+        Button[] buttons = panel.GetComponentsInChildren<Button>(true);
+        return buttons != null && buttons.Length > 0 ? buttons[0] : null;
+    }
+
+    private bool IsOutcomePlayerWin(BattleOutcome outcome)
+    {
+        return outcome == BattleOutcome.PlayerVictory || outcome == BattleOutcome.EnemySurrender;
     }
 
     private void ApplyCardBackToViews(CardView[] views, Sprite cardBack)
