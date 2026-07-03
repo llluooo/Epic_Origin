@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,6 +29,7 @@ public class BattleUI : MonoBehaviour
     public TMP_Text battleResultTitleText;
     public TMP_Text battleResultDetailText;
     public Button battleResultContinueButton;
+    public Sprite battleResultContinueButtonSprite;
 
     [Header("胜利面板独立绑定")]
     public TMP_Text battleVictoryTitleText;
@@ -850,15 +852,131 @@ public class BattleUI : MonoBehaviour
 
     private string GetBattleDetailText(BattleOutcome outcome)
     {
-        return outcome switch
+        if (battleManager == null)
         {
-            BattleOutcome.PlayerVictory => "玩家获得胜利，返回地图继续冒险。",
-            BattleOutcome.EnemyVictory => "敌方获胜，玩家需要重整部队。",
-            BattleOutcome.Draw => "双方同归于尽，战斗结束。",
-            BattleOutcome.PlayerSurrender => "玩家投降，遭受逃跑惩罚。",
-            BattleOutcome.EnemySurrender => "敌方投降，玩家获得胜利。",
-            _ => string.Empty,
+            return string.Empty;
+        }
+
+        int playerLost;
+        int playerRemain;
+        int enemyLost;
+        int enemyRemain;
+        BuildBattleCounts(battleManager.playerCards, out playerLost, out playerRemain);
+        BuildBattleCounts(battleManager.enemyCards, out enemyLost, out enemyRemain);
+
+        string enemyDead = GetDeadUnitNames(battleManager.enemyCards);
+        string playerDead = GetDeadUnitNames(battleManager.playerCards);
+        string playerStatus = GetRemainingUnitStatus(battleManager.playerCards);
+        string rewardLine = GetBattleRewardLine(outcome);
+
+        List<string> lines = new List<string>
+        {
+            $"敌方损失：{enemyLost} 部队，剩余：{enemyRemain}；我方损失：{playerLost} 部队，剩余：{playerRemain}。",
+            $"敌方阵亡：{enemyDead}",
+            $"我方阵亡：{playerDead}",
+            $"我方剩余生命：{playerStatus}",
+            $"奖励 / 惩罚：{rewardLine}"
         };
+
+        return string.Join("\n", lines);
+    }
+
+    private void BuildBattleCounts(List<BattleCard> cards, out int lost, out int remain)
+    {
+        lost = 0;
+        remain = 0;
+        if (cards == null)
+        {
+            return;
+        }
+
+        foreach (BattleCard card in cards)
+        {
+            if (card == null)
+            {
+                continue;
+            }
+
+            lost += Math.Max(0, card.initialCount - card.currentCount);
+            remain += card.currentCount;
+        }
+    }
+
+    private string GetDeadUnitNames(List<BattleCard> cards)
+    {
+        if (cards == null)
+        {
+            return "无";
+        }
+
+        List<string> deadNames = new List<string>();
+        foreach (BattleCard card in cards)
+        {
+            if (card == null || card.IsAlive())
+            {
+                continue;
+            }
+
+            string name = card.card.cardName;
+            if (card.initialCount > 1)
+            {
+                name += $" x{card.initialCount}";
+            }
+            deadNames.Add(name);
+        }
+
+        return deadNames.Count > 0 ? string.Join("，", deadNames) : "无";
+    }
+
+    private string GetRemainingUnitStatus(List<BattleCard> cards)
+    {
+        if (cards == null)
+        {
+            return "无";
+        }
+
+        List<string> statusLines = new List<string>();
+        foreach (BattleCard card in cards)
+        {
+            if (card == null || !card.IsAlive())
+            {
+                continue;
+            }
+
+            string name = card.card.cardName;
+            string countText = card.currentCount > 1 ? $" x{card.currentCount}" : string.Empty;
+            statusLines.Add($"{name}{countText} ({card.currentHP}/{card.initialHP})");
+        }
+
+        return statusLines.Count > 0 ? string.Join("，", statusLines) : "无";
+    }
+
+    private string GetBattleRewardLine(BattleOutcome outcome)
+    {
+        BattleEncounterType encounterType = BattleSceneBridge.EncounterType;
+        switch (outcome)
+        {
+            case BattleOutcome.PlayerVictory:
+                if (encounterType == BattleEncounterType.ArmyCamp)
+                {
+                    return "战胜兵营，获得随机战利品：2~3 张卡牌或 30~50 金币。";
+                }
+                if (encounterType == BattleEncounterType.EnemyStronghold)
+                {
+                    return "成功攻克敌方据点，获得胜利奖励。";
+                }
+                return "玩家获得胜利，返回地图继续冒险。";
+            case BattleOutcome.EnemyVictory:
+                return "敌方获胜，参战部队损失严重，返回地图重整军力。";
+            case BattleOutcome.Draw:
+                return "双方同归于尽，战斗结束，需补充兵力后再战。";
+            case BattleOutcome.PlayerSurrender:
+                return "玩家投降，损失 20% 金币和 20% 建材。";
+            case BattleOutcome.EnemySurrender:
+                return "敌方投降，获得战斗胜利。";
+            default:
+                return "战斗结束，返回地图继续游戏。";
+        }
     }
 
     private IEnumerator AutoCloseResultPanel()
@@ -1010,13 +1128,20 @@ public class BattleUI : MonoBehaviour
         GameObject buttonObject = new GameObject("ContinueButton");
         buttonObject.transform.SetParent(panelObject.transform, false);
         RectTransform buttonRect = buttonObject.AddComponent<RectTransform>();
-        buttonRect.anchorMin = new Vector2(0.5f, 0.3f);
-        buttonRect.anchorMax = new Vector2(0.5f, 0.3f);
+        buttonRect.anchorMin = new Vector2(1f, 1f);
+        buttonRect.anchorMax = new Vector2(1f, 1f);
+        buttonRect.pivot = new Vector2(1f, 1f);
         buttonRect.sizeDelta = new Vector2(220f, 70f);
-        buttonRect.anchoredPosition = Vector2.zero;
+        buttonRect.anchoredPosition = new Vector2(-20f, -20f);
 
         Image buttonImage = buttonObject.AddComponent<Image>();
-        buttonImage.color = new Color(0.9f, 0.7f, 0.2f, 1f);
+        buttonImage.color = Color.white;
+        if (battleResultContinueButtonSprite != null)
+        {
+            buttonImage.sprite = battleResultContinueButtonSprite;
+            buttonImage.type = Image.Type.Sliced;
+        }
+
         Button button = buttonObject.AddComponent<Button>();
         GameObject buttonTextObject = new GameObject("Text");
         buttonTextObject.transform.SetParent(buttonObject.transform, false);
