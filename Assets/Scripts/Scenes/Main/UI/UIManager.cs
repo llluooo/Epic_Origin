@@ -18,6 +18,12 @@ public class UIManager : MonoBehaviour
     [Header("存档面板")]
     public SaveGameUI saveGameUI;
 
+    [Header("英雄状态面板")]
+    public HeroStatusUI heroStatusUI;
+
+    [Header("游戏菜单")]
+    public GameMenuUI gameMenuUI;
+
     void Start()
     {
         if (saveButton != null)
@@ -30,6 +36,30 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         UpdateUI();
+        HandleKeyboardInput();
+    }
+
+    void HandleKeyboardInput()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null) return;
+
+        // 战斗进行中或游戏结束时不响应快捷键
+        if (gm.isBattleActive || gm.IsGameEnded) return;
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            bool menuOpen = gameMenuUI != null && gameMenuUI.panel != null && gameMenuUI.panel.activeSelf;
+            if (!menuOpen && heroStatusUI != null)
+                heroStatusUI.Toggle();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            bool heroOpen = heroStatusUI != null && heroStatusUI.panel != null && heroStatusUI.panel.activeSelf;
+            if (!heroOpen && gameMenuUI != null)
+                gameMenuUI.Toggle();
+        }
     }
 
     void UpdateUI()
