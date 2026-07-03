@@ -28,6 +28,17 @@ public class BattleUI : MonoBehaviour
     public TMP_Text battleResultTitleText;
     public TMP_Text battleResultDetailText;
     public Button battleResultContinueButton;
+
+    [Header("胜利面板独立绑定")]
+    public TMP_Text battleVictoryTitleText;
+    public TMP_Text battleVictoryDetailText;
+    public Button battleVictoryContinueButton;
+
+    [Header("失败面板独立绑定")]
+    public TMP_Text battleDefeatTitleText;
+    public TMP_Text battleDefeatDetailText;
+    public Button battleDefeatContinueButton;
+
     public bool showResultPanel = true;
     public float resultPanelAutoCloseDelay = 0.8f;
 
@@ -826,8 +837,8 @@ public class BattleUI : MonoBehaviour
 
         if (targetPanel != null)
         {
-            ApplyResultTextToPanel(targetPanel);
-            BindContinueButton(targetPanel);
+            ApplyResultTextToPanel(targetPanel, playerVictory);
+            BindContinueButton(targetPanel, playerVictory);
             targetPanel.SetActive(true);
         }
 
@@ -895,39 +906,65 @@ public class BattleUI : MonoBehaviour
             battleResultPanel = FindChildByName("BattleResultPanel");
         }
 
+        if (battleVictoryTitleText == null && battleVictoryResultPanel != null)
+        {
+            battleVictoryTitleText = FindFirstTextInPanel(battleVictoryResultPanel);
+        }
+        if (battleVictoryDetailText == null && battleVictoryResultPanel != null)
+        {
+            battleVictoryDetailText = FindSecondTextInPanel(battleVictoryResultPanel);
+        }
+        if (battleVictoryContinueButton == null && battleVictoryResultPanel != null)
+        {
+            battleVictoryContinueButton = FindFirstButtonInPanel(battleVictoryResultPanel);
+        }
+
+        if (battleDefeatTitleText == null && battleDefeatResultPanel != null)
+        {
+            battleDefeatTitleText = FindFirstTextInPanel(battleDefeatResultPanel);
+        }
+        if (battleDefeatDetailText == null && battleDefeatResultPanel != null)
+        {
+            battleDefeatDetailText = FindSecondTextInPanel(battleDefeatResultPanel);
+        }
+        if (battleDefeatContinueButton == null && battleDefeatResultPanel != null)
+        {
+            battleDefeatContinueButton = FindFirstButtonInPanel(battleDefeatResultPanel);
+        }
+
         if (battleResultTitleText == null)
         {
-            if (battleVictoryResultPanel != null)
+            if (battleVictoryTitleText != null)
             {
-                battleResultTitleText = FindFirstTextInPanel(battleVictoryResultPanel);
+                battleResultTitleText = battleVictoryTitleText;
             }
-            else if (battleDefeatResultPanel != null)
+            else if (battleDefeatTitleText != null)
             {
-                battleResultTitleText = FindFirstTextInPanel(battleDefeatResultPanel);
+                battleResultTitleText = battleDefeatTitleText;
             }
         }
 
         if (battleResultDetailText == null)
         {
-            if (battleVictoryResultPanel != null)
+            if (battleVictoryDetailText != null)
             {
-                battleResultDetailText = FindSecondTextInPanel(battleVictoryResultPanel);
+                battleResultDetailText = battleVictoryDetailText;
             }
-            else if (battleDefeatResultPanel != null)
+            else if (battleDefeatDetailText != null)
             {
-                battleResultDetailText = FindSecondTextInPanel(battleDefeatResultPanel);
+                battleResultDetailText = battleDefeatDetailText;
             }
         }
 
         if (battleResultContinueButton == null)
         {
-            if (battleVictoryResultPanel != null)
+            if (battleVictoryContinueButton != null)
             {
-                battleResultContinueButton = FindFirstButtonInPanel(battleVictoryResultPanel);
+                battleResultContinueButton = battleVictoryContinueButton;
             }
-            else if (battleDefeatResultPanel != null)
+            else if (battleDefeatContinueButton != null)
             {
-                battleResultContinueButton = FindFirstButtonInPanel(battleDefeatResultPanel);
+                battleResultContinueButton = battleDefeatContinueButton;
             }
         }
     }
@@ -1006,15 +1043,24 @@ public class BattleUI : MonoBehaviour
         return panelObject;
     }
 
-    private void ApplyResultTextToPanel(GameObject panel)
+    private void ApplyResultTextToPanel(GameObject panel, bool playerVictory)
     {
         if (panel == null || battleManager == null)
         {
             return;
         }
 
-        TMP_Text titleText = battleResultTitleText;
-        TMP_Text detailText = battleResultDetailText;
+        TMP_Text titleText = playerVictory ? battleVictoryTitleText : battleDefeatTitleText;
+        TMP_Text detailText = playerVictory ? battleVictoryDetailText : battleDefeatDetailText;
+
+        if (titleText == null)
+        {
+            titleText = battleResultTitleText;
+        }
+        if (detailText == null)
+        {
+            detailText = battleResultDetailText;
+        }
 
         if (titleText == null)
         {
@@ -1036,14 +1082,18 @@ public class BattleUI : MonoBehaviour
         }
     }
 
-    private void BindContinueButton(GameObject panel)
+    private void BindContinueButton(GameObject panel, bool playerVictory)
     {
         if (panel == null)
         {
             return;
         }
 
-        Button button = battleResultContinueButton;
+        Button button = playerVictory ? battleVictoryContinueButton : battleDefeatContinueButton;
+        if (button == null)
+        {
+            button = battleResultContinueButton;
+        }
         if (button == null)
         {
             button = FindFirstButtonInPanel(panel);
@@ -1051,6 +1101,15 @@ public class BattleUI : MonoBehaviour
 
         if (button != null)
         {
+            if (playerVictory)
+            {
+                battleVictoryContinueButton = button;
+            }
+            else
+            {
+                battleDefeatContinueButton = button;
+            }
+
             battleResultContinueButton = button;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(OnBattleResultContinue);
