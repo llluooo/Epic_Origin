@@ -100,3 +100,6 @@ InitTestScene*.unity*
 
 # Superpowers brainstorming companion scratch files
 .superpowers/
+
+# Node dependencies for Remotion tools
+/Tools/OpeningVideo/node_modules/
