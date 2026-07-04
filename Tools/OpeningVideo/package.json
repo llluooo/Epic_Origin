@@ -1,0 +1,27 @@
+{
+  "name": "epic-origin-opening-video",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "still:1s": "remotion still src/index.ts EpicOriginOpening --frame=30 --scale=0.25 out/still-001s.png",
+    "still:title": "remotion still src/index.ts EpicOriginOpening --frame=390 --scale=0.25 out/still-title.png",
+    "render": "remotion render src/index.ts EpicOriginOpening out/epic-origin-opening.mp4 --codec=h264 --audio-codec=aac"
+  },
+  "dependencies": {
+    "@remotion/media": "^4.0.0",
+    "remotion": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}
