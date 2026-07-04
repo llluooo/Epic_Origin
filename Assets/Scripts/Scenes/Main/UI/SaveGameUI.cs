@@ -34,7 +34,7 @@ public class SaveGameUI : MonoBehaviour
     [Header("地图输入")]
     public InputManager inputManager;
 
-    private bool isOpen = false;
+    public bool IsOpen { get; private set; }
     private float messageTimer;
 
     private void Awake()
@@ -73,7 +73,7 @@ public class SaveGameUI : MonoBehaviour
 
     void Update()
     {
-        if (!isOpen) return;
+        if (!IsOpen) return;
 
         if (messageTimer > 0)
         {
@@ -84,9 +84,6 @@ public class SaveGameUI : MonoBehaviour
                 messageText.gameObject.SetActive(false);
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Close();
     }
 
     void ApplyTheme()
@@ -115,14 +112,14 @@ public class SaveGameUI : MonoBehaviour
         if (inputManager != null)
             inputManager.enabled = false;
 
-        isOpen = true;
+        IsOpen = true;
         RefreshAllSlots();
         StartCoroutine(PlayPanelEnterAnimation());
     }
 
     public void Close()
     {
-        isOpen = false;
+        IsOpen = false;
 
         if (inputManager != null)
             inputManager.enabled = true;

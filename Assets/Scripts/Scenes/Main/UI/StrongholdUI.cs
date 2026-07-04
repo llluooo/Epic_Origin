@@ -51,7 +51,7 @@ public class StrongholdUI : MonoBehaviour
     [Header("地图输入")]
     public InputManager inputManager;
 
-    private bool isOpen = false;
+    public bool IsOpen { get; private set; }
     private float messageTimer;
 
     void Start()
@@ -78,7 +78,7 @@ public class StrongholdUI : MonoBehaviour
 
     void Update()
     {
-        if (!isOpen) return;
+        if (!IsOpen) return;
 
         GameManager gm = GameManager.Instance;
         if (gm == null || gm.player == null) return;
@@ -91,10 +91,6 @@ public class StrongholdUI : MonoBehaviour
             if (messageTimer <= 0 && messageText != null)
                 messageText.text = "";
         }
-
-        // ESC 关闭
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Close();
     }
 
     public void Open()
@@ -114,7 +110,7 @@ public class StrongholdUI : MonoBehaviour
         if (inputManager != null)
             inputManager.enabled = false;
 
-        isOpen = true;
+        IsOpen = true;
 
         // 设置种族据点背景图
         if (backgroundImage != null)
@@ -144,7 +140,7 @@ public class StrongholdUI : MonoBehaviour
         if (inputManager != null)
             inputManager.enabled = true;
 
-        isOpen = false;
+        IsOpen = false;
         Debug.Log("离开据点管理界面");
     }
 

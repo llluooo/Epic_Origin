@@ -35,6 +35,10 @@ public class Hero : MonoBehaviour
     {
         if (isMoving)
         {
+            // 面板打开时暂停移动，避免菜单操作期间英雄继续移动产生bug
+            if (UIManager.Instance != null && UIManager.Instance.IsAnyPanelOpen)
+                return;
+
             transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
 
             if (Vector3.Distance(transform.position, targetPos) < 0.01f)

@@ -3,8 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// 英雄状态查看面板，按Tab切换。
-/// 显示卡组中5种兵种的名称、数量及卡牌图片。
+/// 英雄状态查看面板。
+/// UIManager统一管理Tab/Esc输入，面板自身不再检测键盘开关。
 /// </summary>
 public class HeroStatusUI : MonoBehaviour
 {
@@ -30,28 +30,17 @@ public class HeroStatusUI : MonoBehaviour
     [Header("地图输入")]
     public InputManager inputManager;
 
-    private bool isOpen = false;
+    public bool IsOpen { get; private set; }
+
+    /// <summary>
+    /// 标记是否从游戏菜单打开，用于Esc返回逻辑。
+    /// </summary>
+    public bool openedFromGameMenu;
 
     void Start()
     {
         if (panel != null)
             panel.SetActive(false);
-    }
-
-    void Update()
-    {
-        if (!isOpen) return;
-
-        if (Input.GetKeyDown(KeyCode.Tab))
-            Close();
-    }
-
-    public void Toggle()
-    {
-        if (isOpen)
-            Close();
-        else
-            Open();
     }
 
     public void Open()
@@ -64,7 +53,7 @@ public class HeroStatusUI : MonoBehaviour
         if (inputManager != null)
             inputManager.enabled = false;
 
-        isOpen = true;
+        IsOpen = true;
         RefreshAll(gm.player);
         Debug.Log("打开英雄状态界面");
     }
@@ -76,7 +65,8 @@ public class HeroStatusUI : MonoBehaviour
         if (inputManager != null)
             inputManager.enabled = true;
 
-        isOpen = false;
+        IsOpen = false;
+        openedFromGameMenu = false;
         Debug.Log("关闭英雄状态界面");
     }
 

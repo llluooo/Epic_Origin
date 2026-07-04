@@ -3,16 +3,19 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// UI管理器
-/// 负责显示回合信息、资源、按钮监听
+/// UI管理器。负责显示回合信息、资源、按钮监听，以及Tab/Esc快捷键调度。
+/// 面板打开时游戏后台完全暂停：禁用结束回合、存档按钮，仅允许面板操作。
 /// </summary>
 public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance;
+
     public TMP_Text turnText;
     public TMP_Text stateText;
     public TMP_Text resourceText;
 
-    [Header("存档按钮")]
+    [Header("游戏按钮（面板打开时禁用）")]
+    public Button endTurnButton;
     public Button saveButton;
 
     [Header("存档面板")]
@@ -24,8 +27,38 @@ public class UIManager : MonoBehaviour
     [Header("游戏菜单")]
     public GameMenuUI gameMenuUI;
 
+    [Header("据点面板")]
+    public StrongholdUI strongholdUI;
+
+    /// <summary>
+    /// 是否有任何面板处于打开状态。面板打开时游戏后台应完全暂停。
+    /// </summary>
+    public bool IsAnyPanelOpen
+    {
+        get
+        {
+            return (heroStatusUI != null && heroStatusUI.IsOpen)
+                || (gameMenuUI != null && gameMenuUI.IsOpen)
+                || (strongholdUI != null && strongholdUI.IsOpen)
+                || (saveGameUI != null && saveGameUI.IsOpen);
+        }
+    }
+
+    void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
     void Start()
     {
+        if (endTurnButton != null)
+        {
+            endTurnButton.onClick.RemoveAllListeners();
+            endTurnButton.onClick.AddListener(OnEndTurnButton);
+        }
         if (saveButton != null)
         {
             saveButton.onClick.RemoveAllListeners();
@@ -43,22 +76,59 @@ public class UIManager : MonoBehaviour
     {
         GameManager gm = GameManager.Instance;
         if (gm == null) return;
-
-        // 战斗进行中或游戏结束时不响应快捷键
         if (gm.isBattleActive || gm.IsGameEnded) return;
+
+        bool heroOpen = heroStatusUI != null && heroStatusUI.IsOpen;
+        bool menuOpen = gameMenuUI != null && gameMenuUI.IsOpen;
+        bool strongholdOpen = strongholdUI != null && strongholdUI.IsOpen;
+        bool saveOpen = saveGameUI != null && saveGameUI.IsOpen;
 
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            bool menuOpen = gameMenuUI != null && gameMenuUI.panel != null && gameMenuUI.panel.activeSelf;
-            if (!menuOpen && heroStatusUI != null)
-                heroStatusUI.Toggle();
+            if (heroOpen)
+            {
+                heroStatusUI.Close();
+            }
+            else if (!strongholdOpen && !saveOpen)
+            {
+                if (menuOpen)
+                    gameMenuUI.Close();
+                heroStatusUI.Open();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            bool heroOpen = heroStatusUI != null && heroStatusUI.panel != null && heroStatusUI.panel.activeSelf;
-            if (!heroOpen && gameMenuUI != null)
-                gameMenuUI.Toggle();
+            // 优先级：菜单子面板 > 存档面板 > 英雄状态 > 据点面板 > 游戏菜单 > 打开菜单
+            if (menuOpen)
+            {
+                if (!gameMenuUI.HandleEsc())
+                    gameMenuUI.Close();
+            }
+            else if (saveOpen)
+            {
+                saveGameUI.Close();
+            }
+            else if (heroOpen)
+            {
+                if (heroStatusUI.openedFromGameMenu)
+                {
+                    heroStatusUI.Close();
+                    gameMenuUI.Open();
+                }
+                else
+                {
+                    heroStatusUI.Close();
+                }
+            }
+            else if (strongholdOpen)
+            {
+                strongholdUI.Close();
+            }
+            else
+            {
+                gameMenuUI.Open();
+            }
         }
     }
 
@@ -67,6 +137,8 @@ public class UIManager : MonoBehaviour
         GameManager gm = GameManager.Instance;
         if (gm == null) return;
 
+        bool paused = IsAnyPanelOpen;
+
         // 回合信息
         turnText.text = $"回合: {gm.currentTurn}/{gm.maxTurn}";
 
@@ -74,6 +146,10 @@ public class UIManager : MonoBehaviour
         if (gm.currentState == GameManager.GameState.End)
         {
             stateText.text = "游戏结束";
+        }
+        else if (paused)
+        {
+            stateText.text = "已暂停";
         }
         else if (gm.isPlayerTurn)
         {
@@ -93,16 +169,13 @@ public class UIManager : MonoBehaviour
             resourceText.text = $"金币:{p.resources.gold}  建材:{p.resources.buildingMaterials}  据点Lv{p.strongholdLevel}";
         }
 
-        // 存档按钮仅在玩家回合可用
+        // 面板打开时禁用游戏按钮，确保后台完全暂停
+        if (endTurnButton != null)
+            endTurnButton.interactable = gm.isPlayerTurn && !gm.IsGameEnded && !paused;
         if (saveButton != null)
-        {
-            saveButton.interactable = gm.isPlayerTurn && !gm.IsGameEnded;
-        }
+            saveButton.interactable = gm.isPlayerTurn && !gm.IsGameEnded && !paused;
     }
 
-    /// <summary>
-    /// 结束回合按钮监听
-    /// </summary>
     public void OnEndTurnButton()
     {
         GameManager.Instance.EndPlayerTurn();
@@ -111,8 +184,6 @@ public class UIManager : MonoBehaviour
     void OnSaveButton()
     {
         if (saveGameUI != null)
-        {
             saveGameUI.Open();
-        }
     }
 }

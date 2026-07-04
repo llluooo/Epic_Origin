@@ -4,8 +4,8 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// 游戏暂停菜单（Esc打开）。
-/// 包含继续游戏、英雄状态、存档、读档、设置（占位）、退出游戏。
+/// 游戏暂停菜单。
+/// 键盘输入由UIManager统一调度，面板自身不检测开关按键。
 /// </summary>
 public class GameMenuUI : MonoBehaviour
 {
@@ -41,7 +41,7 @@ public class GameMenuUI : MonoBehaviour
     public HeroStatusUI heroStatusUI;
     public SaveGameUI saveGameUI;
 
-    private bool isOpen = false;
+    public bool IsOpen { get; private set; }
     private float placeholderTimer;
 
     void Start()
@@ -68,7 +68,6 @@ public class GameMenuUI : MonoBehaviour
         if (confirmExitNoButton != null)
             confirmExitNoButton.onClick.AddListener(HideConfirmExit);
 
-        // 绑定读档槽位点击
         if (loadSlotViews != null)
         {
             for (int i = 0; i < loadSlotViews.Length; i++)
@@ -88,11 +87,14 @@ public class GameMenuUI : MonoBehaviour
             confirmExitPanel.SetActive(false);
         if (placeholderPanel != null)
             placeholderPanel.SetActive(false);
+
+        SetupButtonTexts();
+        SetupConfirmExitText();
     }
 
     void Update()
     {
-        if (!isOpen) return;
+        if (!IsOpen) return;
 
         if (placeholderTimer > 0)
         {
@@ -100,24 +102,26 @@ public class GameMenuUI : MonoBehaviour
             if (placeholderTimer <= 0 && placeholderPanel != null)
                 placeholderPanel.SetActive(false);
         }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (confirmExitPanel != null && confirmExitPanel.activeSelf)
-                HideConfirmExit();
-            else if (loadSlotContainer != null && loadSlotContainer.activeSelf)
-                HideLoadSlots();
-            else
-                Close();
-        }
     }
 
-    public void Toggle()
+    /// <summary>
+    /// 处理Esc按键，优先关闭子面板。
+    /// 返回true表示Esc被子面板消费（读档槽、确认退出），调用方不应再关闭菜单。
+    /// 返回false表示无子面板可关闭，调用方应关闭整个菜单。
+    /// </summary>
+    public bool HandleEsc()
     {
-        if (isOpen)
-            Close();
-        else
-            Open();
+        if (confirmExitPanel != null && confirmExitPanel.activeSelf)
+        {
+            HideConfirmExit();
+            return true;
+        }
+        if (loadSlotContainer != null && loadSlotContainer.activeSelf)
+        {
+            HideLoadSlots();
+            return true;
+        }
+        return false;
     }
 
     public void Open()
@@ -130,13 +134,12 @@ public class GameMenuUI : MonoBehaviour
         if (inputManager != null)
             inputManager.enabled = false;
 
-        // 重置所有子面板状态
         HideLoadSlots();
         HideConfirmExit();
         if (placeholderPanel != null)
             placeholderPanel.SetActive(false);
 
-        isOpen = true;
+        IsOpen = true;
         Debug.Log("打开游戏菜单");
     }
 
@@ -152,7 +155,7 @@ public class GameMenuUI : MonoBehaviour
         if (placeholderPanel != null)
             placeholderPanel.SetActive(false);
 
-        isOpen = false;
+        IsOpen = false;
         Debug.Log("关闭游戏菜单");
     }
 
@@ -160,7 +163,10 @@ public class GameMenuUI : MonoBehaviour
     {
         Close();
         if (heroStatusUI != null)
+        {
+            heroStatusUI.openedFromGameMenu = true;
             heroStatusUI.Open();
+        }
     }
 
     void OnSave()
@@ -242,5 +248,68 @@ public class GameMenuUI : MonoBehaviour
         Debug.Log("退出游戏，返回主菜单");
         GameSession.ClearAll();
         SceneManager.LoadScene("MainMenuScene");
+    }
+
+    void SetupButtonTexts()
+    {
+        SetButtonText(continueButton, "继续游戏");
+        SetButtonText(heroStatusButton, "英雄状态");
+        SetButtonText(saveButton, "存档");
+        SetButtonText(loadButton, "读档");
+        SetButtonText(settingsButton, "设置");
+        SetButtonText(exitButton, "退出游戏");
+        SetButtonText(loadBackButton, "返回");
+        SetButtonText(confirmExitYesButton, "确定退出");
+        SetButtonText(confirmExitNoButton, "取消");
+    }
+
+    void SetupConfirmExitText()
+    {
+        if (confirmExitPanel == null) return;
+        TMP_Text msgText = confirmExitPanel.GetComponentInChildren<TMP_Text>();
+        if (msgText == null)
+        {
+            Text legacyText = confirmExitPanel.GetComponentInChildren<Text>();
+            if (legacyText != null)
+            {
+                if (Application.isEditor && !Application.isPlaying)
+                    DestroyImmediate(legacyText.gameObject);
+                else
+                    Destroy(legacyText.gameObject);
+            }
+
+            GameObject textObj = new GameObject("Message");
+            textObj.transform.SetParent(confirmExitPanel.transform, false);
+            msgText = textObj.AddComponent<TextMeshProUGUI>();
+            msgText.fontSize = 28;
+            msgText.alignment = TMPro.TextAlignmentOptions.Center;
+            msgText.color = Color.white;
+        }
+        msgText.text = "确定要退出游戏吗？";
+    }
+
+    void SetButtonText(Button button, string text)
+    {
+        if (button == null) return;
+        TMP_Text tmpText = button.GetComponentInChildren<TMP_Text>();
+        if (tmpText == null)
+        {
+            Text legacyText = button.GetComponentInChildren<Text>();
+            if (legacyText != null)
+            {
+                if (Application.isEditor && !Application.isPlaying)
+                    DestroyImmediate(legacyText.gameObject);
+                else
+                    Destroy(legacyText.gameObject);
+            }
+
+            GameObject textObj = new GameObject("Text (TMP)");
+            textObj.transform.SetParent(button.transform, false);
+            tmpText = textObj.AddComponent<TextMeshProUGUI>();
+            tmpText.fontSize = 24;
+            tmpText.alignment = TMPro.TextAlignmentOptions.Center;
+            tmpText.color = Color.white;
+        }
+        tmpText.text = text;
     }
 }
