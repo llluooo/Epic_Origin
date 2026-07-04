@@ -1131,18 +1131,12 @@ public class BattleUI : MonoBehaviour
         buttonRect.anchorMin = new Vector2(1f, 1f);
         buttonRect.anchorMax = new Vector2(1f, 1f);
         buttonRect.pivot = new Vector2(1f, 1f);
-        buttonRect.sizeDelta = new Vector2(220f, 70f);
+        buttonRect.sizeDelta = new Vector2(55f, 55f);
         buttonRect.anchoredPosition = new Vector2(-20f, -20f);
 
-        Image buttonImage = buttonObject.AddComponent<Image>();
-        buttonImage.color = Color.white;
-        if (battleResultContinueButtonSprite != null)
-        {
-            buttonImage.sprite = battleResultContinueButtonSprite;
-            buttonImage.type = Image.Type.Sliced;
-        }
-
         Button button = buttonObject.AddComponent<Button>();
+        ApplyButtonSprite(button);
+
         GameObject buttonTextObject = new GameObject("Text");
         buttonTextObject.transform.SetParent(buttonObject.transform, false);
         RectTransform buttonTextRect = buttonTextObject.AddComponent<RectTransform>();
@@ -1153,8 +1147,8 @@ public class BattleUI : MonoBehaviour
         TMP_Text buttonText = buttonTextObject.AddComponent<TextMeshProUGUI>();
         buttonText.alignment = TextAlignmentOptions.Center;
         buttonText.fontSize = 24;
-        buttonText.color = Color.black;
-        buttonText.text = "继续";
+        buttonText.color = Color.clear;
+        buttonText.text = string.Empty;
 
         if (playerVictory)
         {
@@ -1226,6 +1220,8 @@ public class BattleUI : MonoBehaviour
 
         if (button != null)
         {
+            ApplyButtonSprite(button);
+
             if (playerVictory)
             {
                 battleVictoryContinueButton = button;
@@ -1238,6 +1234,49 @@ public class BattleUI : MonoBehaviour
             battleResultContinueButton = button;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(OnBattleResultContinue);
+        }
+    }
+
+    private void ApplyButtonSprite(Button button)
+    {
+        if (button == null)
+        {
+            return;
+        }
+
+        Image buttonImage = button.GetComponent<Image>();
+        if (buttonImage == null)
+        {
+            buttonImage = button.GetComponentInChildren<Image>();
+        }
+        if (buttonImage == null)
+        {
+            buttonImage = button.gameObject.AddComponent<Image>();
+        }
+
+        buttonImage.color = Color.white;
+        buttonImage.raycastTarget = true;
+        button.targetGraphic = buttonImage;
+
+        if (battleResultContinueButtonSprite != null)
+        {
+            buttonImage.sprite = battleResultContinueButtonSprite;
+            buttonImage.type = Image.Type.Simple;
+            buttonImage.preserveAspect = true;
+            buttonImage.SetNativeSize();
+        }
+
+        RectTransform rectTransform = button.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.sizeDelta = new Vector2(55f, 55f);
+        }
+
+        var text = button.GetComponentInChildren<TMP_Text>(true);
+        if (text != null)
+        {
+            text.color = Color.clear;
+            text.text = string.Empty;
         }
     }
 
