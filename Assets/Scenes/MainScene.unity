@@ -15282,10 +15282,12 @@ MonoBehaviour:
   turnText: {fileID: 1270941535}
   stateText: {fileID: 1536901500}
   resourceText: {fileID: 1692623734}
+  endTurnButton: {fileID: 875850619}
   saveButton: {fileID: 453775044}
   saveGameUI: {fileID: 149731345}
   heroStatusUI: {fileID: 1591758451}
   gameMenuUI: {fileID: 981512871}
+  strongholdUI: {fileID: 1555137708}
 --- !u!1 &1547653677
 GameObject:
   m_ObjectHideFlags: 0
@@ -15439,7 +15441,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1555137704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16055,6 +16057,7 @@ MonoBehaviour:
   strongholdLevelText: {fileID: 928380236}
   deckPowerText: {fileID: 218608135}
   inputManager: {fileID: 1592030750}
+  openedFromGameMenu: 0
 --- !u!1 &1592030749
 GameObject:
   m_ObjectHideFlags: 0
@@ -19050,7 +19053,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!20 &2002042954
 Camera:
   m_ObjectHideFlags: 0
