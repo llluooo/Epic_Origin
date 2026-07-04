@@ -46,7 +46,9 @@ export const Subtitle = ({ text, from, duration, bottom = 118 }: SubtitleProps) 
           padding: "10px 28px",
           maxWidth: 1480,
           textAlign: "center",
-          whiteSpace: "nowrap",
+          whiteSpace: "normal",
+          overflowWrap: "break-word",
+          lineHeight: 1.22,
         }}
       >
         {text}
