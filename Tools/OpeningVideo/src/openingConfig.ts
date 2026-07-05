@@ -2,14 +2,13 @@ export const composition = {
   width: 1920,
   height: 1080,
   fps: 30,
-  durationInFrames: 450,
+  durationInFrames: 330,
 } as const;
 
 export const scenes = {
   continentAwakening: { from: 0, duration: 60 },
   raceReveal: { from: 60, duration: 150 },
-  powerConvergence: { from: 210, duration: 120 },
-  titleReveal: { from: 330, duration: 120 },
+  titleReveal: { from: 210, duration: 120 },
 } as const;
 
 export const assets = {
@@ -38,6 +37,8 @@ export type RaceReveal = {
   tint: string;
   glow: string;
   heroAlign: "left" | "center" | "right";
+  heroWidth: number;
+  heroHeight: number;
 };
 
 export const raceReveals: RaceReveal[] = [
@@ -51,6 +52,8 @@ export const raceReveals: RaceReveal[] = [
     tint: "rgba(255, 198, 92, 0.34)",
     glow: "#f4c15d",
     heroAlign: "center",
+    heroWidth: 1280,
+    heroHeight: 1280,
   },
   {
     id: "heaven",
@@ -62,6 +65,8 @@ export const raceReveals: RaceReveal[] = [
     tint: "rgba(238, 244, 255, 0.34)",
     glow: "#e8f2ff",
     heroAlign: "center",
+    heroWidth: 1280,
+    heroHeight: 1280,
   },
   {
     id: "ghost",
@@ -73,6 +78,8 @@ export const raceReveals: RaceReveal[] = [
     tint: "rgba(118, 89, 205, 0.38)",
     glow: "#8c6af0",
     heroAlign: "center",
+    heroWidth: 1280,
+    heroHeight: 1280,
   },
 ];
 
@@ -84,28 +91,28 @@ export const titleRevealLayout = {
       image: assets.images.humanHero,
       region: "left",
       centerX: "25%",
-      width: 620,
+      width: 1240,
     },
     {
       id: "heaven",
       image: assets.images.heavenHero,
       region: "center",
       centerX: "50%",
-      width: 620,
+      width: 1240,
     },
     {
       id: "ghost",
       image: assets.images.ghostHero,
       region: "right",
       centerX: "75%",
-      width: 620,
+      width: 1240,
     },
   ],
-  heroBottom: -126,
+  heroBottom: -252,
   heroFadeOutStart: 48,
   heroFadeOutEnd: 86,
   title: {
-    width: 640,
+    width: 1280,
     centered: true,
     fadeInStart: 54,
     fadeInEnd: 92,
@@ -114,6 +121,5 @@ export const titleRevealLayout = {
 
 export const subtitles = [
   { text: "从一座据点开始", from: 18, duration: 36 },
-  { text: "探索、召唤、征服", from: 232, duration: 72 },
-  { text: "你的史诗，即将展开", from: 372, duration: 54 },
+  { text: "你的史诗，即将展开", from: 252, duration: 54 },
 ] as const;

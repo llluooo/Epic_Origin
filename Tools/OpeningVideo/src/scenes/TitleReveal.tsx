@@ -52,7 +52,7 @@ export const TitleReveal = () => {
             left: hero.centerX,
             bottom: titleRevealLayout.heroBottom,
             width: hero.width,
-            height: 720,
+            height: 1440,
             objectFit: "contain",
             opacity: heroOpacity,
             transform: `translateX(-50%) scale(${heroScale})`,

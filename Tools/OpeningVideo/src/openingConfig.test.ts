@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest";
 import { assets, composition, raceReveals, scenes, subtitles, titleRevealLayout } from "./openingConfig";
 
 describe("opening video config", () => {
-  it("uses a 1080p 30fps composition lasting 15 seconds", () => {
+  it("uses a 1080p 30fps composition lasting 11 seconds after removing the convergence scene", () => {
     expect(composition.width).toBe(1920);
     expect(composition.height).toBe(1080);
     expect(composition.fps).toBe(30);
-    expect(composition.durationInFrames).toBe(450);
+    expect(composition.durationInFrames).toBe(330);
   });
 
-  it("keeps scene frame ranges ordered and within the composition", () => {
+  it("keeps scene frame ranges ordered and excludes the redundant convergence scene", () => {
+    expect("powerConvergence" in scenes).toBe(false);
     const orderedScenes = [
       scenes.continentAwakening,
       scenes.raceReveal,
-      scenes.powerConvergence,
       scenes.titleReveal,
     ];
 
@@ -37,10 +37,9 @@ describe("opening video config", () => {
     expect(raceReveals.map((race) => race.heroAlign)).toEqual(["center", "center", "center"]);
   });
 
-  it("uses exactly three subtitle lines", () => {
+  it("uses only the opening and title subtitle lines", () => {
     expect(subtitles.map((subtitle) => subtitle.text)).toEqual([
       "从一座据点开始",
-      "探索、召唤、征服",
       "你的史诗，即将展开",
     ]);
   });
@@ -60,11 +59,15 @@ describe("opening video config", () => {
     expect(Object.keys(assets.audio)).toEqual(["music"]);
   });
 
-  it("uses a quiet title reveal with enlarged heroes and a one-third-width centered title", () => {
+  it("uses a quiet title reveal with doubled heroes and a doubled centered title", () => {
     expect(titleRevealLayout.extraEffects).toEqual([]);
-    expect(titleRevealLayout.title.width).toBeCloseTo(composition.width / 3, 0);
+    expect(titleRevealLayout.title.width).toBe(1280);
     expect(titleRevealLayout.title.centered).toBe(true);
     expect(titleRevealLayout.heroes.map((hero) => hero.region)).toEqual(["left", "center", "right"]);
-    expect(titleRevealLayout.heroes.every((hero) => hero.width >= 560)).toBe(true);
+    expect(titleRevealLayout.heroes.every((hero) => hero.width === 1240)).toBe(true);
+  });
+
+  it("doubles race hero image size over the previous centered layout", () => {
+    expect(raceReveals.every((race) => race.heroWidth === 1280 && race.heroHeight === 1280)).toBe(true);
   });
 });

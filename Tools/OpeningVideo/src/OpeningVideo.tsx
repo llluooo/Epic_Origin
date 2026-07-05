@@ -2,7 +2,6 @@ import { Audio } from "@remotion/media";
 import { AbsoluteFill, Sequence, staticFile, useVideoConfig } from "remotion";
 import { Subtitle } from "./components/Subtitle";
 import { ContinentAwakening } from "./scenes/ContinentAwakening";
-import { PowerConvergence } from "./scenes/PowerConvergence";
 import { RaceReveal } from "./scenes/RaceReveal";
 import { TitleReveal } from "./scenes/TitleReveal";
 import { assets, scenes, subtitles } from "./openingConfig";
@@ -33,10 +32,6 @@ export const OpeningVideo = () => {
 
       <Sequence from={scenes.raceReveal.from} durationInFrames={scenes.raceReveal.duration}>
         <RaceReveal />
-      </Sequence>
-
-      <Sequence from={scenes.powerConvergence.from} durationInFrames={scenes.powerConvergence.duration}>
-        <PowerConvergence />
       </Sequence>
 
       <Sequence from={scenes.titleReveal.from} durationInFrames={scenes.titleReveal.duration}>
