@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assets, composition, raceReveals, scenes, subtitles } from "./openingConfig";
+import { assets, composition, raceReveals, scenes, subtitles, titleRevealLayout } from "./openingConfig";
 
 describe("opening video config", () => {
   it("uses a 1080p 30fps composition lasting 15 seconds", () => {
@@ -33,6 +33,10 @@ describe("opening video config", () => {
     expect(new Set(raceReveals.map((race) => race.duration))).toEqual(new Set([50]));
   });
 
+  it("centers every race hero over its stronghold background", () => {
+    expect(raceReveals.map((race) => race.heroAlign)).toEqual(["center", "center", "center"]);
+  });
+
   it("uses exactly three subtitle lines", () => {
     expect(subtitles.map((subtitle) => subtitle.text)).toEqual([
       "从一座据点开始",
@@ -50,5 +54,17 @@ describe("opening video config", () => {
       expect(assetPath).not.toContain(" ");
       expect(assetPath).toMatch(/^[a-zA-Z0-9_./-]+$/);
     }
+  });
+
+  it("keeps background music as the only audio asset", () => {
+    expect(Object.keys(assets.audio)).toEqual(["music"]);
+  });
+
+  it("uses a quiet title reveal with enlarged heroes and a one-third-width centered title", () => {
+    expect(titleRevealLayout.extraEffects).toEqual([]);
+    expect(titleRevealLayout.title.width).toBeCloseTo(composition.width / 3, 0);
+    expect(titleRevealLayout.title.centered).toBe(true);
+    expect(titleRevealLayout.heroes.map((hero) => hero.region)).toEqual(["left", "center", "right"]);
+    expect(titleRevealLayout.heroes.every((hero) => hero.width >= 560)).toBe(true);
   });
 });

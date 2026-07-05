@@ -3,16 +3,6 @@ import { CinematicImage } from "../components/CinematicImage";
 import { ParticleField, RadialGlow } from "../components/LightEffects";
 import { raceReveals, type RaceReveal as RaceRevealConfig } from "../openingConfig";
 
-const heroPosition = (align: RaceRevealConfig["heroAlign"]) => {
-  if (align === "left") {
-    return { left: 166, right: "auto" };
-  }
-  if (align === "right") {
-    return { left: "auto", right: 166 };
-  }
-  return { left: 660, right: "auto" };
-};
-
 const RacePanel = ({ race }: { race: RaceRevealConfig }) => {
   const frame = useCurrentFrame();
   const opacity = interpolate(frame, [0, 10, race.duration - 12, race.duration], [0, 1, 1, 0], {
@@ -41,18 +31,18 @@ const RacePanel = ({ race }: { race: RaceRevealConfig }) => {
         dim={0.34}
       />
       <div style={{ position: "absolute", inset: 0, backgroundColor: race.tint, mixBlendMode: "screen" }} />
-      <RadialGlow color={race.glow} opacity={0.52} x={race.heroAlign === "right" ? "72%" : "30%"} size={820} />
+      <RadialGlow color={race.glow} opacity={0.52} x="50%" size={820} />
       <ParticleField color={race.glow} />
       <Img
         src={staticFile(race.heroImage)}
         style={{
           position: "absolute",
-          ...heroPosition(race.heroAlign),
+          left: "50%",
           bottom: -112,
           width: 640,
           height: 640,
           objectFit: "contain",
-          transform: `translateY(${heroY}px) scale(${heroScale})`,
+          transform: `translateX(-50%) translateY(${heroY}px) scale(${heroScale})`,
           filter: `drop-shadow(0 0 38px ${race.glow}) drop-shadow(0 18px 32px rgba(0,0,0,0.72))`,
         }}
       />

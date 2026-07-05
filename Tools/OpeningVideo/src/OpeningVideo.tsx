@@ -43,25 +43,6 @@ export const OpeningVideo = () => {
         <TitleReveal />
       </Sequence>
 
-      <Sequence from={62}>
-        <Audio src={staticFile(assets.audio.stronghold)} volume={0.38} />
-      </Sequence>
-      <Sequence from={112}>
-        <Audio src={staticFile(assets.audio.stronghold)} volume={0.38} />
-      </Sequence>
-      <Sequence from={162}>
-        <Audio src={staticFile(assets.audio.stronghold)} volume={0.38} />
-      </Sequence>
-      <Sequence from={238}>
-        <Audio src={staticFile(assets.audio.card)} volume={0.42} />
-      </Sequence>
-      <Sequence from={286}>
-        <Audio src={staticFile(assets.audio.attack)} volume={0.28} />
-      </Sequence>
-      <Sequence from={344}>
-        <Audio src={staticFile(assets.audio.title)} volume={0.42} />
-      </Sequence>
-
       {subtitles.map((subtitle) => (
         <Subtitle key={subtitle.text} text={subtitle.text} from={subtitle.from} duration={subtitle.duration} />
       ))}

@@ -1,17 +1,29 @@
-import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
-import { CinematicImage } from "../components/CinematicImage";
-import { LightSweep, ParticleField, RadialGlow } from "../components/LightEffects";
-import { assets } from "../openingConfig";
+import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { assets, titleRevealLayout } from "../openingConfig";
 
 export const TitleReveal = () => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
-  const titleOpacity = interpolate(frame, [8, 28, durationInFrames - 22, durationInFrames], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
-  const titleScale = interpolate(frame, [8, 34], [1.12, 0.82], {
+  const titleOpacity = interpolate(
+    frame,
+    [titleRevealLayout.title.fadeInStart, titleRevealLayout.title.fadeInEnd],
+    [0, 1],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.bezier(0.16, 1, 0.3, 1),
+    },
+  );
+  const heroOpacity = interpolate(
+    frame,
+    [0, 12, titleRevealLayout.heroFadeOutStart, titleRevealLayout.heroFadeOutEnd],
+    [1, 1, 1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.bezier(0.16, 1, 0.3, 1),
+    },
+  );
+  const heroScale = interpolate(frame, [0, titleRevealLayout.heroFadeOutStart], [0.9, 1.08], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -19,22 +31,45 @@ export const TitleReveal = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#05060a" }}>
-      <CinematicImage src={assets.images.continent} startScale={1.06} endScale={1.1} dim={0.32} />
-      <RadialGlow color="rgba(244,193,93,0.56)" opacity={0.58} size={980} />
-      <ParticleField color="rgba(255,238,190,0.78)" />
-      <LightSweep color="rgba(255,238,190,0.52)" />
+      <Img
+        src={staticFile(assets.images.continent)}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          opacity: 0.72,
+        }}
+      />
+      <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0, 0, 0, 0.42)" }} />
+      {titleRevealLayout.heroes.map((hero) => (
+        <Img
+          key={hero.id}
+          src={staticFile(hero.image)}
+          style={{
+            position: "absolute",
+            left: hero.centerX,
+            bottom: titleRevealLayout.heroBottom,
+            width: hero.width,
+            height: 720,
+            objectFit: "contain",
+            opacity: heroOpacity,
+            transform: `translateX(-50%) scale(${heroScale})`,
+          }}
+        />
+      ))}
       <Img
         src={staticFile(assets.images.title)}
         style={{
           position: "absolute",
-          left: 438,
-          top: 238,
-          width: 1044,
-          height: 443,
+          left: "50%",
+          top: "50%",
+          width: titleRevealLayout.title.width,
+          height: "auto",
           objectFit: "contain",
           opacity: titleOpacity,
-          transform: `scale(${titleScale})`,
-          filter: "drop-shadow(0 0 38px rgba(244,193,93,0.58)) drop-shadow(0 20px 36px rgba(0,0,0,0.8))",
+          transform: "translate(-50%, -50%)",
         }}
       />
     </AbsoluteFill>

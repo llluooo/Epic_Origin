@@ -25,10 +25,6 @@ export const assets = {
   },
   audio: {
     music: "audio/MainMenu.mp3",
-    stronghold: "audio/EnterStrongholdTile.mp3",
-    card: "audio/GetCard.mp3",
-    attack: "audio/Attack.mp3",
-    title: "audio/GameVictory.mp3",
   },
 } as const;
 
@@ -54,7 +50,7 @@ export const raceReveals: RaceReveal[] = [
     heroImage: assets.images.humanHero,
     tint: "rgba(255, 198, 92, 0.34)",
     glow: "#f4c15d",
-    heroAlign: "left",
+    heroAlign: "center",
   },
   {
     id: "heaven",
@@ -76,9 +72,45 @@ export const raceReveals: RaceReveal[] = [
     heroImage: assets.images.ghostHero,
     tint: "rgba(118, 89, 205, 0.38)",
     glow: "#8c6af0",
-    heroAlign: "right",
+    heroAlign: "center",
   },
 ];
+
+export const titleRevealLayout = {
+  extraEffects: [],
+  heroes: [
+    {
+      id: "human",
+      image: assets.images.humanHero,
+      region: "left",
+      centerX: "25%",
+      width: 620,
+    },
+    {
+      id: "heaven",
+      image: assets.images.heavenHero,
+      region: "center",
+      centerX: "50%",
+      width: 620,
+    },
+    {
+      id: "ghost",
+      image: assets.images.ghostHero,
+      region: "right",
+      centerX: "75%",
+      width: 620,
+    },
+  ],
+  heroBottom: -126,
+  heroFadeOutStart: 48,
+  heroFadeOutEnd: 86,
+  title: {
+    width: 640,
+    centered: true,
+    fadeInStart: 54,
+    fadeInEnd: 92,
+  },
+} as const;
 
 export const subtitles = [
   { text: "从一座据点开始", from: 18, duration: 36 },
