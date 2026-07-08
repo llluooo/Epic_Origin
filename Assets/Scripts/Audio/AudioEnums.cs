@@ -29,7 +29,7 @@ public enum SFX
     CardCancel,          // 出牌阶段：取消选择
     Attack,              // 攻击
     Defend,              // 防守 / 受击表现
-    TakeDamage,          // 扣血
+    UnitDeath,           // 单位阵亡（原TakeDamage改名）
 
     // ---- 结算 ----
     Flee,                // 逃跑

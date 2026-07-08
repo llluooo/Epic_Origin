@@ -62,7 +62,7 @@ public class BattleManager
         BattleCard attacker = attackerList[attackerIndex];
         BattleCard defender = defenderList[defenderIndex];
 
-        if (AudioManager.Instance != null)
+        if (isPlayerAttacking && AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(SFX.Attack);
 
         float attackModifier = BattleCalculator.GetRaceModifier(attacker.card.race, defender.card.race);
@@ -71,13 +71,10 @@ public class BattleManager
         int defenderHPBefore = defender.currentHP;
         int defenderCountBefore = defender.currentCount;
 
-        if (AudioManager.Instance != null)
+        if (!isPlayerAttacking && AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(SFX.Defend);
 
         defender.TakeDamage(attackDamage);
-
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySFX(SFX.TakeDamage);
 
         Debug.Log($"[回合{currentRound} 当前攻方:{attackerName}] {attackerName} {attacker.card.cardName} 出牌，{defenderName} {defender.card.cardName} 应战。");
         Debug.Log($"伤害：{attacker.GetTotalAttack()}x{attackModifier:0.0#}={attackDamage}。");
@@ -86,6 +83,8 @@ public class BattleManager
         if (!defender.IsAlive())
         {
             Debug.Log($"{defender.card.cardName} 已阵亡。");
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(SFX.UnitDeath);
         }
 
         CheckBattleEnd();
@@ -108,6 +107,8 @@ public class BattleManager
 
         if (playerSide && AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(SFX.Flee);
+
+        AudioManager.Instance?.StopBGM();
 
         outcome = playerSide ? BattleOutcome.PlayerSurrender : BattleOutcome.EnemySurrender;
         battleResult = playerSide ? "玩家投降" : "敌方投降";
@@ -172,7 +173,10 @@ public class BattleManager
             battleResult = "玩家胜利";
 
             if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopBGM();
                 AudioManager.Instance.PlaySFX(SFX.BattleVictory);
+            }
         }
         else if (!playerAlive && enemyAlive)
         {
@@ -180,7 +184,10 @@ public class BattleManager
             battleResult = "敌方胜利";
 
             if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopBGM();
                 AudioManager.Instance.PlaySFX(SFX.Defeat);
+            }
         }
         else
         {
