@@ -802,9 +802,12 @@ public class GameManager : MonoBehaviour
         int playerScore = player.deck.GetTotalCombatPower() + player.resources.gold + player.resources.buildingMaterials;
         int aiScore = aiPlayer.deck.GetTotalCombatPower() + aiPlayer.resources.gold + aiPlayer.resources.buildingMaterials;
 
-        return $"玩家战力: {player.deck.GetTotalCombatPower()}  资源: {player.resources.gold} 金币 / {player.resources.buildingMaterials} 建材\n"
-             + $"电脑战力: {aiPlayer.deck.GetTotalCombatPower()}  资源: {aiPlayer.resources.gold} 金币 / {aiPlayer.resources.buildingMaterials} 建材\n"
-             + $"最终评分: 玩家 {playerScore} / 电脑 {aiScore}";
+        string finalResult = gameEndMessage;
+
+        return $"回合数: {Mathf.Min(currentTurn, maxTurn)}/{maxTurn}\n"
+             + $"玩家据点等级: Lv{player.strongholdLevel}\n"
+             + $"玩家资源: {player.resources.gold} 金币, {player.resources.buildingMaterials} 建材\n"
+             + $"结局: {finalResult}";
     }
 
     private void NotifyGameEndUI()
