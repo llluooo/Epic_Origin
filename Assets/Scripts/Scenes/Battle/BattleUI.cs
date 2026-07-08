@@ -104,6 +104,10 @@ public class BattleUI : MonoBehaviour
         }
 
         selectedPlayerIndex = index;
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.CardSelect);
+
         RefreshUI();
     }
 
