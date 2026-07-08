@@ -62,12 +62,22 @@ public class BattleManager
         BattleCard attacker = attackerList[attackerIndex];
         BattleCard defender = defenderList[defenderIndex];
 
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.Attack);
+
         float attackModifier = BattleCalculator.GetRaceModifier(attacker.card.race, defender.card.race);
         int attackDamage = BattleCalculator.CalculateAttackDamage(attacker, defender);
 
         int defenderHPBefore = defender.currentHP;
         int defenderCountBefore = defender.currentCount;
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.Defend);
+
         defender.TakeDamage(attackDamage);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.TakeDamage);
 
         Debug.Log($"[回合{currentRound} 当前攻方:{attackerName}] {attackerName} {attacker.card.cardName} 出牌，{defenderName} {defender.card.cardName} 应战。");
         Debug.Log($"伤害：{attacker.GetTotalAttack()}x{attackModifier:0.0#}={attackDamage}。");
@@ -95,6 +105,10 @@ public class BattleManager
         }
 
         battleEnded = true;
+
+        if (playerSide && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.Flee);
+
         outcome = playerSide ? BattleOutcome.PlayerSurrender : BattleOutcome.EnemySurrender;
         battleResult = playerSide ? "玩家投降" : "敌方投降";
         Debug.Log($"战斗结束：{battleResult}");
@@ -156,11 +170,17 @@ public class BattleManager
         {
             outcome = BattleOutcome.PlayerVictory;
             battleResult = "玩家胜利";
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(SFX.BattleVictory);
         }
         else if (!playerAlive && enemyAlive)
         {
             outcome = BattleOutcome.EnemyVictory;
             battleResult = "敌方胜利";
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(SFX.Defeat);
         }
         else
         {
