@@ -189,6 +189,10 @@ public class SaveSlotView : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         if (!hasSave && !allowSaveToEmpty) return;
 
+        // 播放点击音效（SaveSlotView 使用 IPointerClickHandler，不走 Button 组件）
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.ButtonClick);
+
         AnimateTo(1f, UITheme.ClickScale);
         StartCoroutine(RestoreScaleAfterClick());
 

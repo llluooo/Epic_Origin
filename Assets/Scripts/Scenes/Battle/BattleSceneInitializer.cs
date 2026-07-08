@@ -16,6 +16,7 @@ public class BattleSceneInitializer : MonoBehaviour
 
     void Start()
     {
+        AudioManager.Instance?.PlayBGM(BGM.Battle);
         ConfigureBattleSceneCamera();
         EnsureUsableEventSystem();
 

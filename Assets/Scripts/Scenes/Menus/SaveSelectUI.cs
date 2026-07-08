@@ -68,6 +68,8 @@ public class SaveSelectUI : MonoBehaviour
 
     private void Start()
     {
+        AudioManager.Instance?.PlayBGM(BGM.MainMenu);
+
         RefreshAllSlots();
         if (messageText != null)
             messageText.gameObject.SetActive(false);

@@ -54,16 +54,12 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        AudioManager.Instance?.PlayBGM(BGM.Map);
+
         if (endTurnButton != null)
-        {
-            endTurnButton.onClick.RemoveAllListeners();
             endTurnButton.onClick.AddListener(OnEndTurnButton);
-        }
         if (saveButton != null)
-        {
-            saveButton.onClick.RemoveAllListeners();
             saveButton.onClick.AddListener(OnSaveButton);
-        }
     }
 
     void Update()

@@ -58,6 +58,8 @@ public class RaceSelectUI : MonoBehaviour
 
     void Start()
     {
+        AudioManager.Instance?.PlayBGM(BGM.MainMenu);
+
         if (confirmButton != null)
         {
             confirmButton.interactable = false;

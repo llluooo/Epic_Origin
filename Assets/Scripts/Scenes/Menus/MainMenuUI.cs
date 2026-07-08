@@ -14,6 +14,8 @@ public class MainMenuUI : MonoBehaviour
 
     void Start()
     {
+        AudioManager.Instance?.PlayBGM(BGM.MainMenu);
+
         newGameButton.onClick.AddListener(OnNewGame);
         loadGameButton.onClick.AddListener(OnLoadGame);
         settingsButton.onClick.AddListener(OnSettings);
