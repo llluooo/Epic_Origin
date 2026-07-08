@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff2e6e80c6b10f4e9459798f046fa02, type: 3}
+  m_Name: AudioLibrary
+  m_EditorClassIdentifier: 
+  bgm:
+  - key: 1
+    clip: {fileID: 8300000, guid: df82f56c1e123434fbb487180f58def5, type: 3}
+  - key: 2
+    clip: {fileID: 8300000, guid: 0491be68d65f5d3419a5ff1caaa44dd7, type: 3}
+  - key: 3
+    clip: {fileID: 8300000, guid: 5e06ae107e6fd38408e072374e94b8da, type: 3}
+  - key: 4
+    clip: {fileID: 8300000, guid: 4b64b88a6f7279e4e9fdb786c1986153, type: 3}
+  sfx:
+  - key: 0
+    clip: {fileID: 8300000, guid: 9fd5a5097276cf44f877ea4e729f8da4, type: 3}
+  - key: 1
+    clip: {fileID: 8300000, guid: 420ca0c83753f64449dc4077de3a95c9, type: 3}
+  - key: 2
+    clip: {fileID: 8300000, guid: f9f74a4de76c44f408ed78d333074488, type: 3}
+  - key: 3
+    clip: {fileID: 8300000, guid: 4c4f6b7d0daa59644a86bb87d018be1a, type: 3}
+  - key: 4
+    clip: {fileID: 8300000, guid: 815001a426c522e4fa1baaeddfd5e559, type: 3}
+  - key: 5
+    clip: {fileID: 8300000, guid: a4950b62bdc028b47adfde65ccd3904f, type: 3}
+  - key: 6
+    clip: {fileID: 8300000, guid: 7cc822f721b75f242a4dd536014b05fb, type: 3}
+  - key: 7
+    clip: {fileID: 8300000, guid: 066186830f1174d43abf228465eb8415, type: 3}
+  - key: 8
+    clip: {fileID: 8300000, guid: af6de8abafaece0459c542e1dc1a3ad1, type: 3}
+  - key: 9
+    clip: {fileID: 8300000, guid: 3839cf4ddecdbdc45864a227c768d616, type: 3}
+  - key: 10
+    clip: {fileID: 8300000, guid: 2d16eaa7d24b792469ceae59bdcc0938, type: 3}
+  - key: 11
+    clip: {fileID: 8300000, guid: 50b016f44f278e34ea47af98277982c9, type: 3}
+  - key: 12
+    clip: {fileID: 8300000, guid: a8f570aea83bcfe42a994e2b8a41a2a8, type: 3}
+  - key: 13
+    clip: {fileID: 8300000, guid: 791983b7823f74e43a11862d4372bc30, type: 3}
+  - key: 14
+    clip: {fileID: 8300000, guid: ae37c55f6e31fdb468c9139426ea893c, type: 3}
+  - key: 15
+    clip: {fileID: 8300000, guid: e7f65129dc8680445be5a86e6a2d947e, type: 3}
+  - key: 16
+    clip: {fileID: 8300000, guid: b787bf8ff884b2f419c456a882b7a409, type: 3}
