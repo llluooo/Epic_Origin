@@ -216,7 +216,6 @@ public class GameMenuUI : MonoBehaviour
 
     void OnSettings()
     {
-        EnsureSettingsUI();
         if (settingsUI != null)
             settingsUI.Open();
     }
@@ -238,17 +237,6 @@ public class GameMenuUI : MonoBehaviour
         Debug.Log("退出游戏，返回主菜单");
         GameSession.ClearAll();
         SceneManager.LoadScene("MainMenuScene");
-    }
-
-    void EnsureSettingsUI()
-    {
-        if (settingsUI != null)
-            return;
-
-        Transform parent = panel != null ? panel.transform : transform;
-        settingsUI = parent.GetComponentInChildren<SettingsUI>(true);
-        if (settingsUI == null)
-            settingsUI = SettingsUI.CreateRuntimeSettingsUI(parent);
     }
 
     void SetupButtonTexts()
