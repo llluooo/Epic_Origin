@@ -30,9 +30,8 @@ public class GameMenuUI : MonoBehaviour
     public Button confirmExitYesButton;
     public Button confirmExitNoButton;
 
-    [Header("设置占位")]
-    public GameObject placeholderPanel;
-    public TMP_Text placeholderText;
+    [Header("设置")]
+    public SettingsUI settingsUI;
 
     [Header("地图输入")]
     public InputManager inputManager;
@@ -42,7 +41,6 @@ public class GameMenuUI : MonoBehaviour
     public SaveGameUI saveGameUI;
 
     public bool IsOpen { get; private set; }
-    private float placeholderTimer;
 
     void Start()
     {
@@ -85,8 +83,6 @@ public class GameMenuUI : MonoBehaviour
             loadSlotContainer.SetActive(false);
         if (confirmExitPanel != null)
             confirmExitPanel.SetActive(false);
-        if (placeholderPanel != null)
-            placeholderPanel.SetActive(false);
 
         SetupButtonTexts();
         SetupConfirmExitText();
@@ -95,13 +91,6 @@ public class GameMenuUI : MonoBehaviour
     void Update()
     {
         if (!IsOpen) return;
-
-        if (placeholderTimer > 0)
-        {
-            placeholderTimer -= Time.deltaTime;
-            if (placeholderTimer <= 0 && placeholderPanel != null)
-                placeholderPanel.SetActive(false);
-        }
     }
 
     /// <summary>
@@ -111,6 +100,11 @@ public class GameMenuUI : MonoBehaviour
     /// </summary>
     public bool HandleEsc()
     {
+        if (settingsUI != null && settingsUI.panel != null && settingsUI.panel.activeSelf)
+        {
+            settingsUI.Close();
+            return true;
+        }
         if (confirmExitPanel != null && confirmExitPanel.activeSelf)
         {
             HideConfirmExit();
@@ -136,8 +130,8 @@ public class GameMenuUI : MonoBehaviour
 
         HideLoadSlots();
         HideConfirmExit();
-        if (placeholderPanel != null)
-            placeholderPanel.SetActive(false);
+        if (settingsUI != null)
+            settingsUI.Close();
 
         IsOpen = true;
         Debug.Log("打开游戏菜单");
@@ -152,8 +146,8 @@ public class GameMenuUI : MonoBehaviour
 
         HideLoadSlots();
         HideConfirmExit();
-        if (placeholderPanel != null)
-            placeholderPanel.SetActive(false);
+        if (settingsUI != null)
+            settingsUI.Close();
 
         IsOpen = false;
         Debug.Log("关闭游戏菜单");
@@ -222,13 +216,9 @@ public class GameMenuUI : MonoBehaviour
 
     void OnSettings()
     {
-        if (placeholderPanel != null)
-        {
-            placeholderPanel.SetActive(true);
-            if (placeholderText != null)
-                placeholderText.text = "设置功能开发中...";
-        }
-        placeholderTimer = 3f;
+        EnsureSettingsUI();
+        if (settingsUI != null)
+            settingsUI.Open();
     }
 
     void OnExit()
@@ -248,6 +238,17 @@ public class GameMenuUI : MonoBehaviour
         Debug.Log("退出游戏，返回主菜单");
         GameSession.ClearAll();
         SceneManager.LoadScene("MainMenuScene");
+    }
+
+    void EnsureSettingsUI()
+    {
+        if (settingsUI != null)
+            return;
+
+        Transform parent = panel != null ? panel.transform : transform;
+        settingsUI = parent.GetComponentInChildren<SettingsUI>(true);
+        if (settingsUI == null)
+            settingsUI = SettingsUI.CreateRuntimeSettingsUI(parent);
     }
 
     void SetupButtonTexts()

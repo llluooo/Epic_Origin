@@ -250,6 +250,7 @@ MonoBehaviour:
   loadGameButton: {fileID: 1715479920}
   settingsButton: {fileID: 965347870}
   exitButton: {fileID: 977620682}
+  settingsUI: {fileID: 0}
 --- !u!114 &130616823
 MonoBehaviour:
   m_ObjectHideFlags: 0

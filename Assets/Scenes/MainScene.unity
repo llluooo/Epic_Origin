@@ -1566,7 +1566,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &130815849
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10224,8 +10224,7 @@ MonoBehaviour:
   confirmExitPanel: {fileID: 42259541}
   confirmExitYesButton: {fileID: 2085192409}
   confirmExitNoButton: {fileID: 815815644}
-  placeholderPanel: {fileID: 130815848}
-  placeholderText: {fileID: 585180773}
+  settingsUI: {fileID: 0}
   inputManager: {fileID: 1592030750}
   heroStatusUI: {fileID: 1591758451}
   saveGameUI: {fileID: 149731345}
