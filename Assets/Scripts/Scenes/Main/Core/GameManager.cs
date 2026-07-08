@@ -24,8 +24,14 @@ public class GameManager : MonoBehaviour
     public Player aiPlayer;
 
     public bool IsGameEnded => gameEnded;
+    public string GameEndTitle => gameEndTitle;
+    public string GameEndMessage => gameEndMessage;
+    public string GameEndDetail => gameEndDetail;
 
     private bool gameEnded = false;
+    private string gameEndTitle = "";
+    private string gameEndMessage = "";
+    private string gameEndDetail = "";
     private BattleEncounterType pendingBattleType = BattleEncounterType.None;
     private AIController aiController;
     public AIHero aiHero;
@@ -54,6 +60,48 @@ public class GameManager : MonoBehaviour
 
         StartGame();
     }
+
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F10))
+        {
+            TriggerGameEndVictoryTest();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F11))
+        {
+            TriggerGameEndDrawTest();
+        }
+    }
+#endif
+
+    public void TriggerGameEndVictoryTest()
+    {
+        if (gameEnded)
+            return;
+
+        Debug.Log("[Debug] 触发游戏结束结算测试（胜利）");
+        SetGameEndSummary(player, false);
+        gameEnded = true;
+        isBattleActive = false;
+        currentState = GameState.End;
+        NotifyGameEndUI();
+    }
+
+    public void TriggerGameEndDrawTest()
+    {
+        if (gameEnded)
+            return;
+
+        Debug.Log("[Debug] 触发游戏结束结算测试（平局）");
+        SetGameEndSummary(null, true);
+        gameEnded = true;
+        isBattleActive = false;
+        currentState = GameState.End;
+        NotifyGameEndUI();
+    }
+
 
     private void OnEnable()
     {
@@ -158,6 +206,11 @@ public class GameManager : MonoBehaviour
             GameSession.ClearPendingBattleAfterResolution();
             Vector2Int restoredAIHeroPos = state.hasAIHeroGridPos ? state.aiHeroGridPos : aiPlayer.strongholdPos;
             GameSession.UpdateRunState(GameRunState.Capture(this, state.heroGridPos, restoredAIHeroPos, state.mapState));
+        }
+
+        if (gameEnded)
+        {
+            UIManager.Instance?.ShowGameEndPanel(GameEndTitle, GameEndMessage, GameEndDetail);
         }
 
         Debug.Log("游戏管理器：已从运行会话恢复主地图运行状态。");
@@ -693,6 +746,8 @@ public class GameManager : MonoBehaviour
         gameEnded = true;
         isBattleActive = false;
         currentState = GameState.End;
+        SetGameEndSummary(winner, false);
+        NotifyGameEndUI();
         Debug.Log($"{winner.playerName} 胜利！游戏结束。");
     }
 
@@ -709,16 +764,72 @@ public class GameManager : MonoBehaviour
 
         if (playerScore > aiScore)
         {
-            WinGame(player);
+            SetGameEndSummary(player, false);
         }
         else if (aiScore > playerScore)
         {
-            WinGame(aiPlayer);
+            SetGameEndSummary(aiPlayer, false);
         }
         else
         {
+            SetGameEndSummary(null, true);
             Debug.Log("平局。");
         }
+
+        NotifyGameEndUI();
+    }
+
+    private void SetGameEndSummary(Player winner, bool isDraw)
+    {
+        gameEndTitle = "游戏结束";
+        if (isDraw)
+        {
+            gameEndMessage = "平局，双方势均力敌。";
+        }
+        else if (winner != null)
+        {
+            gameEndMessage = winner == player ? "你获得了胜利！" : "电脑获胜，游戏结束。";
+        }
+        else
+        {
+            gameEndMessage = "游戏结束。";
+        }
+        gameEndDetail = BuildGameEndDetail();
+    }
+
+    private string BuildGameEndDetail()
+    {
+        int playerScore = player.deck.GetTotalCombatPower() + player.resources.gold + player.resources.buildingMaterials;
+        int aiScore = aiPlayer.deck.GetTotalCombatPower() + aiPlayer.resources.gold + aiPlayer.resources.buildingMaterials;
+
+        return $"玩家战力: {player.deck.GetTotalCombatPower()}  资源: {player.resources.gold} 金币 / {player.resources.buildingMaterials} 建材\n"
+             + $"电脑战力: {aiPlayer.deck.GetTotalCombatPower()}  资源: {aiPlayer.resources.gold} 金币 / {aiPlayer.resources.buildingMaterials} 建材\n"
+             + $"最终评分: 玩家 {playerScore} / 电脑 {aiScore}";
+    }
+
+    private void NotifyGameEndUI()
+    {
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowGameEndPanel(GameEndTitle, GameEndMessage, GameEndDetail);
+            return;
+        }
+
+        UIManager ui = FindObjectOfType<UIManager>();
+        if (ui != null)
+        {
+            ui.ShowGameEndPanel(GameEndTitle, GameEndMessage, GameEndDetail);
+            return;
+        }
+
+        GameEndUI endUI = FindObjectOfType<GameEndUI>();
+        if (endUI == null)
+        {
+            GameObject uiObject = new GameObject("GameEndUI");
+            endUI = uiObject.AddComponent<GameEndUI>();
+        }
+
+        endUI.Open(GameEndTitle, GameEndMessage, GameEndDetail);
     }
 
     private CameraFollow GetCameraFollow()

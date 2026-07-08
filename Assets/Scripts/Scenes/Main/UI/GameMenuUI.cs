@@ -41,6 +41,9 @@ public class GameMenuUI : MonoBehaviour
     public HeroStatusUI heroStatusUI;
     public SaveGameUI saveGameUI;
 
+    [Header("开发测试")]
+    public Button testEndGameButton;
+
     public bool IsOpen { get; private set; }
     private float placeholderTimer;
 
@@ -48,6 +51,8 @@ public class GameMenuUI : MonoBehaviour
     {
         if (panel != null)
             panel.SetActive(false);
+
+        CreateTestButtonIfMissing();
 
         if (continueButton != null)
             continueButton.onClick.AddListener(Close);
@@ -61,6 +66,8 @@ public class GameMenuUI : MonoBehaviour
             settingsButton.onClick.AddListener(OnSettings);
         if (exitButton != null)
             exitButton.onClick.AddListener(OnExit);
+        if (testEndGameButton != null)
+            testEndGameButton.onClick.AddListener(OnTestEndGame);
         if (loadBackButton != null)
             loadBackButton.onClick.AddListener(HideLoadSlots);
         if (confirmExitYesButton != null)
@@ -231,6 +238,15 @@ public class GameMenuUI : MonoBehaviour
         placeholderTimer = 3f;
     }
 
+    void OnTestEndGame()
+    {
+        Close();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.TriggerGameEndVictoryTest();
+        }
+    }
+
     void OnExit()
     {
         if (confirmExitPanel != null)
@@ -286,6 +302,52 @@ public class GameMenuUI : MonoBehaviour
             msgText.color = Color.white;
         }
         msgText.text = "确定要退出游戏吗？";
+    }
+
+    void CreateTestButtonIfMissing()
+    {
+        if (testEndGameButton != null)
+            return;
+
+        if (panel == null)
+            return;
+
+        GameObject buttonObject = new GameObject("TestEndGameButton");
+        buttonObject.transform.SetParent(panel.transform, false);
+
+        Image buttonImage = buttonObject.AddComponent<Image>();
+        buttonImage.color = new Color(0.4f, 0.6f, 0.95f, 1f);
+
+        Button button = buttonObject.AddComponent<Button>();
+        testEndGameButton = button;
+
+        RectTransform rect = buttonObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.05f, 0.05f);
+        rect.anchorMax = new Vector2(0.3f, 0.15f);
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        TMP_Text buttonText = CreateButtonText(buttonObject.transform, "测试结算");
+        buttonText.fontSize = 22;
+
+        button.onClick.AddListener(OnTestEndGame);
+    }
+
+    TMP_Text CreateButtonText(Transform parent, string text)
+    {
+        GameObject textObj = new GameObject("Text");
+        textObj.transform.SetParent(parent, false);
+        TMP_Text tmpText = textObj.AddComponent<TextMeshProUGUI>();
+        tmpText.fontSize = 24;
+        tmpText.alignment = TMPro.TextAlignmentOptions.Center;
+        tmpText.color = Color.white;
+        tmpText.text = text;
+        RectTransform rect = tmpText.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        return tmpText;
     }
 
     void SetButtonText(Button button, string text)

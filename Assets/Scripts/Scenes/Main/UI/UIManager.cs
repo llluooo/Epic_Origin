@@ -30,6 +30,9 @@ public class UIManager : MonoBehaviour
     [Header("据点面板")]
     public StrongholdUI strongholdUI;
 
+    [Header("游戏结束结算面板")]
+    public GameEndUI gameEndUI;
+
     /// <summary>
     /// 是否有任何面板处于打开状态。面板打开时游戏后台应完全暂停。
     /// </summary>
@@ -40,7 +43,8 @@ public class UIManager : MonoBehaviour
             return (heroStatusUI != null && heroStatusUI.IsOpen)
                 || (gameMenuUI != null && gameMenuUI.IsOpen)
                 || (strongholdUI != null && strongholdUI.IsOpen)
-                || (saveGameUI != null && saveGameUI.IsOpen);
+                || (saveGameUI != null && saveGameUI.IsOpen)
+                || (gameEndUI != null && gameEndUI.IsOpen);
         }
     }
 
@@ -170,6 +174,11 @@ public class UIManager : MonoBehaviour
             endTurnButton.interactable = gm.isPlayerTurn && !gm.IsGameEnded && !paused;
         if (saveButton != null)
             saveButton.interactable = gm.isPlayerTurn && !gm.IsGameEnded && !paused;
+
+        if (gm.IsGameEnded && gameEndUI != null && !gameEndUI.IsOpen)
+        {
+            gameEndUI.Open(gm.GameEndTitle, gm.GameEndMessage, gm.GameEndDetail);
+        }
     }
 
     public void OnEndTurnButton()
@@ -181,5 +190,33 @@ public class UIManager : MonoBehaviour
     {
         if (saveGameUI != null)
             saveGameUI.Open();
+    }
+
+    public void ShowGameEndPanel(string title, string message, string detail)
+    {
+        if (gameEndUI == null)
+        {
+            gameEndUI = FindObjectOfType<GameEndUI>();
+            if (gameEndUI == null)
+            {
+                gameEndUI = CreateGameEndUI();
+            }
+        }
+
+        if (gameEndUI != null)
+        {
+            gameEndUI.Open(title, message, detail);
+        }
+        else
+        {
+            Debug.LogWarning("未找到 GameEndUI，无法显示游戏结算面板。");
+        }
+    }
+
+    private GameEndUI CreateGameEndUI()
+    {
+        GameObject uiObject = new GameObject("GameEndUI");
+        GameEndUI endUI = uiObject.AddComponent<GameEndUI>();
+        return endUI;
     }
 }
