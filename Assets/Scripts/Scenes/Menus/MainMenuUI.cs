@@ -39,7 +39,6 @@ public class MainMenuUI : MonoBehaviour
 
     void OnSettings()
     {
-        EnsureSettingsUI();
         if (settingsUI != null)
             settingsUI.Open();
     }
@@ -52,13 +51,5 @@ public class MainMenuUI : MonoBehaviour
 #endif
     }
 
-    void EnsureSettingsUI()
-    {
-        if (settingsUI != null)
-            return;
 
-        settingsUI = GetComponentInChildren<SettingsUI>(true);
-        if (settingsUI == null)
-            settingsUI = SettingsUI.CreateRuntimeSettingsUI(transform);
-    }
 }
