@@ -56,6 +56,18 @@ public class RuntimeStateTests
     }
 
     [Test]
+    public void CloneDeck_preserves_slot_limit_setting()
+    {
+        Deck original = new Deck { hasSlotLimit = true };
+        original.AddCard(HumanUnit.CreateCard(0));
+
+        Deck clone = GameRunState.CloneDeck(original);
+
+        Assert.IsTrue(clone.hasSlotLimit);
+        Assert.AreEqual(original.CardCount, clone.CardCount);
+    }
+
+    [Test]
     public void MapState_capture_records_tile_kind_position_and_stronghold_metadata()
     {
         Tile[,] map = new Tile[2, 2];

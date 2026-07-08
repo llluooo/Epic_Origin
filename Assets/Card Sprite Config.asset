@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9116d618023774b98ce508a3677f79, type: 3}
+  m_Name: Card Sprite Config
+  m_EditorClassIdentifier: 
+  humanSprites:
+  - {fileID: 21300000, guid: 33b55773f93f4934299e2b4a8084b894, type: 3}
+  - {fileID: 21300000, guid: 3e7acbfef4b71064e9f25d5190f83314, type: 3}
+  - {fileID: 21300000, guid: d942d0b3521540a419708f60bae0d0c2, type: 3}
+  - {fileID: 21300000, guid: c44dd50b840bd63419511e79e1bbcd46, type: 3}
+  - {fileID: 21300000, guid: 80ebac8dd30e04f49b00658674429d2c, type: 3}
+  heavenSprites:
+  - {fileID: 21300000, guid: 17ebe0494c233f245b210e4322984fae, type: 3}
+  - {fileID: 21300000, guid: 393117efaceb28a44a7b3aea794133d0, type: 3}
+  - {fileID: 21300000, guid: 62f128c6b2584b94fa80491fcc423991, type: 3}
+  - {fileID: 21300000, guid: 2a3a7a54f8218ad4085eccc1ce23a196, type: 3}
+  - {fileID: 21300000, guid: cd1625a954c0a0d4ab1834ba7a5436ae, type: 3}
+  ghostSprites:
+  - {fileID: 21300000, guid: dc989de7ad4f9d642b6dc86aedd5bdf3, type: 3}
+  - {fileID: 21300000, guid: 103ea167916af1243b18f108f10c1c34, type: 3}
+  - {fileID: 21300000, guid: 48878af2ec2545646857ede8ef8ce878, type: 3}
+  - {fileID: 21300000, guid: 884951ac920906847affbda030d5cedd, type: 3}
+  - {fileID: 21300000, guid: dd4a4bb5ddbad174ead5427c3bff16fa, type: 3}

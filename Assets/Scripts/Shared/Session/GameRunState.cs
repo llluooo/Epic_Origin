@@ -98,6 +98,7 @@ public class GameRunState
             resources = new ResourceData(source.resources?.gold ?? 0, source.resources?.buildingMaterials ?? 0),
             strongholdLevel = source.strongholdLevel,
             deck = CloneDeck(source.deck),
+            garrisonDeck = CloneDeck(source.garrisonDeck),
             strongholdPos = source.strongholdPos
         };
     }
@@ -110,6 +111,7 @@ public class GameRunState
             return clone;
         }
 
+        clone.hasSlotLimit = source.hasSlotLimit;
         foreach (Card card in source.cards)
         {
             clone.AddCard(card?.Clone());

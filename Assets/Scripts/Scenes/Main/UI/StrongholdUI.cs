@@ -42,6 +42,9 @@ public class StrongholdUI : MonoBehaviour
     public Sprite heavenStrongholdBg;
     public Sprite ghostStrongholdBg;
 
+    [Header("兵力检查")]
+    public Button garrisonButton;
+
     [Header("离开")]
     public Button leaveButton;
 
@@ -63,6 +66,7 @@ public class StrongholdUI : MonoBehaviour
             strongholdCamera.enabled = false;
 
         upgradeButton.onClick.AddListener(OnUpgrade);
+        garrisonButton.onClick.AddListener(OnGarrisonCheck);
         leaveButton.onClick.AddListener(Close);
 
         // 绑定每张卡牌的召唤回调
@@ -223,6 +227,35 @@ public class StrongholdUI : MonoBehaviour
         {
             ShowMessage("召唤失败，请检查资源！");
         }
+    }
+
+    void OnGarrisonCheck()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null) return;
+
+        Hero hero = FindObjectOfType<Hero>();
+        MapGenerator mapGenerator = FindObjectOfType<MapGenerator>();
+        if (hero == null || mapGenerator == null)
+        {
+            Debug.LogError("无法进入兵力管理：缺少英雄或地图生成器。");
+            return;
+        }
+
+        MapState mapState = mapGenerator.CaptureMapState();
+        if (mapState == null)
+        {
+            Debug.LogError("无法进入兵力管理：地图状态保存失败。");
+            return;
+        }
+
+        GameRunState runState = GameRunState.Capture(gm, hero, mapState);
+        // 用当前玩家兵力覆盖 runState 中的副本
+        runState.player.deck = GameRunState.CloneDeck(gm.player.deck);
+        runState.player.garrisonDeck = GameRunState.CloneDeck(gm.player.garrisonDeck);
+
+        GarrisonSceneBridge.LoadGarrisonScene(runState);
+        Debug.Log("进入据点兵力管理场景");
     }
 
     void ShowMessage(string msg)
