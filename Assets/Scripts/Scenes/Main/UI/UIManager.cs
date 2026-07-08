@@ -33,6 +33,9 @@ public class UIManager : MonoBehaviour
     [Header("游戏结束结算面板")]
     public GameEndUI gameEndUI;
 
+    [Header("地图操作反馈消息区域")]
+    public MessageLogUI messageLogUI;
+
     /// <summary>
     /// 是否有任何面板处于打开状态。面板打开时游戏后台应完全暂停。
     /// </summary>

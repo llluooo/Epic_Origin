@@ -374,6 +374,7 @@ public class GameManager : MonoBehaviour
         ResourceData playerProd = player.GetTurnProduction();
         player.resources.Add(playerProd);
         Debug.Log($"玩家据点产出: {playerProd.gold}金币, {playerProd.buildingMaterials}建材");
+        MessageLogUI.Instance?.AddMessage($"据点产出: +{playerProd.gold}金币, +{playerProd.buildingMaterials}建材");
 
         ResourceData aiProd = aiPlayer.GetTurnProduction();
         aiPlayer.resources.Add(aiProd);
@@ -582,21 +583,27 @@ public class GameManager : MonoBehaviour
                     rewardCard.quantity = 1;
                     rewardCard.currentHP = rewardCard.GetMaxHP();
                     player.deck.AddCard(rewardCard);
-                    Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
+                    string msg = $"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。";
+                    Debug.Log(msg);
+                    MessageLogUI.Instance?.AddMessage(msg);
                 }
             }
             else
             {
                 int goldReward = Random.Range(30, 51);
                 player.resources.gold += goldReward;
-                Debug.Log($"战胜兵营！获得 {goldReward} 金币。");
+                string msg = $"战胜兵营！获得 {goldReward} 金币。";
+                Debug.Log(msg);
+                MessageLogUI.Instance?.AddMessage(msg);
             }
 
             return;
         }
 
         RemovePlayerBattleCards();
-        Debug.Log("兵营战斗失败，参战卡牌已损失。");
+        string failMsg = "兵营战斗失败，参战卡牌已损失。";
+        Debug.Log(failMsg);
+        MessageLogUI.Instance?.AddMessage(failMsg);
     }
 
     private void ResolveEnemyStrongholdBattle(BattleOutcome outcome)
@@ -614,6 +621,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("攻打敌方据点失败，返回主地图继续游戏。");
+        MessageLogUI.Instance?.AddMessage("攻打敌方据点失败，返回主地图继续游戏。");
     }
 
     private void ApplySurrenderPenalty()
@@ -634,6 +642,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log($"逃跑惩罚：损失 {goldLost} 金币、{matLost} 建材、{cardsToLose} 张卡牌。");
+        MessageLogUI.Instance?.AddMessage($"逃跑惩罚：损失 {goldLost} 金币、{matLost} 建材、{cardsToLose} 张卡牌");
     }
 
     private void RemovePlayerBattleCards()

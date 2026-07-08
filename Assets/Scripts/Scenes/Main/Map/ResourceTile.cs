@@ -10,12 +10,16 @@ public class ResourceTile : Tile
         if (giveGold)
         {
             GameManager.Instance.player.AddResources(new ResourceData(amount, 0));
-            Debug.Log($"获得资源: {amount}金币");
+            string msg = $"获得资源: {amount}金币";
+            Debug.Log(msg);
+            MessageLogUI.Instance?.AddMessage(msg);
         }
         else
         {
             GameManager.Instance.player.AddResources(new ResourceData(0, amount));
-            Debug.Log($"获得资源: {amount}建材");
+            string msg = $"获得资源: {amount}建材";
+            Debug.Log(msg);
+            MessageLogUI.Instance?.AddMessage(msg);
         }
     }
 }

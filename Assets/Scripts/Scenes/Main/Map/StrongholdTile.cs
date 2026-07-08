@@ -22,7 +22,9 @@ public class StrongholdTile : Tile
             }
             else
             {
-                Debug.Log("进入己方据点，但据点界面未绑定。");
+                string msg = "进入己方据点，但据点界面未绑定。";
+                Debug.Log(msg);
+                MessageLogUI.Instance?.AddMessage(msg);
             }
 
             return;
@@ -35,6 +37,9 @@ public class StrongholdTile : Tile
             return;
         }
 
+        string msg2 = "进入敌方据点，切换到战斗场景。";
+        Debug.Log(msg2);
+        MessageLogUI.Instance?.AddMessage(msg2);
         gameManager.StartEnemyStrongholdBattle(gridPosition);
     }
 }

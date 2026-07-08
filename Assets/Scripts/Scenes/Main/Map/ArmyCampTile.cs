@@ -13,7 +13,9 @@ public class ArmyCampTile : Tile
         }
 
         List<Card> enemyDeck = CreateEnemyEncounterDeck();
-        Debug.Log("进入兵营，切换到战斗场景。");
+        string msg = "进入兵营，切换到战斗场景。";
+        Debug.Log(msg);
+        MessageLogUI.Instance?.AddMessage(msg);
         gameManager.StartArmyCampBattle(enemyDeck, gridPosition);
     }
 
