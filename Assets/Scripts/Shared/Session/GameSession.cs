@@ -8,9 +8,14 @@ public class GameSession : MonoBehaviour
     private PendingBattleState pendingBattle;
     private PendingBattleResult pendingBattleResult;
 
+    // 据点兵力场景返回数据
+    private Deck garrisonHeroDeck;
+    private Deck garrisonGarrisonDeck;
+
     public static bool HasRunState => instance != null && instance.runState != null;
     public static bool HasPendingBattle => instance != null && instance.pendingBattle != null;
     public static bool HasPendingBattleResult => instance != null && instance.pendingBattleResult != null;
+    public static bool HasGarrisonReturnState => instance != null && instance.garrisonHeroDeck != null;
 
     public static GameRunState RunState => instance != null ? instance.runState : null;
     public static PendingBattleState PendingBattle => instance != null ? instance.pendingBattle : null;
@@ -75,6 +80,52 @@ public class GameSession : MonoBehaviour
         instance.runState = null;
         instance.pendingBattle = null;
         instance.pendingBattleResult = null;
+        instance.garrisonHeroDeck = null;
+        instance.garrisonGarrisonDeck = null;
+    }
+
+    public static void StoreGarrisonState(GameRunState nextRunState)
+    {
+        GameSession session = EnsureExists();
+        session.runState = nextRunState?.Clone();
+
+        // 同时存储兵力数据到专用字段，供 GarrisonUI 读取
+        if (nextRunState?.player != null)
+        {
+            session.garrisonHeroDeck = GameRunState.CloneDeck(nextRunState.player.deck);
+            session.garrisonGarrisonDeck = GameRunState.CloneDeck(nextRunState.player.garrisonDeck);
+        }
+        else
+        {
+            session.garrisonHeroDeck = null;
+            session.garrisonGarrisonDeck = null;
+        }
+    }
+
+    public static void StoreGarrisonReturnData(Deck heroDeck, Deck garrisonDeck)
+    {
+        GameSession session = EnsureExists();
+        session.garrisonHeroDeck = GameRunState.CloneDeck(heroDeck);
+        session.garrisonGarrisonDeck = GameRunState.CloneDeck(garrisonDeck);
+    }
+
+    public static Deck GetGarrisonHeroDeck()
+    {
+        if (instance == null || instance.garrisonHeroDeck == null) return null;
+        return GameRunState.CloneDeck(instance.garrisonHeroDeck);
+    }
+
+    public static Deck GetGarrisonGarrisonDeck()
+    {
+        if (instance == null || instance.garrisonGarrisonDeck == null) return null;
+        return GameRunState.CloneDeck(instance.garrisonGarrisonDeck);
+    }
+
+    public static void ClearGarrisonReturnData()
+    {
+        if (instance == null) return;
+        instance.garrisonHeroDeck = null;
+        instance.garrisonGarrisonDeck = null;
     }
 
     public static void ResetForTests()

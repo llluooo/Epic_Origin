@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SaveSelectScene.unity
     guid: 4c4f911ace3ae4e4882a8de80ac6faf6
+  - enabled: 1
+    path: Assets/Scenes/GarrisonScene.unity
+    guid: 39341684dfd7f7c4e9e743b39f3df9fe
   m_configObjects: {}

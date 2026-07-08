@@ -81,7 +81,8 @@ public class GameManager : MonoBehaviour
             race = playerRace,
             resources = new ResourceData(100, 100),
             strongholdLevel = 1,
-            deck = new Deck(),
+            deck = new Deck { hasSlotLimit = true },
+            garrisonDeck = new Deck(),
             strongholdPos = new Vector2Int(0, 0)
         };
         DeckInit(player);
@@ -92,7 +93,8 @@ public class GameManager : MonoBehaviour
             race = aiRace,
             resources = new ResourceData(100, 100),
             strongholdLevel = 1,
-            deck = new Deck(),
+            deck = new Deck { hasSlotLimit = true },
+            garrisonDeck = new Deck(),
             strongholdPos = new Vector2Int(9, 9)
         };
         DeckInit(aiPlayer);
@@ -135,6 +137,16 @@ public class GameManager : MonoBehaviour
         {
             StartGame();
             return;
+        }
+
+        // 如果是据点兵力场景返回，恢复兵力数据
+        if (GameSession.HasGarrisonReturnState)
+        {
+            var savedState = GameRunState.ClonePlayer(state.player);
+            savedState.deck = GameSession.GetGarrisonHeroDeck() ?? savedState.deck;
+            savedState.garrisonDeck = GameSession.GetGarrisonGarrisonDeck() ?? savedState.garrisonDeck;
+            state.player = savedState;
+            GameSession.ClearGarrisonReturnData();
         }
 
         currentTurn = state.currentTurn;
@@ -371,7 +383,15 @@ public class GameManager : MonoBehaviour
 
             if (card != null)
             {
-                owner.deck.AddCard(card);
+                if (owner.TryAddToHeroDeck(card))
+                {
+                    // 成功加入英雄卡组
+                }
+                else
+                {
+                    owner.AddToGarrison(card);
+                    Debug.Log($"英雄兵力已满，{card.cardName} Lv{card.level} 自动移入据点。");
+                }
             }
         }
 
@@ -528,8 +548,16 @@ public class GameManager : MonoBehaviour
                     Card rewardCard = source.Clone();
                     rewardCard.quantity = 1;
                     rewardCard.currentHP = rewardCard.GetMaxHP();
-                    player.deck.AddCard(rewardCard);
-                    Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
+
+                    if (player.TryAddToHeroDeck(rewardCard))
+                    {
+                        Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
+                    }
+                    else
+                    {
+                        player.AddToGarrison(rewardCard);
+                        Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}，英雄兵力已满，自动移入据点。");
+                    }
                 }
             }
             else

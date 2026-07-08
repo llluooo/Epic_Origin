@@ -12,6 +12,7 @@ public class Player
     public ResourceData resources;
     public int strongholdLevel;
     public Deck deck;
+    public Deck garrisonDeck = new Deck();
 
     // 据点位置
     public Vector2Int strongholdPos;
@@ -172,6 +173,54 @@ public class Player
         int maxByMat = resources.buildingMaterials / cost.buildingMaterials;
         int max = Mathf.Min(maxByGold, maxByMat);
         return Mathf.Min(max, 99);
+    }
+
+    // ================== 兵力管理 ==================
+
+    /// <summary>
+    /// 尝试将卡牌加入英雄卡组，满槽则返回 false
+    /// </summary>
+    public bool TryAddToHeroDeck(Card card)
+    {
+        if (deck.CanAddCard(card))
+        {
+            deck.AddCard(card);
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 将卡牌加入据点驻军
+    /// </summary>
+    public void AddToGarrison(Card card)
+    {
+        garrisonDeck.AddCard(card);
+    }
+
+    /// <summary>
+    /// 将英雄卡组中指定索引的卡牌移入据点驻军
+    /// </summary>
+    public void TransferToGarrison(int deckIndex)
+    {
+        if (deckIndex < 0 || deckIndex >= deck.CardCount) return;
+        Card card = deck[deckIndex];
+        garrisonDeck.AddCard(card);
+        deck.RemoveCard(card);
+    }
+
+    /// <summary>
+    /// 将据点驻军中指定索引的卡牌移入英雄卡组（满槽则失败）
+    /// </summary>
+    public bool TransferToHero(int garrisonIndex)
+    {
+        if (garrisonIndex < 0 || garrisonIndex >= garrisonDeck.CardCount) return false;
+        Card card = garrisonDeck[garrisonIndex];
+        if (!deck.CanAddCard(card)) return false;
+
+        deck.AddCard(card);
+        garrisonDeck.RemoveCard(card);
+        return true;
     }
 
     /// <summary>
