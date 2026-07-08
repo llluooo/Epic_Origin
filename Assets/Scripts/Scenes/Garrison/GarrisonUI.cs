@@ -19,6 +19,9 @@ public class GarrisonUI : MonoBehaviour
     public GameObject garrisonEntryPrefab;
     public TMP_Text garrisonCountText;
 
+    [Header("卡牌图鉴")]
+    public CardSpriteConfig cardSpriteConfig;
+
     [Header("转移按钮")]
     public Button transferToGarrisonBtn;
     public Button transferToHeroBtn;
@@ -28,6 +31,12 @@ public class GarrisonUI : MonoBehaviour
 
     [Header("消息")]
     public TMP_Text messageText;
+
+    [Header("种族背景")]
+    public Image backgroundImage;
+    public Sprite humanTrainingBg;
+    public Sprite heavenTrainingBg;
+    public Sprite ghostTrainingBg;
 
     private Deck heroDeck;
     private Deck garrisonDeck;
@@ -42,13 +51,27 @@ public class GarrisonUI : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("[GarrisonUI] Start 开始，检查 GameSession 数据...");
+
+        // 检查 Inspector 引用
+        if (heroSlotPrefab == null)
+            Debug.LogError("[GarrisonUI] heroSlotPrefab 未在 Inspector 中赋值！");
+        if (heroSlotsContainer == null)
+            Debug.LogError("[GarrisonUI] heroSlotsContainer 未在 Inspector 中赋值！");
+        if (garrisonEntryPrefab == null)
+            Debug.LogError("[GarrisonUI] garrisonEntryPrefab 未在 Inspector 中赋值！");
+        if (garrisonListContainer == null)
+            Debug.LogError("[GarrisonUI] garrisonListContainer 未在 Inspector 中赋值！");
+
         // 从 GameSession 读取兵力数据
         heroDeck = GameSession.GetGarrisonHeroDeck();
         garrisonDeck = GameSession.GetGarrisonGarrisonDeck();
 
+        Debug.Log($"[GarrisonUI] heroDeck={(heroDeck != null ? heroDeck.CardCount + "张" : "null")}, garrisonDeck={(garrisonDeck != null ? garrisonDeck.CardCount + "张" : "null")}");
+
         if (heroDeck == null || garrisonDeck == null)
         {
-            Debug.LogError("GarrisonUI: 未能从 GameSession 读取兵力数据，返回主场景。");
+            Debug.LogError("[GarrisonUI] GameSession 兵力数据为空，返回主场景。");
             GarrisonSceneBridge.ReturnToMainScene(new Deck(), new Deck());
             return;
         }
@@ -57,9 +80,14 @@ public class GarrisonUI : MonoBehaviour
         transferToHeroBtn.onClick.AddListener(OnTransferToHero);
         returnBtn.onClick.AddListener(OnReturn);
 
+        RaceType playerRace = GameSession.GetGarrisonPlayerRace();
+        SetBackgroundForRace(playerRace);
+
         RebuildHeroSlots();
         RebuildGarrisonList();
         UpdateButtonStates();
+
+        Debug.Log($"[GarrisonUI] Start 完成，heroEntries={heroEntries.Count}, garrisonEntries={garrisonEntries.Count}");
     }
 
     void Update()
@@ -74,33 +102,37 @@ public class GarrisonUI : MonoBehaviour
 
     void RebuildHeroSlots()
     {
+        if (heroSlotsContainer == null || heroSlotPrefab == null)
+        {
+            Debug.LogError("[GarrisonUI] RebuildHeroSlots 跳过：container 或 prefab 为空");
+            return;
+        }
+
         ClearContainer(heroSlotsContainer);
         heroEntries.Clear();
 
         int slotCount = Mathf.Max(Deck.HeroSlotLimit, heroDeck.CardCount);
+        Debug.Log($"[GarrisonUI] 创建 {slotCount} 个英雄卡槽 (deck有{heroDeck.CardCount}张)");
+
         for (int i = 0; i < slotCount; i++)
         {
             GameObject go = Instantiate(heroSlotPrefab, heroSlotsContainer);
-            GarrisonCardEntry entry = go.GetComponent<GarrisonCardEntry>();
-            if (entry == null)
+            if (go == null)
             {
-                Debug.LogWarning("GarrisonUI: heroSlotPrefab 缺少 GarrisonCardEntry 组件");
+                Debug.LogError($"[GarrisonUI] Instantiate(heroSlotPrefab) 返回 null，卡槽索引={i}");
                 continue;
             }
 
-            if (i < heroDeck.CardCount)
+            GarrisonCardEntry entry = go.GetComponent<GarrisonCardEntry>();
+            if (entry == null)
             {
-                entry.Setup(heroDeck[i], i, true);
-            }
-            else
-            {
-                // 空槽位
-                entry.Setup(null, i, true);
-                if (entry.nameText != null) entry.nameText.text = "空";
-                if (entry.raceText != null) entry.raceText.text = "";
-                if (entry.statsText != null) entry.statsText.text = "";
+                Debug.LogWarning($"[GarrisonUI] heroSlotPrefab 缺少 GarrisonCardEntry 组件，卡槽索引={i}");
+                continue;
             }
 
+            Card card = i < heroDeck.CardCount ? heroDeck[i] : null;
+            Sprite sprite = card != null && cardSpriteConfig != null ? cardSpriteConfig.GetSprite(card.race, card.unitIndex) : null;
+            entry.Setup(card, i, true, sprite);
             entry.onClicked = OnHeroSlotClicked;
             heroEntries.Add(entry);
         }
@@ -111,20 +143,36 @@ public class GarrisonUI : MonoBehaviour
 
     void RebuildGarrisonList()
     {
+        if (garrisonListContainer == null || garrisonEntryPrefab == null)
+        {
+            Debug.LogError("[GarrisonUI] RebuildGarrisonList 跳过：container 或 prefab 为空");
+            return;
+        }
+
         ClearContainer(garrisonListContainer);
         garrisonEntries.Clear();
+
+        Debug.Log($"[GarrisonUI] 创建 {garrisonDeck.CardCount} 个驻军入口");
 
         for (int i = 0; i < garrisonDeck.CardCount; i++)
         {
             GameObject go = Instantiate(garrisonEntryPrefab, garrisonListContainer);
-            GarrisonCardEntry entry = go.GetComponent<GarrisonCardEntry>();
-            if (entry == null)
+            if (go == null)
             {
-                Debug.LogWarning("GarrisonUI: garrisonEntryPrefab 缺少 GarrisonCardEntry 组件");
+                Debug.LogError($"[GarrisonUI] Instantiate(garrisonEntryPrefab) 返回 null，索引={i}");
                 continue;
             }
 
-            entry.Setup(garrisonDeck[i], i, false);
+            GarrisonCardEntry entry = go.GetComponent<GarrisonCardEntry>();
+            if (entry == null)
+            {
+                Debug.LogWarning($"[GarrisonUI] garrisonEntryPrefab 缺少 GarrisonCardEntry 组件，索引={i}");
+                continue;
+            }
+
+            Card card = garrisonDeck[i];
+            Sprite sprite = cardSpriteConfig != null ? cardSpriteConfig.GetSprite(card.race, card.unitIndex) : null;
+            entry.Setup(card, i, false, sprite);
             entry.onClicked = OnGarrisonEntryClicked;
             garrisonEntries.Add(entry);
         }
@@ -135,6 +183,8 @@ public class GarrisonUI : MonoBehaviour
 
     void ClearContainer(Transform container)
     {
+        if (container == null) return;
+
         for (int i = container.childCount - 1; i >= 0; i--)
             Destroy(container.GetChild(i).gameObject);
     }
@@ -155,11 +205,10 @@ public class GarrisonUI : MonoBehaviour
 
     void OnHeroSlotClicked(GarrisonCardEntry entry)
     {
-        if (entry.cardData == null) return; // 空槽位不可选中
+        if (entry.cardData == null) return;
 
         if (selectedHeroEntry == entry)
         {
-            // 取消选中
             entry.SetHighlighted(false);
             selectedHeroEntry = null;
         }
@@ -274,5 +323,30 @@ public class GarrisonUI : MonoBehaviour
         if (messageText != null)
             messageText.text = msg;
         messageTimer = 3f;
+    }
+
+    void SetBackgroundForRace(RaceType race)
+    {
+        if (backgroundImage == null) return;
+
+        Sprite bg = null;
+        switch (race)
+        {
+            case RaceType.Human:
+                bg = humanTrainingBg;
+                break;
+            case RaceType.Heaven:
+                bg = heavenTrainingBg;
+                break;
+            case RaceType.Ghost:
+                bg = ghostTrainingBg;
+                break;
+        }
+
+        if (bg != null)
+        {
+            backgroundImage.sprite = bg;
+            Debug.Log($"[GarrisonUI] 设置种族背景：{race}");
+        }
     }
 }

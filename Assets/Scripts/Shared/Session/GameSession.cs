@@ -11,11 +11,13 @@ public class GameSession : MonoBehaviour
     // 据点兵力场景返回数据
     private Deck garrisonHeroDeck;
     private Deck garrisonGarrisonDeck;
+    private RaceType garrisonPlayerRace;
 
     public static bool HasRunState => instance != null && instance.runState != null;
     public static bool HasPendingBattle => instance != null && instance.pendingBattle != null;
     public static bool HasPendingBattleResult => instance != null && instance.pendingBattleResult != null;
     public static bool HasGarrisonReturnState => instance != null && instance.garrisonHeroDeck != null;
+    public static bool HasGarrisonPlayerRace => instance != null;
 
     public static GameRunState RunState => instance != null ? instance.runState : null;
     public static PendingBattleState PendingBattle => instance != null ? instance.pendingBattle : null;
@@ -82,6 +84,7 @@ public class GameSession : MonoBehaviour
         instance.pendingBattleResult = null;
         instance.garrisonHeroDeck = null;
         instance.garrisonGarrisonDeck = null;
+        instance.garrisonPlayerRace = RaceType.Human;
     }
 
     public static void StoreGarrisonState(GameRunState nextRunState)
@@ -94,6 +97,7 @@ public class GameSession : MonoBehaviour
         {
             session.garrisonHeroDeck = GameRunState.CloneDeck(nextRunState.player.deck);
             session.garrisonGarrisonDeck = GameRunState.CloneDeck(nextRunState.player.garrisonDeck);
+            session.garrisonPlayerRace = nextRunState.player.race;
         }
         else
         {
@@ -121,11 +125,18 @@ public class GameSession : MonoBehaviour
         return GameRunState.CloneDeck(instance.garrisonGarrisonDeck);
     }
 
+    public static RaceType GetGarrisonPlayerRace()
+    {
+        if (instance == null) return RaceType.Human;
+        return instance.garrisonPlayerRace;
+    }
+
     public static void ClearGarrisonReturnData()
     {
         if (instance == null) return;
         instance.garrisonHeroDeck = null;
         instance.garrisonGarrisonDeck = null;
+        instance.garrisonPlayerRace = RaceType.Human;
     }
 
     public static void ResetForTests()

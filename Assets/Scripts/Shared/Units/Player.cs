@@ -11,7 +11,7 @@ public class Player
     public RaceType race;
     public ResourceData resources;
     public int strongholdLevel;
-    public Deck deck;
+    public Deck deck = new Deck();
     public Deck garrisonDeck = new Deck();
 
     // 据点位置

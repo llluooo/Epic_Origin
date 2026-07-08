@@ -111,6 +111,7 @@ public class GameRunState
             return clone;
         }
 
+        clone.hasSlotLimit = source.hasSlotLimit;
         foreach (Card card in source.cards)
         {
             clone.AddCard(card?.Clone());
