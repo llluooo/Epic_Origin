@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
 
@@ -15,6 +16,12 @@ public class MessageLogUI : MonoBehaviour
     public int maxMessages = 5;
     public float messageDuration = 4f;
 
+    [Header("布局宽度")]
+    [SerializeField] private Vector2 containerAnchorMin = new Vector2(0f, 0.80f);
+    [SerializeField] private Vector2 containerAnchorMax = new Vector2(1f, 0.98f);
+    [SerializeField] private Vector2 containerOffsetMin = new Vector2(40f, 8f);
+    [SerializeField] private Vector2 containerOffsetMax = new Vector2(-40f, -8f);
+
     private readonly List<MessageEntry> messages = new List<MessageEntry>();
 
     private struct MessageEntry
@@ -29,6 +36,45 @@ public class MessageLogUI : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
+
+        ApplyLayout();
+    }
+
+    private void OnEnable()
+    {
+        // 初始时隐藏文本对象，避免编辑器默认文本（如 "New Text"）闪现
+        if (messageText != null)
+            messageText.gameObject.SetActive(false);
+    }
+
+    private void OnValidate()
+    {
+        ApplyLayout();
+    }
+
+    private void ApplyLayout()
+    {
+        if (messageText == null) return;
+
+        RectTransform rect = messageText.rectTransform;
+        rect.anchorMin = containerAnchorMin;
+        rect.anchorMax = containerAnchorMax;
+        rect.offsetMin = containerOffsetMin;
+        rect.offsetMax = containerOffsetMax;
+        rect.pivot = new Vector2(0.5f, 1f);
+
+        messageText.enableWordWrapping = true;
+        messageText.enableAutoSizing = true;
+        messageText.fontSizeMin = 14;
+        messageText.fontSizeMax = 26;
+        messageText.alignment = TextAlignmentOptions.Center;
+        messageText.overflowMode = TextOverflowModes.Overflow;
+
+        // 强制设置宽度为屏幕宽度减去左右内边距，避免被父容器限制得过窄
+        float horizontalPadding = Mathf.Abs(containerOffsetMin.x) + Mathf.Abs(containerOffsetMax.x);
+        float targetWidth = Screen.width - horizontalPadding;
+        if (targetWidth > 0)
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, targetWidth);
     }
 
     void Update()
@@ -55,10 +101,9 @@ public class MessageLogUI : MonoBehaviour
     public void AddMessage(string text)
     {
         if (string.IsNullOrEmpty(text)) return;
-
         var entry = new MessageEntry
         {
-            text = text,
+            text = FormatMessage(text),
             remainingTime = messageDuration
         };
         messages.Add(entry);
@@ -66,7 +111,26 @@ public class MessageLogUI : MonoBehaviour
         if (messages.Count > maxMessages)
             messages.RemoveAt(0);
 
+        // 确保消息框在有消息时可见
+        if (messageText != null && !messageText.gameObject.activeSelf)
+            messageText.gameObject.SetActive(true);
+
         RefreshDisplay();
+    }
+
+    private string FormatMessage(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+
+        // 如果包含冒号（中英文），在冒号处换行：标签在上，数值/详情在下
+        var m = Regex.Match(text, "^(.+?[:：])\\s*(.+)$");
+        if (m.Success) return m.Groups[1].Value + "\n" + m.Groups[2].Value;
+
+        // 如果没有冒号，尝试在第一个数字之前换行（例如："获得资源 51金币"）
+        m = Regex.Match(text, "^(.+?)\\s+([+\\-]?\\d[\\d,]*.*)$");
+        if (m.Success) return m.Groups[1].Value + "\n" + m.Groups[2].Value;
+
+        return text;
     }
 
     void RefreshDisplay()
@@ -76,6 +140,9 @@ public class MessageLogUI : MonoBehaviour
         if (messages.Count == 0)
         {
             messageText.text = "";
+            // 没有消息时隐藏文本对象，防止编辑器或默认文案显示
+            if (messageText.gameObject.activeSelf)
+                messageText.gameObject.SetActive(false);
             return;
         }
 

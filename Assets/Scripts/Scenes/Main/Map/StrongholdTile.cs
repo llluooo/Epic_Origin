@@ -39,7 +39,6 @@ public class StrongholdTile : Tile
 
         string msg2 = "进入敌方据点，切换到战斗场景。";
         Debug.Log(msg2);
-        MessageLogUI.Instance?.AddMessage(msg2);
         gameManager.StartEnemyStrongholdBattle(gridPosition);
     }
 }
