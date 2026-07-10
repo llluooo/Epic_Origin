@@ -816,7 +816,7 @@ public class GameManager : MonoBehaviour
         if (gameEnded || isBattleActive) return;
         Debug.Log("AI 进攻玩家据点！");
         MessageLogUI.Instance?.AddMessage("AI 进攻我方据点！");
-        StartBattle(BattleEncounterType.PlayerStronghold, player.deck.cards, player.strongholdPos);
+        StartBattle(BattleEncounterType.PlayerStronghold, aiPlayer.deck.cards, player.strongholdPos);
     }
 
     void WinGame(Player winner)

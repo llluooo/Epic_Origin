@@ -125,7 +125,8 @@ public class AIHero : MonoBehaviour
                 GameManager.Instance.currentTurn
             );
             Debug.Log($"[AIHero] 兵营战斗{(won ? "胜利" : "失败")}");
-            tile.MarkCleared();
+            if (won)
+                tile.MarkCleared();
         }
         else if (tile is EventTile eventTile)
         {
