@@ -32,6 +32,14 @@ public class TileVisual : MonoBehaviour
         SetRendererSprite(poiRenderer, sprite, sprite != null, targetWorldSize, 10);
     }
 
+    /// <summary>
+    /// 隐藏 POI 层渲染（用于一次性 POI 清除后的视觉反馈）。
+    /// </summary>
+    public void HidePoi()
+    {
+        if (poiRenderer != null) poiRenderer.enabled = false;
+    }
+
     public void SetOverlay(Sprite sprite, bool visible, float targetWorldSize)
     {
         SetRendererSprite(overlayRenderer, sprite, visible && sprite != null, targetWorldSize, 20);

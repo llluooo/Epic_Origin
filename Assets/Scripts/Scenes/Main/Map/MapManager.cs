@@ -101,6 +101,19 @@ public class MapManager : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// 清除指定位置的格子（标记为已清除，隐藏 POI 视觉）。
+    /// </summary>
+    public void ClearTileAt(Vector2Int pos)
+    {
+        Tile tile = GetTileAt(pos);
+        if (tile != null && !tile.Cleared)
+        {
+            tile.MarkCleared();
+            Debug.Log($"格子 {pos} 已清除（{tile.GetType().Name} → 空地）");
+        }
+    }
+
     public Vector3 GridToWorld(Vector2Int pos)
     {
         return new Vector3(worldOrigin.x + pos.x * tileSize, worldOrigin.y + pos.y * tileSize, 0);

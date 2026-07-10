@@ -189,7 +189,7 @@ public class GameManager : MonoBehaviour
         {
             PendingBattleResult result = GameSession.PendingBattleResult.Clone();
             pendingBattleType = result.encounterType;
-            ResolveBattleResult(result.encounterType, result.outcome);
+            ResolveBattleResult(result.encounterType, result.outcome, result.sourceTilePos);
             GameSession.ClearPendingBattleAfterResolution();
             Vector2Int restoredAIHeroPos = state.hasAIHeroGridPos ? state.aiHeroGridPos : aiPlayer.strongholdPos;
             GameSession.UpdateRunState(GameRunState.Capture(this, state.heroGridPos, restoredAIHeroPos, state.mapState));
@@ -479,7 +479,7 @@ public class GameManager : MonoBehaviour
         StartBattle(BattleEncounterType.EnemyStronghold, aiPlayer.deck.cards, sourceTilePos);
     }
 
-    public void ResolveBattleResult(BattleEncounterType encounterType, BattleOutcome outcome)
+    public void ResolveBattleResult(BattleEncounterType encounterType, BattleOutcome outcome, Vector2Int sourceTilePos)
     {
         isBattleActive = false;
 
@@ -493,7 +493,7 @@ public class GameManager : MonoBehaviour
         switch (encounterType)
         {
             case BattleEncounterType.ArmyCamp:
-                ResolveArmyCampBattle(outcome);
+                ResolveArmyCampBattle(outcome, sourceTilePos);
                 break;
             case BattleEncounterType.EnemyStronghold:
                 ResolveEnemyStrongholdBattle(outcome);
@@ -553,7 +553,7 @@ public class GameManager : MonoBehaviour
         BattleSceneBridge.LoadBattleScene(runState, battleState);
     }
 
-    private void ResolveArmyCampBattle(BattleOutcome outcome)
+    private void ResolveArmyCampBattle(BattleOutcome outcome, Vector2Int sourceTilePos)
     {
         if (outcome == BattleOutcome.PlayerSurrender)
         {
@@ -603,6 +603,12 @@ public class GameManager : MonoBehaviour
                 player.resources.gold += goldReward;
                 Debug.Log($"战胜兵营！获得 {goldReward} 金币。");
                 MessageLogUI.Instance?.AddMessage($"战胜兵营！获得 {goldReward} 金币。");
+            }
+
+            // 战胜后清除兵营格子
+            if (MapManager.Instance != null)
+            {
+                MapManager.Instance.ClearTileAt(sourceTilePos);
             }
 
             return;

@@ -4,6 +4,8 @@ public class EventTile : Tile
 {
     public override void OnHeroEnter()
     {
+        if (Cleared) return;
+
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(SFX.EnterEventTile);
 
@@ -17,6 +19,9 @@ public class EventTile : Tile
             case 4: Sandstorm(); break;
             case 5: Plague(); break;
         }
+
+        MarkCleared();
+        Debug.Log("事件点已触发，该格子已清除。");
     }
     // 好事件: 古代宝藏 — 获得200金币
     void AncientTreasure()

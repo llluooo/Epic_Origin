@@ -111,6 +111,8 @@ public class AIHero : MonoBehaviour
     /// </summary>
     private void OnAIEnterTile(Tile tile)
     {
+        if (tile.Cleared) return;
+
         if (tile is ResourceTile resourceTile)
         {
             int gold = Random.Range(3, 9);
@@ -125,6 +127,8 @@ public class AIHero : MonoBehaviour
                 GameManager.Instance.aiPlayer.resources.buildingMaterials += mat;
                 Debug.Log($"[AIHero] 在资源点获得 {mat} 建材");
             }
+            GameManager.Instance.aiPlayer.capturedResourceCount++;
+            tile.MarkCleared();
         }
         else if (tile is ArmyCampTile armyCamp)
         {
@@ -142,6 +146,7 @@ public class AIHero : MonoBehaviour
                 GameManager.Instance.aiPlayer.resources.gold -= goldLoss;
                 Debug.Log($"[AIHero] 败给军营，损失 {goldLoss} 金币");
             }
+            tile.MarkCleared();
         }
         else if (tile is EventTile eventTile)
         {
@@ -156,6 +161,7 @@ public class AIHero : MonoBehaviour
                 GameManager.Instance.aiPlayer.resources.gold -= Random.Range(2, 6);
                 Debug.Log("[AIHero] 事件：损失金币");
             }
+            tile.MarkCleared();
         }
     }
 }

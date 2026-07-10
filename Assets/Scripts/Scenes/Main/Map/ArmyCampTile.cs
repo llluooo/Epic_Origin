@@ -4,6 +4,8 @@ public class ArmyCampTile : Tile
 {
     public override void OnHeroEnter()
     {
+        if (Cleared) return;
+
         GameManager gameManager = GameManager.Instance;
         if (gameManager == null)
         {
