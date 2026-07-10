@@ -5182,10 +5182,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
-  m_fontSizeBase: 36
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 14
   m_fontSizeMax: 26
   m_fontStyle: 0
@@ -9399,7 +9399,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &875296845
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16931,8 +16931,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   messageText: {fileID: 470721579}
-  maxMessages: 5
-  messageDuration: 4
+  maxMessages: 3
+  messageDuration: 3
   containerAnchorMin: {x: 0, y: 0.8}
   containerAnchorMax: {x: 1, y: 0.98}
   containerOffsetMin: {x: 40, y: 8}

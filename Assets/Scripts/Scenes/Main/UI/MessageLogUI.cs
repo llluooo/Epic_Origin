@@ -63,13 +63,6 @@ public class MessageLogUI : MonoBehaviour
         rect.offsetMax = containerOffsetMax;
         rect.pivot = new Vector2(0.5f, 1f);
 
-        messageText.enableWordWrapping = true;
-        messageText.enableAutoSizing = true;
-        messageText.fontSizeMin = 14;
-        messageText.fontSizeMax = 26;
-        messageText.alignment = TextAlignmentOptions.Center;
-        messageText.overflowMode = TextOverflowModes.Overflow;
-
         // 强制设置宽度为屏幕宽度减去左右内边距，避免被父容器限制得过窄
         float horizontalPadding = Mathf.Abs(containerOffsetMin.x) + Mathf.Abs(containerOffsetMax.x);
         float targetWidth = Screen.width - horizontalPadding;

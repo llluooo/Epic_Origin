@@ -18,6 +18,7 @@ public class StrongholdTile : Tile
         {
             if (strongholdUI != null)
             {
+                MessageLogUI.Instance?.AddMessage("进入己方据点");
                 strongholdUI.Open();
             }
             else
@@ -32,6 +33,7 @@ public class StrongholdTile : Tile
             Debug.LogError("无法进入敌方据点：游戏管理器未初始化。");
             return;
         }
+        MessageLogUI.Instance?.AddMessage("进入敌方据点");
         gameManager.StartEnemyStrongholdBattle(gridPosition);
     }
 }

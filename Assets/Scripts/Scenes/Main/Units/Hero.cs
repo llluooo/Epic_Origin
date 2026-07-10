@@ -72,6 +72,7 @@ public class Hero : MonoBehaviour
         if (!MapManager.Instance.CanReachWithinSteps(currentGridPos, targetGridPos, 3))
         {
             Debug.Log("目标格子被阻挡或超出移动范围。");
+            MessageLogUI.Instance?.AddMessage("超出最大移动距离");
             return;
         }
         if (GameManager.Instance.hasPlayerActed)

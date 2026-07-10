@@ -8,7 +8,8 @@ public class ResourceTile : Tile
         if (giveGold)
         {
             GameManager.Instance.player.AddResources(new ResourceData(amount, 0));
-            Debug.Log($"获得资源: {amount}金币");
+            Debug.Log($"占领金矿！获得 {amount} 金币");
+            MessageLogUI.Instance?.AddMessage($"占领金矿！获得 {amount} 金币");
 
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(SFX.GetGold);
@@ -16,7 +17,8 @@ public class ResourceTile : Tile
         else
         {
             GameManager.Instance.player.AddResources(new ResourceData(0, amount));
-            Debug.Log($"获得资源: {amount}建材");
+            Debug.Log($"占领采石场！获得 {amount} 建材");
+            MessageLogUI.Instance?.AddMessage($"占领采石场！获得 {amount} 建材");
 
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(SFX.GetWood);
