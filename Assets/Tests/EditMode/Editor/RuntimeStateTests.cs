@@ -201,7 +201,7 @@ public class RuntimeStateTests
         Assert.AreEqual(0, aiPlayer.resources.buildingMaterials);
 
         aiPlayer.resources = new ResourceData(78, 39);
-        Assert.IsTrue(easyAI.TrySummonUnit(1));
+        Assert.IsTrue(gameManager.SummonUnit(aiPlayer, 1));
         Assert.AreEqual(0, aiPlayer.resources.gold);
         Assert.AreEqual(0, aiPlayer.resources.buildingMaterials);
         Assert.AreEqual(1, aiPlayer.deck.CardCount);

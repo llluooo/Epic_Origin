@@ -5,7 +5,8 @@ public enum BattleEncounterType
 {
     None,
     ArmyCamp,
-    EnemyStronghold
+    EnemyStronghold,
+    PlayerStronghold
 }
 
 public enum BattleOutcome

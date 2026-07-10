@@ -166,6 +166,14 @@ public class Player
     }
 
     /// <summary>
+    /// 获取英雄卡组的总攻击力（baseAttack × quantity 之和）
+    /// </summary>
+    public int GetTotalAttack()
+    {
+        return deck.GetTotalAttack();
+    }
+
+    /// <summary>
     /// 获取指定兵种在当前资源下最大可召唤数量（最少为0）
     /// </summary>
     public int GetMaxAffordableCount(int unitIndex)

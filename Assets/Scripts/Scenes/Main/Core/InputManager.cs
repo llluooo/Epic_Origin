@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// 地图输入管理器，负责把鼠标点击转换为地图格子移动请求。
@@ -16,6 +17,12 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            // 点击在UI上时不触发地图交互，防止按钮点击穿透到格子
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
             HandleClick();
         }
     }

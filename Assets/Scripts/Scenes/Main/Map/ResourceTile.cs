@@ -5,11 +5,14 @@ public class ResourceTile : Tile
     {
         if (Cleared) return;
 
+        Player player = GetEnteringPlayer();
+        if (player == null) return;
+
         bool giveGold = Random.value > 0.5f;
         int amount = Random.Range(40, 61);
         if (giveGold)
         {
-            GameManager.Instance.player.AddResources(new ResourceData(amount, 0));
+            player.AddResources(new ResourceData(amount, 0));
             Debug.Log($"占领金矿！获得 {amount} 金币");
             MessageLogUI.Instance?.AddMessage($"占领金矿！获得 {amount} 金币");
 
@@ -18,7 +21,7 @@ public class ResourceTile : Tile
         }
         else
         {
-            GameManager.Instance.player.AddResources(new ResourceData(0, amount));
+            player.AddResources(new ResourceData(0, amount));
             Debug.Log($"占领采石场！获得 {amount} 建材");
             MessageLogUI.Instance?.AddMessage($"占领采石场！获得 {amount} 建材");
 
@@ -26,9 +29,22 @@ public class ResourceTile : Tile
                 AudioManager.Instance.PlaySFX(SFX.GetWood);
         }
 
-        GameManager.Instance.player.capturedResourceCount++;
+        player.capturedResourceCount++;
         MarkCleared();
-        Debug.Log($"资源点已占领，据点每回合产出 +20 金币 +20 建材（当前累计 +{GameManager.Instance.player.capturedResourceCount * 20}）");
+        Debug.Log($"资源点已占领，据点每回合产出 +20 金币 +20 建材（当前累计 +{player.capturedResourceCount * 20}）");
         MessageLogUI.Instance?.AddMessage($"资源点已占领，据点产出提升！");
+    }
+
+    /// <summary>
+    /// 判断进入资源点的是玩家还是 AI，返回对应的 Player 对象。
+    /// </summary>
+    private Player GetEnteringPlayer()
+    {
+        AIHero aiHero = Object.FindObjectOfType<AIHero>();
+        if (aiHero != null && aiHero.currentGridPos == gridPosition)
+        {
+            return GameManager.Instance.aiPlayer;
+        }
+        return GameManager.Instance.player;
     }
 }

@@ -498,6 +498,9 @@ public class GameManager : MonoBehaviour
             case BattleEncounterType.EnemyStronghold:
                 ResolveEnemyStrongholdBattle(outcome);
                 break;
+            case BattleEncounterType.PlayerStronghold:
+                ResolvePlayerStrongholdBattle(outcome);
+                break;
             default:
                 Debug.LogWarning($"未知战斗类型：{encounterType}");
                 break;
@@ -637,6 +640,27 @@ public class GameManager : MonoBehaviour
         MessageLogUI.Instance?.AddMessage("攻打敌方据点失败，返回主地图继续游戏。");
     }
 
+    private void ResolvePlayerStrongholdBattle(BattleOutcome outcome)
+    {
+        if (outcome == BattleOutcome.PlayerSurrender)
+        {
+            // 玩家投降 → AI 胜利
+            WinGame(aiPlayer);
+            return;
+        }
+
+        if (IsPlayerBattleWin(outcome))
+        {
+            // 玩家成功防守，击退 AI 进攻
+            Debug.Log("成功防守己方据点，击退 AI 进攻！");
+            MessageLogUI.Instance?.AddMessage("成功防守己方据点！");
+            return;
+        }
+
+        // AI 攻破玩家据点 → AI 胜利
+        WinGame(aiPlayer);
+    }
+
     private void ApplySurrenderPenalty()
     {
         int goldLost = Mathf.RoundToInt(player.resources.gold * 0.2f);
@@ -761,6 +785,17 @@ public class GameManager : MonoBehaviour
     public void OnHeroEnterEnemyStronghold(Player attacker, Player defender)
     {
         StartEnemyStrongholdBattle();
+    }
+
+    /// <summary>
+    /// AI 英雄进入玩家据点时调用，AI 进攻玩家据点
+    /// </summary>
+    public void OnAIHeroEnterPlayerStronghold()
+    {
+        if (gameEnded || isBattleActive) return;
+        Debug.Log("AI 进攻玩家据点！");
+        MessageLogUI.Instance?.AddMessage("AI 进攻我方据点！");
+        StartBattle(BattleEncounterType.PlayerStronghold, player.deck.cards, player.strongholdPos);
     }
 
     void WinGame(Player winner)
