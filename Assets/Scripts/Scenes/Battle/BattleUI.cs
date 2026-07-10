@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
@@ -62,6 +63,14 @@ public class BattleUI : MonoBehaviour
     public Transform arenaLeftAnchor;
     public Transform arenaRightAnchor;
 
+    [Header("退出确认面板")]
+    public GameObject exitConfirmPanel;
+    public TMP_Text exitConfirmText;
+    public Button confirmExitButton;
+    public Button cancelExitButton;
+
+    public bool IsExitPanelOpen { get; private set; }
+
     private int selectedPlayerIndex = -1;
     private bool resultSubmitted;
     private bool isAnimating;
@@ -83,7 +92,22 @@ public class BattleUI : MonoBehaviour
         CacheLayoutParams();
         AutoBindResultReferences();
         HideBattleResultPanel();
+        SetupExitPanel();
         RefreshUI();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (battleManager == null || battleManager.IsBattleOver())
+                return;
+
+            if (IsExitPanelOpen)
+                CloseExitPanel();
+            else
+                OpenExitPanel();
+        }
     }
 
     public void RefreshUI()
@@ -119,7 +143,7 @@ public class BattleUI : MonoBehaviour
 
     public void OnPlayerSlotClicked(int index)
     {
-        if (battleManager == null || battleManager.IsBattleOver())
+        if (IsExitPanelOpen || battleManager == null || battleManager.IsBattleOver())
         {
             return;
         }
@@ -139,7 +163,7 @@ public class BattleUI : MonoBehaviour
 
     public void OnAttackConfirm()
     {
-        if (battleManager == null || battleManager.IsBattleOver() || isAnimating)
+        if (IsExitPanelOpen || battleManager == null || battleManager.IsBattleOver() || isAnimating)
         {
             return;
         }
@@ -159,7 +183,7 @@ public class BattleUI : MonoBehaviour
 
     public void OnFlee()
     {
-        if (battleManager == null || battleManager.IsBattleOver() || isAnimating)
+        if (IsExitPanelOpen || battleManager == null || battleManager.IsBattleOver() || isAnimating)
         {
             return;
         }
@@ -824,6 +848,13 @@ public class BattleUI : MonoBehaviour
 
     private void UpdateControlState()
     {
+        if (IsExitPanelOpen)
+        {
+            if (attackButton != null) attackButton.gameObject.SetActive(false);
+            if (fleeButton != null) fleeButton.gameObject.SetActive(false);
+            return;
+        }
+
         if (attackButton != null)
         {
             bool hasValidSelection = IsValidIndex(battleManager.playerCards, selectedPlayerIndex);
@@ -1529,4 +1560,60 @@ public class BattleUI : MonoBehaviour
         if (playerSlotViews == null || index < 0 || index >= playerSlotViews.Length) return null;
         return playerSlotViews[index];
     }
+
+    #region 退出确认面板
+
+    void SetupExitPanel()
+    {
+        if (exitConfirmPanel == null)
+        {
+            Debug.LogWarning("退出确认面板未配置，请在 Inspector 中手动挂载。");
+            return;
+        }
+
+        if (exitConfirmText == null)
+            exitConfirmText = exitConfirmPanel.GetComponentInChildren<TMP_Text>();
+
+        if (confirmExitButton != null)
+            confirmExitButton.onClick.AddListener(OnConfirmExit);
+        if (cancelExitButton != null)
+            cancelExitButton.onClick.AddListener(CloseExitPanel);
+
+        exitConfirmPanel.SetActive(false);
+    }
+
+    void OpenExitPanel()
+    {
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(true);
+
+        IsExitPanelOpen = true;
+
+        // 隐藏战斗操作按钮
+        if (attackButton != null)
+            attackButton.gameObject.SetActive(false);
+        if (fleeButton != null)
+            fleeButton.gameObject.SetActive(false);
+
+        Debug.Log("打开退出确认面板");
+    }
+
+    void CloseExitPanel()
+    {
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(false);
+
+        IsExitPanelOpen = false;
+        RefreshUI();
+        Debug.Log("关闭退出确认面板");
+    }
+
+    void OnConfirmExit()
+    {
+        Debug.Log("玩家确认退出，返回主菜单");
+        GameSession.ClearAll();
+        SceneManager.LoadScene("MainMenuScene");
+    }
+
+    #endregion
 }
