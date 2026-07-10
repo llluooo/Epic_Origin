@@ -26,7 +26,7 @@ public class GameEndUI : MonoBehaviour
 
     public bool IsOpen { get; private set; }
 
-    void Start()
+    void Awake()
     {
         if (panel != null)
             panel.SetActive(false);
