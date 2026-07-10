@@ -12,11 +12,15 @@ public class GameSession : MonoBehaviour
     private Deck garrisonHeroDeck;
     private Deck garrisonGarrisonDeck;
     private RaceType garrisonPlayerRace;
+    private bool garrisonShouldReopenStronghold;
 
     public static bool HasRunState => instance != null && instance.runState != null;
     public static bool HasPendingBattle => instance != null && instance.pendingBattle != null;
     public static bool HasPendingBattleResult => instance != null && instance.pendingBattleResult != null;
     public static bool HasGarrisonReturnState => instance != null && instance.garrisonHeroDeck != null;
+    public static bool HasGarrisonShouldReopenStronghold
+        => instance != null && instance.garrisonShouldReopenStronghold;
+
     public static bool HasGarrisonPlayerRace => instance != null;
 
     public static GameRunState RunState => instance != null ? instance.runState : null;
@@ -85,6 +89,7 @@ public class GameSession : MonoBehaviour
         instance.garrisonHeroDeck = null;
         instance.garrisonGarrisonDeck = null;
         instance.garrisonPlayerRace = RaceType.Human;
+        instance.garrisonShouldReopenStronghold = false;
     }
 
     public static void StoreGarrisonState(GameRunState nextRunState)
@@ -137,6 +142,18 @@ public class GameSession : MonoBehaviour
         instance.garrisonHeroDeck = null;
         instance.garrisonGarrisonDeck = null;
         instance.garrisonPlayerRace = RaceType.Human;
+    }
+
+    public static void SetGarrisonShouldReopenStronghold()
+    {
+        GameSession session = EnsureExists();
+        session.garrisonShouldReopenStronghold = true;
+    }
+
+    public static void ClearGarrisonShouldReopenStronghold()
+    {
+        if (instance == null) return;
+        instance.garrisonShouldReopenStronghold = false;
     }
 
     public static void ResetForTests()

@@ -30,6 +30,12 @@ public class UIManager : MonoBehaviour
     [Header("据点面板")]
     public StrongholdUI strongholdUI;
 
+    [Header("游戏结束结算面板")]
+    public GameEndUI gameEndUI;
+
+    [Header("地图操作反馈消息区域")]
+    public MessageLogUI messageLogUI;
+
     /// <summary>
     /// 是否有任何面板处于打开状态。面板打开时游戏后台应完全暂停。
     /// </summary>
@@ -40,7 +46,8 @@ public class UIManager : MonoBehaviour
             return (heroStatusUI != null && heroStatusUI.IsOpen)
                 || (gameMenuUI != null && gameMenuUI.IsOpen)
                 || (strongholdUI != null && strongholdUI.IsOpen)
-                || (saveGameUI != null && saveGameUI.IsOpen);
+                || (saveGameUI != null && saveGameUI.IsOpen)
+                || (gameEndUI != null && gameEndUI.IsOpen);
         }
     }
 
@@ -165,6 +172,14 @@ public class UIManager : MonoBehaviour
             resourceText.text = $"金币:{p.resources.gold}  建材:{p.resources.buildingMaterials}  据点Lv{p.strongholdLevel}";
         }
 
+        if (gm.IsGameEnded && gameEndUI != null && !gameEndUI.IsOpen)
+        {
+            if (gm.GameEndIsVictory)
+                gameEndUI.ShowVictory(gm.GameEndDetail);
+            else
+                gameEndUI.ShowDefeat(gm.GameEndDetail);
+        }
+
         // 面板打开时禁用游戏按钮，确保后台完全暂停
         if (endTurnButton != null)
             endTurnButton.interactable = gm.isPlayerTurn && !gm.IsGameEnded && !paused;
@@ -181,5 +196,36 @@ public class UIManager : MonoBehaviour
     {
         if (saveGameUI != null)
             saveGameUI.Open();
+    }
+
+    public void ShowGameEndPanel(string detail, bool isVictory)
+    {
+        if (gameEndUI == null)
+        {
+            gameEndUI = FindObjectOfType<GameEndUI>();
+            if (gameEndUI == null)
+            {
+                gameEndUI = CreateGameEndUI();
+            }
+        }
+
+        if (gameEndUI != null)
+        {
+            if (isVictory)
+                gameEndUI.ShowVictory(detail);
+            else
+                gameEndUI.ShowDefeat(detail);
+        }
+        else
+        {
+            Debug.LogWarning("未找到 GameEndUI，无法显示游戏结算面板。");
+        }
+    }
+
+    private GameEndUI CreateGameEndUI()
+    {
+        GameObject uiObject = new GameObject("GameEndUI");
+        GameEndUI endUI = uiObject.AddComponent<GameEndUI>();
+        return endUI;
     }
 }

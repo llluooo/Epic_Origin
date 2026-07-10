@@ -62,11 +62,18 @@ public class BattleManager
         BattleCard attacker = attackerList[attackerIndex];
         BattleCard defender = defenderList[defenderIndex];
 
+        if (isPlayerAttacking && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.Attack);
+
         float attackModifier = BattleCalculator.GetRaceModifier(attacker.card.race, defender.card.race);
         int attackDamage = BattleCalculator.CalculateAttackDamage(attacker, defender);
 
         int defenderHPBefore = defender.currentHP;
         int defenderCountBefore = defender.currentCount;
+
+        if (!isPlayerAttacking && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.Defend);
+
         defender.TakeDamage(attackDamage);
 
         Debug.Log($"[回合{currentRound} 当前攻方:{attackerName}] {attackerName} {attacker.card.cardName} 出牌，{defenderName} {defender.card.cardName} 应战。");
@@ -76,6 +83,8 @@ public class BattleManager
         if (!defender.IsAlive())
         {
             Debug.Log($"{defender.card.cardName} 已阵亡。");
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(SFX.UnitDeath);
         }
 
         CheckBattleEnd();
@@ -95,9 +104,57 @@ public class BattleManager
         }
 
         battleEnded = true;
+
+        if (playerSide && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.Flee);
+
+        AudioManager.Instance?.StopBGM();
+
         outcome = playerSide ? BattleOutcome.PlayerSurrender : BattleOutcome.EnemySurrender;
         battleResult = playerSide ? "玩家投降" : "敌方投降";
         Debug.Log($"战斗结束：{battleResult}");
+    }
+
+    /// <summary>
+    /// 玩家逃跑，50%概率成功脱战，失败则所有己方卡牌HP减半
+    /// </summary>
+    public bool AttemptFlee()
+    {
+        if (battleEnded)
+        {
+            return false;
+        }
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.Flee);
+
+        bool success = Random.value < 0.5f;
+
+        if (success)
+        {
+            battleEnded = true;
+            outcome = BattleOutcome.PlayerFled;
+            battleResult = "玩家逃跑成功";
+            AudioManager.Instance?.StopBGM();
+            Debug.Log("玩家逃跑成功！");
+            return true;
+        }
+
+        // 逃跑失败：所有玩家卡牌HP减半（至少保留1）
+        foreach (BattleCard card in playerCards)
+        {
+            if (card != null && card.IsAlive())
+            {
+                int newHP = Mathf.Max(1, card.currentHP / 2);
+                int hpLost = card.currentHP - newHP;
+                card.TakeDamage(hpLost);
+            }
+        }
+
+        // 回合交给敌方
+        isPlayerAttacking = false;
+        Debug.Log("玩家逃跑失败，所有己方卡牌HP减半！");
+        return false;
     }
 
     private bool IsValidSelection(List<BattleCard> list, int index)
@@ -156,11 +213,23 @@ public class BattleManager
         {
             outcome = BattleOutcome.PlayerVictory;
             battleResult = "玩家胜利";
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopBGM();
+                AudioManager.Instance.PlaySFX(SFX.BattleVictory);
+            }
         }
         else if (!playerAlive && enemyAlive)
         {
             outcome = BattleOutcome.EnemyVictory;
             battleResult = "敌方胜利";
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopBGM();
+                AudioManager.Instance.PlaySFX(SFX.Defeat);
+            }
         }
         else
         {

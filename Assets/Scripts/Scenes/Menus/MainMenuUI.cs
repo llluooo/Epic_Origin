@@ -12,6 +12,9 @@ public class MainMenuUI : MonoBehaviour
     public Button settingsButton;
     public Button exitButton;
 
+    [Header("设置面板")]
+    public SettingsUI settingsUI;
+
     void Start()
     {
         AudioManager.Instance?.PlayBGM(BGM.MainMenu);
@@ -36,11 +39,17 @@ public class MainMenuUI : MonoBehaviour
 
     void OnSettings()
     {
-        // 预留：设置
+        if (settingsUI != null)
+            settingsUI.Open();
     }
 
     void OnExit()
     {
         Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
+
+
 }

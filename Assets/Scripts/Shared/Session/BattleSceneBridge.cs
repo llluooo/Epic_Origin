@@ -5,7 +5,8 @@ public enum BattleEncounterType
 {
     None,
     ArmyCamp,
-    EnemyStronghold
+    EnemyStronghold,
+    PlayerStronghold
 }
 
 public enum BattleOutcome
@@ -14,7 +15,8 @@ public enum BattleOutcome
     EnemyVictory,
     Draw,
     PlayerSurrender,
-    EnemySurrender
+    EnemySurrender,
+    PlayerFled
 }
 
 public static class BattleSceneBridge

@@ -73,6 +73,14 @@ public class Deck
         return total;
     }
 
+    public int GetTotalAttack()
+    {
+        int total = 0;
+        foreach (var card in cards)
+            total += card.baseAttack * card.quantity;
+        return total;
+    }
+
     public int CardCount => cards.Count;
 
     /// <summary>

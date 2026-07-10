@@ -112,7 +112,6 @@ public class AudioManager : MonoBehaviour
     private IEnumerator Fade(AudioSource src, float from, float to, float t)
     {
         float e = 0f;
-        // 用 unscaledDeltaTime，这样即使 Time.timeScale=0（暂停）淡入淡出仍正常
         while (e < t)
         {
             e += Time.unscaledDeltaTime;
@@ -121,6 +120,14 @@ public class AudioManager : MonoBehaviour
         }
         src.volume = to;
     }
+
+    public float GetBgmVolume() => bgmVolume;
+    public float GetSfxVolume() => sfxVolume;
+    public float GetMasterVolume() => masterVolume;
+
+    public void SetMasterVolume(float v) => masterVolume = Mathf.Clamp01(v);
+    public void SetBgmVolume(float v) => bgmVolume = Mathf.Clamp01(v);
+    public void SetSfxVolume(float v) => sfxVolume = Mathf.Clamp01(v);
 
     // ================= 音效 =================
 
@@ -147,11 +154,18 @@ public class AudioManager : MonoBehaviour
 
     private void Update()
     {
-        // 键盘测试：按 T 键直接播放测试音效，跳过按钮链路
+        ApplyVolumes();
+
         if (Input.GetKeyDown(KeyCode.T))
         {
             Debug.Log("[AudioManager] ⌨️ 按下了 T 键，播放测试音效 Move...");
             PlaySFX(SFX.Move);
         }
+    }
+
+    private void ApplyVolumes()
+    {
+        if (_bgmSource != null)
+            _bgmSource.volume = bgmVolume * masterVolume;
     }
 }

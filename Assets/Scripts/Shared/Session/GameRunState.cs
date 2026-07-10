@@ -99,7 +99,8 @@ public class GameRunState
             strongholdLevel = source.strongholdLevel,
             deck = CloneDeck(source.deck),
             garrisonDeck = CloneDeck(source.garrisonDeck),
-            strongholdPos = source.strongholdPos
+            strongholdPos = source.strongholdPos,
+            capturedResourceCount = source.capturedResourceCount
         };
     }
 
@@ -219,7 +220,8 @@ public class TileState
         TileState state = new TileState
         {
             position = tile.gridPosition,
-            kind = GetKind(tile)
+            kind = GetKind(tile),
+            cleared = tile.Cleared
         };
 
         if (tile is StrongholdTile stronghold)

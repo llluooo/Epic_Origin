@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -68,6 +69,13 @@ public class StrongholdUI : MonoBehaviour
         upgradeButton.onClick.AddListener(OnUpgrade);
         garrisonButton.onClick.AddListener(OnGarrisonCheck);
         leaveButton.onClick.AddListener(Close);
+
+        // 从 GarrisonScene 返回后自动重开据点 UI
+        if (GameSession.HasGarrisonShouldReopenStronghold)
+        {
+            GameSession.ClearGarrisonShouldReopenStronghold();
+            StartCoroutine(AutoOpenAfterGarrisonReturn());
+        }
 
         // 绑定每张卡牌的召唤回调
         if (unitCards != null)
@@ -146,6 +154,12 @@ public class StrongholdUI : MonoBehaviour
 
         IsOpen = false;
         Debug.Log("离开据点管理界面");
+    }
+
+    IEnumerator AutoOpenAfterGarrisonReturn()
+    {
+        yield return null; // 等待一帧，确保 GameManager 完成状态恢复
+        Open();
     }
 
     void RefreshAll(Player p)
@@ -254,6 +268,7 @@ public class StrongholdUI : MonoBehaviour
         runState.player.deck = GameRunState.CloneDeck(gm.player.deck);
         runState.player.garrisonDeck = GameRunState.CloneDeck(gm.player.garrisonDeck);
 
+        GameSession.SetGarrisonShouldReopenStronghold();
         GarrisonSceneBridge.LoadGarrisonScene(runState);
         Debug.Log("进入据点兵力管理场景");
     }

@@ -111,37 +111,22 @@ public class AIHero : MonoBehaviour
     /// </summary>
     private void OnAIEnterTile(Tile tile)
     {
+        if (tile.Cleared) return;
+
         if (tile is ResourceTile resourceTile)
         {
-            int gold = Random.Range(3, 9);
-            int mat = Random.Range(2, 6);
-            if (Random.value < 0.5f)
-            {
-                GameManager.Instance.aiPlayer.resources.gold += gold;
-                Debug.Log($"[AIHero] 在资源点获得 {gold} 金币");
-            }
-            else
-            {
-                GameManager.Instance.aiPlayer.resources.buildingMaterials += mat;
-                Debug.Log($"[AIHero] 在资源点获得 {mat} 建材");
-            }
+            // AI 和玩家使用完全相同的资源获取逻辑
+            resourceTile.OnHeroEnter();
         }
         else if (tile is ArmyCampTile armyCamp)
         {
-            int aiPower = GameManager.Instance.aiPlayer.deck.GetTotalCombatPower();
-            int enemyPower = Random.Range(10, 51);
-            if (aiPower >= enemyPower)
-            {
-                int goldReward = Random.Range(15, 36);
-                GameManager.Instance.aiPlayer.resources.gold += goldReward;
-                Debug.Log($"[AIHero] 战胜军营，获得 {goldReward} 金币");
-            }
-            else
-            {
-                int goldLoss = Random.Range(5, 16);
-                GameManager.Instance.aiPlayer.resources.gold -= goldLoss;
-                Debug.Log($"[AIHero] 败给军营，损失 {goldLoss} 金币");
-            }
+            bool won = AIBattleSimulator.SimulateArmyCampBattle(
+                GameManager.Instance.aiPlayer,
+                GameManager.Instance.currentTurn
+            );
+            Debug.Log($"[AIHero] 兵营战斗{(won ? "胜利" : "失败")}");
+            if (won)
+                tile.MarkCleared();
         }
         else if (tile is EventTile eventTile)
         {
@@ -155,6 +140,15 @@ public class AIHero : MonoBehaviour
             {
                 GameManager.Instance.aiPlayer.resources.gold -= Random.Range(2, 6);
                 Debug.Log("[AIHero] 事件：损失金币");
+            }
+            tile.MarkCleared();
+        }
+        else if (tile is StrongholdTile stronghold)
+        {
+            if (stronghold.strongholdType == StrongholdType.Player)
+            {
+                Debug.Log("[AIHero] 进入玩家据点，发起进攻！");
+                GameManager.Instance.OnAIHeroEnterPlayerStronghold();
             }
         }
     }

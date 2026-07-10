@@ -1,0 +1,141 @@
+{"kind":"deck","id":"pr/a3l7kw","name":"Deck"}
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"","type":"master","placeholders":[{"name":"title","type":"title","textPreview":"Click to edit Master title style"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","placeholders":[{"name":"title","type":"title","textPreview":"Click to edit Master title style"},{"name":"subtitle","type":"subtitle","textPreview":"Click to edit Master subtitle style"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout2.xml","name":"Title and Content","placeholders":[{"name":"text placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"},{"name":"title","type":"title","textPreview":"Click to edit Master title style"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout3.xml","name":"Two Content","placeholders":[{"name":"text placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"},{"name":"text placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"title","type":"title","textPreview":"Click to edit Master title style"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout4.xml","name":"Three Content","placeholders":[{"name":"text placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"},{"name":"text placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"text placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"title","type":"title","textPreview":"Click to edit Master title style"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout5.xml","name":"Four Content","placeholders":[{"name":"text placeholder 2","textPreview":"Click to edit Master"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"},{"name":"title","type":"title","textPreview":"Click to edit Master title style"},{"name":"body","type":"body","textPreview":"Click to edit Master"},{"name":"text placeholder 2","textPreview":"Click to edit Master"},{"name":"body","type":"body","textPreview":"Click to edit Master"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout6.xml","name":"Title Only","placeholders":[{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"},{"name":"title","type":"title","textPreview":"Click to edit Master title style"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout7.xml","name":"Footer Only","placeholders":[{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout8.xml","name":"Blank"}
+{"kind":"slide","id":"sl/y90nupkv","slide":1,"title":"Epic Origin","textShapes":3}
+{"kind":"textbox","id":"sh/7qp4be9c","slide":1,"name":"Title 3","placeholder":"title","text":"Epic Origin\n史诗起点","textPreview":"Epic Origin | 史诗起点","textChars":16,"textLines":2,"bbox":[43.65,200.24,753.27,261.57]}
+{"kind":"textbox","id":"sh/65g3298r","slide":1,"name":"Subtitle 4","placeholder":"subtitle","text":"2D 回合制策略卡牌游戏\n课程项目答辩","textPreview":"2D 回合制策略卡牌游戏 | 课程项目答辩","textChars":19,"textLines":2,"bbox":[43.65,552.73,725.51,113.41]}
+{"kind":"textbox","id":"sh/ts7md4r2","slide":1,"name":"Subtitle 4","text":"10 分钟项目汇报","textPreview":"10 分钟项目汇报","textChars":9,"textLines":1,"bbox":[43.65,41.18,598.67,68.15]}
+{"kind":"image","id":"im/dkb2xcfy","slide":1,"name":"Picture 6","bbox":[829.3,0,450.7,720]}
+{"kind":"notes","id":"nt/y90nupkv","slide":1,"text":"开场：项目历时 6 周，由 6 人团队完成。接下来依次展示玩法、架构、技术实现与测试结果。"}
+{"kind":"slide","id":"sl/hwbqtkby","slide":2,"title":"Epic Origin · 课程项目答辩","textShapes":3}
+{"kind":"textbox","id":"sh/a10jqpsj","slide":2,"name":"Footer Placeholder 4","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/9072xkry","slide":2,"name":"Slide Number Placeholder 1","placeholder":"slideNumber","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/ozy1ofad","slide":2,"name":"Title 2","placeholder":"title","text":"本次汇报的五个重点","textPreview":"本次汇报的五个重点","textChars":9,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"table","id":"tb/sjil0vu9","slide":2,"name":"Table 3","rows":6,"cols":2,"preview":"01 | 项目成果与游戏体验","bbox":[41.33,218.37,1197.33,410.96]}
+{"kind":"notes","id":"nt/hwbqtkby","slide":2,"text":"用本页交代答辩结构，随后直接进入游戏体验。第六行留空以保留原模板节奏。"}
+{"kind":"slide","id":"sl/ofy9wn61","slide":3,"title":"Epic Origin · 课程项目答辩","textShapes":7}
+{"kind":"textbox","id":"sh/cza94vmx","slide":3,"name":"Footer Placeholder 1","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/4zex8bux","slide":3,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/507y1gbi","slide":3,"name":"Google Shape;533;p58","placeholder":"title","text":"从探索到征服：一局游戏的核心体验","textPreview":"从探索到征服：一局游戏的核心体验","textChars":16,"textLines":1,"bbox":[41.33,36.17,1197.33,134.7]}
+{"kind":"shape","id":"sh/n2l4fq98","slide":3,"name":"Rounded Rectangle 9","bbox":[452.38,353.33,374.67,276]}
+{"kind":"shape","id":"sh/m1c3mlsn","slide":3,"name":"Rounded Rectangle 10","bbox":[864,353.33,374.67,276]}
+{"kind":"textbox","id":"sh/943mhgre","slide":3,"name":"Content Placeholder 9","text":"卡牌对战\n攻方出牌、守方应战、翻面结算；种族克制直接影响伤害。","textPreview":"卡牌对战 | 攻方出牌、守方应战、翻面结算；种族克制直接影响伤害。","textChars":31,"textLines":2,"bbox":[485.23,435.29,309.64,150.43]}
+{"kind":"textbox","id":"sh/83ulovat","slide":3,"name":"Content Placeholder 10","text":"据点与终局\n采集资源、升级据点、召唤兵种，最终攻占敌方据点。","textPreview":"据点与终局 | 采集资源、升级据点、召唤兵种，最终攻占敌方据点。","textChars":30,"textLines":2,"bbox":[896.18,435.29,309.64,150.43]}
+{"kind":"shape","id":"sh/v6l4jq94","slide":3,"name":"Google Shape;340;p61","bbox":[485.84,387.83,24.55,24.54]}
+{"kind":"shape","id":"sh/a5c3ql8z","slide":3,"name":"Google Shape;340;p61","bbox":[895.88,387.83,24.55,24.54]}
+{"kind":"shape","id":"sh/obq90bml","slide":3,"name":"Rounded Rectangle 5","bbox":[40.77,353.33,374.67,276]}
+{"kind":"textbox","id":"sh/pcjqtg36","slide":3,"name":"Content Placeholder 9","text":"探索地图\n资源点、随机事件与兵营分布在网格中；英雄按曼哈顿距离移动。","textPreview":"探索地图 | 资源点、随机事件与兵营分布在网格中；英雄按曼哈顿距离移动。","textChars":34,"textLines":2,"bbox":[73.61,435.29,309.64,150.43]}
+{"kind":"shape","id":"sh/m5cra54z","slide":3,"name":"Google Shape;340;p61","bbox":[74.23,387.83,24.55,24.54]}
+{"kind":"textbox","id":"sh/n6ls3alk","slide":3,"name":"Content Placeholder 15","text":"16×10 网格地图 · 每回合最多移动 3 步 · 20 回合决胜","textPreview":"16×10 网格地图 · 每回合最多移动 3 步 · 20 回合决胜","textChars":34,"textLines":1,"bbox":[41.33,152.29,1197.33,171.05]}
+{"kind":"notes","id":"nt/ofy9wn61","slide":3,"text":"此处配合演示视频说明：选择种族后进入地图，探索、战斗、建设不断循环，目标是攻占敌方据点。"}
+{"kind":"slide","id":"sl/jyx0ra1s","slide":4,"title":"Epic Origin · 课程项目答辩","textShapes":7}
+{"kind":"textbox","id":"sh/doj29oba","slide":4,"name":"Footer Placeholder 5","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/1cj2d8b6","slide":4,"name":"Slide Number Placeholder 1","placeholder":"slideNumber","text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[1184.17,659.17,54.5,25.33]}
+{"kind":"textbox","id":"sh/0ba143al","slide":4,"name":"Title 2","placeholder":"title","text":"完整玩法把策略选择串成一个循环","textPreview":"完整玩法把策略选择串成一个循环","textChars":15,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"textbox","id":"sh/kbm987y5","slide":4,"name":"Content Placeholder 9","text":"选择种族\n人族、天堂、鬼族构成克制循环，为开局策略定调。","textPreview":"选择种族 | 人族、天堂、鬼族构成克制循环，为开局策略定调。","textChars":28,"textLines":2,"bbox":[41.33,213.33,581.33,172.5]}
+{"kind":"textbox","id":"sh/5cva1cfq","slide":4,"name":"Content Placeholder 10","text":"探索地图\n按曼哈顿距离移动，采集金币与建材，触发事件与兵营。","textPreview":"探索地图 | 按曼哈顿距离移动，采集金币与建材，触发事件与兵营。","textChars":30,"textLines":2,"bbox":[656.86,213.33,581.33,172.5]}
+{"kind":"textbox","id":"sh/rm1k7yt4","slide":4,"name":"Content Placeholder 9","text":"建设与扩张\n升级据点，解锁更高等级单位，逐步强化卡组战力。","textPreview":"建设与扩张 | 升级据点，解锁更高等级单位，逐步强化卡组战力。","textChars":29,"textLines":2,"bbox":[41.33,421.73,581.33,172.51]}
+{"kind":"textbox","id":"sh/ql8jytsj","slide":4,"name":"Content Placeholder 10","text":"战斗与终局\n兵营战斗、攻占据点；回合上限后按战力与资源判定胜负。","textPreview":"战斗与终局 | 兵营战斗、攻占据点；回合上限后按战力与资源判定胜负。","textChars":32,"textLines":2,"bbox":[656.86,421.73,581.33,172.51]}
+{"kind":"notes","id":"nt/jyx0ra1s","slide":4,"text":"强调这不是单一战斗系统，而是地图探索、资源经营、卡牌战斗与终局判定组成的策略闭环。"}
+{"kind":"slide","id":"sl/i107q5of","slide":5,"title":"Epic Origin · 课程项目答辩","textShapes":4}
+{"kind":"textbox","id":"sh/cf2tcr61","slide":5,"name":"Footer Placeholder 2","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/1wza1kj6","slide":5,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/0vq98fil","slide":5,"name":"Google Shape;533;p58","placeholder":"title","text":"七层架构分离数据、流程与表现","textPreview":"七层架构分离数据、流程与表现","textChars":14,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"textbox","id":"sh/k7mxovud","slide":5,"name":"Content Placeholder 15","text":"GameSession 持有跨场景状态；各层通过清晰职责协作，降低系统耦合。 ","textPreview":"GameSession 持有跨场景状态；各层通过清晰职责协作，降低系统耦合。","textChars":39,"textLines":1,"bbox":[42.09,111.02,1197.33,106.27]}
+{"kind":"table","id":"tb/idon298f","slide":5,"name":"Google Shape;644;p93","rows":9,"cols":5,"preview":"层 | 核心类 | 主要职责 | 关键机制 | 输出","bbox":[41.33,236.33,1197.33,412.87]}
+{"kind":"notes","id":"nt/i107q5of","slide":5,"text":"从底向上介绍数据、持久化、地图、战斗、AI、音频、UI 七层；GameManager 协调主循环而不吞没各层职责。"}
+{"kind":"slide","id":"sl/x8f69ofe","slide":6,"title":"Epic Origin · 课程项目答辩","textShapes":6}
+{"kind":"textbox","id":"sh/87ipkzal","slide":6,"name":"Footer Placeholder 3","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/q9gz25wb","slide":6,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/rapgbaxw","slide":6,"name":"Google Shape;533;p58","placeholder":"title","text":"三条继承链把变化点收敛在抽象接口后","textPreview":"三条继承链把变化点收敛在抽象接口后","textChars":17,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"textbox","id":"sh/98rqt4r6","slide":6,"name":"Google Shape;558;p61","text":"Tile 地图格\n抽象定义 IsWalkable 与 OnHeroEnter；6 个子类分别处理空地、资源、兵营、事件、据点与障碍。","textPreview":"Tile 地图格 | 抽象定义 IsWalkable 与 OnHeroEnter；6 个子类分别处理空地、资源、兵营、事件、据点与障碍。","textChars":66,"textLines":2,"bbox":[41.33,421.33,374.67,208]}
+{"kind":"textbox","id":"sh/ml07i9sv","slide":6,"name":"Google Shape;559;p61","text":"Unit 兵种\n抽象定义 Name、Attack、HP、RaceType；三大种族扩展各自单位等级与数值。","textPreview":"Unit 兵种 | 抽象定义 Name、Attack、HP、RaceType；三大种族扩展各自单位等级与数值。","textChars":53,"textLines":2,"bbox":[453.33,421.33,374.67,208]}
+{"kind":"textbox","id":"sh/7m98ru9g","slide":6,"name":"Google Shape;560;p61","text":"AI 控制器\n抽象定义 ExecuteTurn；EasyAI 随机移动，HardAI 寻路、升级并积极进攻。","textPreview":"AI 控制器 | 抽象定义 ExecuteTurn；EasyAI 随机移动，HardAI 寻路、升级并积极进攻。","textChars":54,"textLines":2,"bbox":[864.28,421.33,374.67,208]}
+{"kind":"shape","id":"sh/oryp8fah","slide":6,"name":"Google Shape;561;p61","bbox":[449.33,355.1,33.13,37.15]}
+{"kind":"shape","id":"sh/pc76hkr2","slide":6,"name":"Google Shape;562;p61","bbox":[42.14,354.67,34.34,38.01]}
+{"kind":"shape","id":"sh/h4bupgn6","slide":6,"name":"Google Shape;563;p61","bbox":[864.21,357.67,35.55,28.44]}
+{"kind":"notes","id":"nt/x8f69ofe","slide":6,"text":"三条继承链直接回应课程的继承层次要求，也让后续新增格子、兵种或 AI 难度保持局部改动。"}
+{"kind":"slide","id":"sl/gnmp4jqx","slide":7,"title":"Epic Origin · 课程项目答辩","textShapes":10}
+{"kind":"textbox","id":"sh/ydkbm5sv","slide":7,"name":"Footer Placeholder 3","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/sra9kfyx","slide":7,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"7","textPreview":"7","textChars":1,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/tsjad0z2","slide":7,"name":"Google Shape;533;p58","placeholder":"title","text":"一次调用，交由运行时完成正确的格子行为","textPreview":"一次调用，交由运行时完成正确的格子行为","textChars":19,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"textbox","id":"sh/etsrm5gn","slide":7,"name":"Google Shape;534;p58","text":"currentTile.OnHeroEnter()\nGameManager 只依赖 Tile 抽象基类。","textPreview":"currentTile.OnHeroEnter() | GameManager 只依赖 Tile 抽象基类。","textChars":52,"textLines":2,"bbox":[41.33,180.83,581.33,90.83]}
+{"kind":"textbox","id":"sh/cb2tkvap","slide":7,"name":"Content Placeholder 10","text":"资源格 → 增加资源","textPreview":"资源格 → 增加资源","textChars":10,"textLines":1,"bbox":[828,313.94,410.67,57.61]}
+{"kind":"shape","id":"sh/dcbud0ra","slide":7,"name":"Google Shape;340;p61","bbox":[788.21,316.55,22.32,22.31]}
+{"kind":"textbox","id":"sh/xcz2l03q","slide":7,"name":"TextBox 11","text":"英雄移动到目标格后只调用 currentTile.OnHeroEnter()。\n运行时会分派到对应子类：资源格增加资源、兵营格触发战斗、事件格掷骰结算、据点格进入管理或胜负判定。\n新增 Tile 时只需继承并重写方法，原有逻辑无需修改。 ","textPreview":"英雄移动到目标格后只调用 currentTile.OnHeroEnter()。 | 运行时会分派到对应子类：资源格增加资源、兵营格触发战斗、事件格掷骰结算、据点格进入管理或胜负判定。 | 新增 Tile 时只需继承并重写方法，原有逻辑无需修改。","textChars":119,"textLines":3,"bbox":[41.33,313.94,581.33,302.85]}
+{"kind":"textbox","id":"sh/p8fih03e","slide":7,"name":"Content Placeholder 10","text":"兵营格 → 触发战斗","textPreview":"兵营格 → 触发战斗","textChars":10,"textLines":1,"bbox":[828,377.94,410.67,57.61]}
+{"kind":"shape","id":"sh/o761ov2t","slide":7,"name":"Google Shape;340;p61","bbox":[788.21,380.55,22.32,22.31]}
+{"kind":"textbox","id":"sh/f2d0b6lc","slide":7,"name":"Content Placeholder 10","text":"事件格 → 随机结算","textPreview":"事件格 → 随机结算","textChars":10,"textLines":1,"bbox":[828,442.5,410.67,57.61]}
+{"kind":"shape","id":"sh/eh4jil4r","slide":7,"name":"Google Shape;340;p61","bbox":[788.21,445.1,22.32,22.31]}
+{"kind":"textbox","id":"sh/id4ju1oz","slide":7,"name":"Content Placeholder 10","text":"据点格 → 管理或终局","textPreview":"据点格 → 管理或终局","textChars":11,"textLines":1,"bbox":[828,506.49,410.67,57.61]}
+{"kind":"shape","id":"sh/jedkn654","slide":7,"name":"Google Shape;340;p61","bbox":[788.21,509.1,22.32,22.31]}
+{"kind":"textbox","id":"sh/50v2pgna","slide":7,"name":"Content Placeholder 10","text":"新增格子 → 扩展不改旧代码","textPreview":"新增格子 → 扩展不改旧代码","textChars":14,"textLines":1,"bbox":[828,571.83,410.67,57.61]}
+{"kind":"shape","id":"sh/q143ylov","slide":7,"name":"Google Shape;340;p61","bbox":[788.21,574.44,22.32,22.31]}
+{"kind":"notes","id":"nt/gnmp4jqx","slide":7,"text":"用这一行代码说明多态：调用点不需要知道具体子类，符合开闭原则，也便于扩展新的地图交互。 "}
+{"kind":"slide","id":"sl/fu1gfa1s","slide":8,"title":"Epic Origin · 课程项目答辩","textShapes":8}
+{"kind":"textbox","id":"sh/6h0fypgb","slide":8,"name":"Footer Placeholder 4","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/983ap0ru","slide":8,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"8","textPreview":"8","textChars":1,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/87atgfq9","slide":8,"name":"Google Shape;533;p58","placeholder":"title","text":"两项基础能力：可达地图与可恢复进度","textPreview":"两项基础能力：可达地图与可恢复进度","textChars":17,"textLines":1,"bbox":[41.33,36.17,1197.33,67.64]}
+{"kind":"shape","id":"sh/18byd4zy","slide":8,"name":"Rounded Rectangle 1","bbox":[41.68,350.56,580.99,138.67]}
+{"kind":"textbox","id":"sh/g72x4zyd","slide":8,"name":"Content Placeholder 10","text":"地图生成与可达性\nMapGenerator 748 行：固定双方据点，随机布置资源、兵营、事件与障碍。 ","textPreview":"地图生成与可达性 | MapGenerator 748 行：固定双方据点，随机布置资源、兵营、事件与障碍。","textChars":52,"textLines":2,"bbox":[72.89,376.69,523.56,92.16]}
+{"kind":"textbox","id":"sh/ri9g7uhw","slide":8,"name":"Content Placeholder 15","text":"• 16×10 网格\n• FloodFill 防止死局\n• BFS 检测目标路径","textPreview":"• 16×10 网格 | • FloodFill 防止死局 | • BFS 检测目标路径","textChars":40,"textLines":3,"bbox":[72.89,506.94,549.78,102.67]}
+{"kind":"shape","id":"sh/je9g3ahk","slide":8,"name":"Rounded Rectangle 7","bbox":[657.3,350.56,580.99,138.67]}
+{"kind":"textbox","id":"sh/98rehwve","slide":8,"name":"Content Placeholder 10","text":"存档与状态快照\nGameRunState 保存回合、双方数据、地图状态与英雄位置；SaveSystem 封装 JSON 文件操作。 ","textPreview":"存档与状态快照 | GameRunState 保存回合、双方数据、地图状态与英雄位置；SaveSystem 封装 JSON 文件操作。","textChars":66,"textLines":2,"bbox":[688.51,376.69,523.56,92.16]}
+{"kind":"textbox","id":"sh/n6pwfmd8","slide":8,"name":"Content Placeholder 15","text":"• 3 个手动存档位\n• 1 个自动存档位\n• 每回合结束自动保存","textPreview":"• 3 个手动存档位 | • 1 个自动存档位 | • 每回合结束自动保存","textChars":33,"textLines":3,"bbox":[688.51,506.94,549.78,102.67]}
+{"kind":"textbox","id":"sh/0jydkreh","slide":8,"name":"Content Placeholder 15","text":"地图生成与存档都以“玩家不会因系统问题失去一局游戏”为目标。 ","textPreview":"地图生成与存档都以“玩家不会因系统问题失去一局游戏”为目标。","textChars":31,"textLines":1,"bbox":[42.09,121.52,1197.33,171.05]}
+{"kind":"notes","id":"nt/fu1gfa1s","slide":8,"text":"先讲地图可玩性，再讲进度安全性。FloodFill 与 BFS 解决“能不能走到”的问题，JSON 快照解决“能不能恢复”的问题。"}
+{"kind":"slide","id":"sl/udsvah03","slide":9,"title":"Epic Origin · 课程项目答辩","textShapes":6}
+{"kind":"textbox","id":"sh/nex4jq5k","slide":9,"name":"Footer Placeholder 3","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/94zaxgfa","slide":9,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"9","textPreview":"9","textChars":1,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/83qtobep","slide":9,"name":"Google Shape;533;p58","placeholder":"title","text":"AI、动画与音频把规则转化为连贯反馈","textPreview":"AI、动画与音频把规则转化为连贯反馈","textChars":18,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"textbox","id":"sh/vqhszqxg","slide":9,"name":"Google Shape;534;p58","text":"三套系统分别负责决策、表现与沉浸感。 ","textPreview":"三套系统分别负责决策、表现与沉浸感。","textChars":19,"textLines":1,"bbox":[41.33,353.33,374.67,276]}
+{"kind":"textbox","id":"sh/1cfmhgne","slide":9,"name":"Content Placeholder 1","text":"AI 决策\n优先升级 → 召唤 → 移动；HardAI 按距离选资源点，战斗中按克制选择出牌。 ","textPreview":"AI 决策 | 优先升级 → 召唤 → 移动；HardAI 按距离选资源点，战斗中按克制选择出牌。","textChars":48,"textLines":2,"bbox":[864,353.33,374.67,276]}
+{"kind":"textbox","id":"sh/0b65obm9","slide":9,"name":"Content Placeholder 2","text":"战斗动画与音频\nBattleUI 用 14 步协程串联翻牌、聚集、对决、结算与归位。AudioManager 管理 4 首 BGM 与 17 种音效。 ","textPreview":"战斗动画与音频 | BattleUI 用 14 步协程串联翻牌、聚集、对决、结算与归位。AudioManager 管理 4 首 BGM 与 17 种音效。","textChars":76,"textLines":2,"bbox":[452.67,353.33,374.67,276]}
+{"kind":"notes","id":"nt/udsvah03","slide":9,"text":"规则本身并不等于体验：AI 让对局持续推进，协程动画让伤害结算可感知，音频使每个操作都有反馈。"}
+{"kind":"slide","id":"sl/m90b6t0r","slide":10,"title":"Epic Origin · 课程项目答辩","textShapes":8}
+{"kind":"textbox","id":"sh/d87uxg3m","slide":10,"name":"Footer Placeholder 10","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/l8z690ji","slide":10,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/k7q50v2x","slide":10,"name":"Google Shape;533;p58","placeholder":"title","text":"测试同时覆盖规则正确性、状态恢复与交互稳定","textPreview":"测试同时覆盖规则正确性、状态恢复与交互稳定","textChars":21,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"shape","id":"sh/kzu5c32t","slide":10,"name":"Rounded Rectangle 6","bbox":[657.68,248.8,580.99,172]}
+{"kind":"textbox","id":"sh/725onyl4","slide":10,"name":"Content Placeholder 10","text":"流程测试\n从种族选择到结算；验证资源不足、卡组为空、读档恢复与多回合对局。 ","textPreview":"流程测试 | 从种族选择到结算；验证资源不足、卡组为空、读档恢复与多回合对局。","textChars":38,"textLines":2,"bbox":[688.89,279.77,523.56,110.07]}
+{"kind":"shape","id":"sh/m1cnetkj","slide":10,"name":"Rounded Rectangle 8","bbox":[42.94,248.8,580.99,172]}
+{"kind":"textbox","id":"sh/s7yt4b21","slide":10,"name":"Content Placeholder 10","text":"单元测试\n5 个 NUnit 测试文件，覆盖战斗克制、胜负、BFS、存档 I/O 与 AI 规则。 ","textPreview":"单元测试 | 5 个 NUnit 测试文件，覆盖战斗克制、胜负、BFS、存档 I/O 与 AI 规则。","textChars":50,"textLines":2,"bbox":[74.15,279.77,523.56,110.07]}
+{"kind":"shape","id":"sh/xc3mho32","slide":10,"name":"Rounded Rectangle 1","bbox":[657.68,458.8,580.99,172]}
+{"kind":"textbox","id":"sh/cbu58j2h","slide":10,"name":"Content Placeholder 10","text":"试玩反馈\n卡牌翻转与飞入飞出增强沉浸感；已记录更多随机事件和更快结算的建议。 ","textPreview":"试玩反馈 | 卡牌翻转与飞入飞出增强沉浸感；已记录更多随机事件和更快结算的建议。","textChars":39,"textLines":2,"bbox":[688.89,489.77,523.56,110.07]}
+{"kind":"shape","id":"sh/zelojyl8","slide":10,"name":"Rounded Rectangle 3","bbox":[42.94,458.8,580.99,172]}
+{"kind":"textbox","id":"sh/ydcnatkn","slide":10,"name":"Content Placeholder 10","text":"边界与稳定性\n检查 AI 不死循环、高频点击 UI 不崩溃，以及英雄动画和 UI 位置保持。 ","textPreview":"边界与稳定性 | 检查 AI 不死循环、高频点击 UI 不崩溃，以及英雄动画和 UI 位置保持。","textChars":47,"textLines":2,"bbox":[74.15,489.77,523.56,110.07]}
+{"kind":"textbox","id":"sh/l036l83y","slide":10,"name":"Content Placeholder 15","text":"自动化与手动测试共同验证完整游戏流程。 ","textPreview":"自动化与手动测试共同验证完整游戏流程。","textChars":20,"textLines":1,"bbox":[42.09,111.02,1197.33,106.27]}
+{"kind":"notes","id":"nt/m90b6t0r","slide":10,"text":"测试并非只测规则：既有 NUnit 的确定性验证，也有完整流程、边界状态和组外试玩的体验验证。"}
+{"kind":"slide","id":"sl/jetc3ut0","slide":11,"title":"Epic Origin · 课程项目答辩","textShapes":12}
+{"kind":"textbox","id":"sh/xcryxg7y","slide":11,"name":"Footer Placeholder 1","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/pgvihkre","slide":11,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/4fmh8fat","slide":11,"name":"Google Shape;533;p58","placeholder":"title","text":"关键交付物逐项满足课程要求","textPreview":"关键交付物逐项满足课程要求","textChars":13,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"textbox","id":"sh/mdobedg3","slide":11,"name":"Content Placeholder 10","text":"63","textPreview":"63","textChars":2,"textLines":1,"bbox":[732,249.33,506.67,68]}
+{"kind":"textbox","id":"sh/1cfa58zi","slide":11,"name":"Content Placeholder 10","text":"C# 源文件","textPreview":"C# 源文件","textChars":6,"textLines":1,"bbox":[509.33,249.33,196,68]}
+{"kind":"textbox","id":"sh/epobatgr","slide":11,"name":"Content Placeholder 10","text":"10,000+","textPreview":"10,000+","textChars":7,"textLines":1,"bbox":[732,353.33,506.67,68]}
+{"kind":"textbox","id":"sh/zaxs3yhc","slide":11,"name":"Content Placeholder 10","text":"原创代码行","textPreview":"原创代码行","textChars":5,"textLines":1,"bbox":[509.33,353.33,196,68]}
+{"kind":"textbox","id":"sh/cn6t83y1","slide":11,"name":"Content Placeholder 10","text":"3 条","textPreview":"3 条","textChars":3,"textLines":1,"bbox":[732,457.33,506.67,68]}
+{"kind":"textbox","id":"sh/dofa18z6","slide":11,"name":"Content Placeholder 10","text":"继承链","textPreview":"继承链","textChars":3,"textLines":1,"bbox":[509.33,457.33,196,68]}
+{"kind":"textbox","id":"sh/tsnip0ny","slide":11,"name":"Content Placeholder 10","text":"4 个","textPreview":"4 个","textChars":3,"textLines":1,"bbox":[732,562.67,506.67,68]}
+{"kind":"textbox","id":"sh/87ehgv6d","slide":11,"name":"Content Placeholder 10","text":"存档位","textPreview":"存档位","textChars":3,"textLines":1,"bbox":[509.33,562.67,196,68]}
+{"kind":"textbox","id":"sh/wbih4b6d","slide":11,"name":"Google Shape;534;p58","text":"课程要求：不少于 5 个类、2 层继承、2000 行代码，并支持文件读写与图形界面。\n项目已形成 5 个场景、2 个弹窗与完整 JSON 存档流程，全部覆盖。 ","textPreview":"课程要求：不少于 5 个类、2 层继承、2000 行代码，并支持文件读写与图形界面。 | 项目已形成 5 个场景、2 个弹窗与完整 JSON 存档流程，全部覆盖。","textChars":80,"textLines":2,"bbox":[41.33,249.33,374.67,380]}
+{"kind":"notes","id":"nt/jetc3ut0","slide":11,"text":"本页对照课程指标收束工程量。63 个自写 C# 源文件中包含 5 个测试文件；功能、界面与文件处理也都已落实。"}
+{"kind":"slide","id":"sl/8f2psfyx","slide":12,"title":"Epic Origin · 课程项目答辩","textShapes":5}
+{"kind":"textbox","id":"sh/0f2lgnmp","slide":12,"name":"Footer Placeholder 2","placeholder":"footer","text":"Epic Origin · 课程项目答辩","textPreview":"Epic Origin · 课程项目答辩","textChars":20,"textLines":1,"bbox":[41.33,659.31,374.67,25.33]}
+{"kind":"textbox","id":"sh/5oz2t4jm","slide":12,"name":"Google Shape;532;p58","placeholder":"slideNumber","text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1184.18,659.24,54.48,25.33]}
+{"kind":"textbox","id":"sh/4n6lkz21","slide":12,"name":"Google Shape;533;p58","placeholder":"title","text":"团队把重复劳动交给工具，把精力留给玩法","textPreview":"团队把重复劳动交给工具，把精力留给玩法","textChars":19,"textLines":1,"bbox":[41.33,36.12,1197.33,109.97]}
+{"kind":"textbox","id":"sh/sb2lcnmd","slide":12,"name":"Google Shape;534;p58","text":"AI 编程助手用于批量生成规则明确的模板代码。\n三个种族的兵种类、Tile 子类与 UI 入场动画结构相似；团队据此减少重复劳动，把精力集中到核心玩法逻辑与体验打磨。 ","textPreview":"AI 编程助手用于批量生成规则明确的模板代码。 | 三个种族的兵种类、Tile 子类与 UI 入场动画结构相似；团队据此减少重复劳动，把精力集中到核心玩法逻辑与体验打磨。","textChars":84,"textLines":2,"bbox":[41.33,213.33,581.33,371.11]}
+{"kind":"textbox","id":"sh/b6d4f2lc","slide":12,"name":"Content Placeholder 3","text":"最终交付\n一个可玩的 2D 回合制策略卡牌游戏：地图探索、卡牌对战、AI、存档、音频与测试构成完整闭环。 ","textPreview":"最终交付 | 一个可玩的 2D 回合制策略卡牌游戏：地图探索、卡牌对战、AI、存档、音频与测试构成完整闭环。","textChars":53,"textLines":2,"bbox":[656.86,213.33,581.33,371.11]}
+{"kind":"notes","id":"nt/8f2psfyx","slide":12,"text":"说明 AI 编程助手的边界：用于重复、规则明确的模板代码，不替代玩法设计和核心逻辑判断。"}
+{"kind":"slide","id":"sl/hgzapcr6","slide":13,"title":"《Epic Origin》","textShapes":3}
+{"kind":"textbox","id":"sh/o3i5w3ad","slide":13,"name":"Title 3","placeholder":"title","text":"《Epic Origin》\n策略、工程与可玩性的完整闭环","textPreview":"《Epic Origin》 | 策略、工程与可玩性的完整闭环","textChars":28,"textLines":2,"bbox":[41.33,389.78,992,261.57]}
+{"kind":"textbox","id":"sh/21gnuts7","slide":13,"name":"Subtitle 4","text":"项目汇报完毕","textPreview":"项目汇报完毕","textChars":6,"textLines":1,"bbox":[41.33,41.18,646.49,68.15]}
+{"kind":"textbox","id":"sh/gzy5s3a1","slide":13,"name":"Subtitle 4","text":"感谢各位老师聆听\n欢迎提问","textPreview":"感谢各位老师聆听 | 欢迎提问","textChars":13,"textLines":2,"bbox":[828,41.18,410.67,68.15]}
+{"kind":"notes","id":"nt/hgzapcr6","slide":13,"text":"结束：重申项目已满足课程要求，并邀请老师提问。 "}

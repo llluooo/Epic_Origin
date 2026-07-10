@@ -17,6 +17,9 @@ public class Player
     // 据点位置
     public Vector2Int strongholdPos;
 
+    // 已占领的资源点数量（每个 +20 金币 +20 建材/回合）
+    public int capturedResourceCount;
+
     // ================== 数值表（设计方案精确值）==================
 
     // 升级消耗: [level] = (金币, 建材) — 1→2用索引1, 2→3用索引2, ...
@@ -129,7 +132,9 @@ public class Player
     {
         if (strongholdLevel < 1 || strongholdLevel > 5)
             return new ResourceData(0, 0);
-        return BaseProduction[strongholdLevel];
+        ResourceData baseProd = BaseProduction[strongholdLevel];
+        int bonus = capturedResourceCount * 20;
+        return new ResourceData(baseProd.gold + bonus, baseProd.buildingMaterials + bonus);
     }
 
     // ================== 兵种查询 ==================
@@ -158,6 +163,14 @@ public class Player
                 count++;
         }
         return count;
+    }
+
+    /// <summary>
+    /// 获取英雄卡组的总攻击力（baseAttack × quantity 之和）
+    /// </summary>
+    public int GetTotalAttack()
+    {
+        return deck.GetTotalAttack();
     }
 
     /// <summary>

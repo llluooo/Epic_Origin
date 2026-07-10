@@ -227,6 +227,12 @@ public class MapGenerator : MonoBehaviour
         }
 
         PlaceTile(GetPrefabForTileKind(state.kind), state.position, GetVisualRoleForTileKind(state.kind));
+
+        if (state.cleared)
+        {
+            Tile tile = map[state.position.x, state.position.y];
+            if (tile != null) tile.MarkCleared();
+        }
     }
 
     GameObject GetPrefabForTileKind(TileKind kind)

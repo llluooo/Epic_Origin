@@ -24,8 +24,16 @@ public class GameManager : MonoBehaviour
     public Player aiPlayer;
 
     public bool IsGameEnded => gameEnded;
+    public string GameEndTitle => gameEndTitle;
+    public string GameEndMessage => gameEndMessage;
+    public string GameEndDetail => gameEndDetail;
+    public bool GameEndIsVictory => gameEndIsVictory;
 
     private bool gameEnded = false;
+    private bool gameEndIsVictory = false;
+    private string gameEndTitle = "";
+    private string gameEndMessage = "";
+    private string gameEndDetail = "";
     private BattleEncounterType pendingBattleType = BattleEncounterType.None;
     private AIController aiController;
     public AIHero aiHero;
@@ -54,6 +62,21 @@ public class GameManager : MonoBehaviour
 
         StartGame();
     }
+
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F10))
+        {
+            TriggerGameEndVictoryTest();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F11))
+        {
+            TriggerGameEndDefeatTest();
+        }
+    }
+#endif
 
     private void OnEnable()
     {
@@ -98,6 +121,11 @@ public class GameManager : MonoBehaviour
             strongholdPos = new Vector2Int(9, 9)
         };
         DeckInit(aiPlayer);
+
+        // AI 据点初始驻兵
+        aiPlayer.garrisonDeck.AddCard(CreateCardForRace(aiRace, 1, 2)); // Lv2 单位
+        aiPlayer.garrisonDeck.AddCard(CreateCardForRace(aiRace, 0, 1)); // Lv1 单位
+        Debug.Log($"AI 据点初始驻兵：{aiPlayer.garrisonDeck.CardCount} 张");
 
         InitializeAIController();
         StartPlayerTurn();
@@ -166,7 +194,7 @@ public class GameManager : MonoBehaviour
         {
             PendingBattleResult result = GameSession.PendingBattleResult.Clone();
             pendingBattleType = result.encounterType;
-            ResolveBattleResult(result.encounterType, result.outcome);
+            ResolveBattleResult(result.encounterType, result.outcome, result.sourceTilePos);
             GameSession.ClearPendingBattleAfterResolution();
             Vector2Int restoredAIHeroPos = state.hasAIHeroGridPos ? state.aiHeroGridPos : aiPlayer.strongholdPos;
             GameSession.UpdateRunState(GameRunState.Capture(this, state.heroGridPos, restoredAIHeroPos, state.mapState));
@@ -245,6 +273,12 @@ public class GameManager : MonoBehaviour
 
     public void EndPlayerTurn()
     {
+        if (currentState != GameState.PlayerTurn)
+        {
+            Debug.Log("当前不是玩家回合，无法结束回合。");
+            return;
+        }
+
         if (!hasPlayerActed)
         {
             Debug.Log("你还没有执行操作。");
@@ -258,6 +292,11 @@ public class GameManager : MonoBehaviour
     void StartAITurn()
     {
         if (gameEnded)
+        {
+            return;
+        }
+
+        if (currentState == GameState.AITurn)
         {
             return;
         }
@@ -333,6 +372,7 @@ public class GameManager : MonoBehaviour
         ResourceData playerProd = player.GetTurnProduction();
         player.resources.Add(playerProd);
         Debug.Log($"玩家据点产出: {playerProd.gold}金币, {playerProd.buildingMaterials}建材");
+        MessageLogUI.Instance?.AddMessage($"据点产出: +{playerProd.gold}金币, +{playerProd.buildingMaterials}建材");
 
         ResourceData aiProd = aiPlayer.GetTurnProduction();
         aiPlayer.resources.Add(aiProd);
@@ -441,10 +481,15 @@ public class GameManager : MonoBehaviour
 
     public void StartEnemyStrongholdBattle(Vector2Int sourceTilePos)
     {
-        StartBattle(BattleEncounterType.EnemyStronghold, aiPlayer.deck.cards, sourceTilePos);
+        // 合并 AI 英雄卡组 + 据点驻兵
+        List<Card> combinedEnemyDeck = new List<Card>();
+        combinedEnemyDeck.AddRange(aiPlayer.deck.cards);
+        combinedEnemyDeck.AddRange(aiPlayer.garrisonDeck.cards);
+        Debug.Log($"敌方据点战斗：AI英雄{aiPlayer.deck.CardCount}张 + 驻兵{aiPlayer.garrisonDeck.CardCount}张，共{combinedEnemyDeck.Count}张");
+        StartBattle(BattleEncounterType.EnemyStronghold, combinedEnemyDeck, sourceTilePos);
     }
 
-    public void ResolveBattleResult(BattleEncounterType encounterType, BattleOutcome outcome)
+    public void ResolveBattleResult(BattleEncounterType encounterType, BattleOutcome outcome, Vector2Int sourceTilePos)
     {
         isBattleActive = false;
 
@@ -458,10 +503,13 @@ public class GameManager : MonoBehaviour
         switch (encounterType)
         {
             case BattleEncounterType.ArmyCamp:
-                ResolveArmyCampBattle(outcome);
+                ResolveArmyCampBattle(outcome, sourceTilePos);
                 break;
             case BattleEncounterType.EnemyStronghold:
                 ResolveEnemyStrongholdBattle(outcome);
+                break;
+            case BattleEncounterType.PlayerStronghold:
+                ResolvePlayerStrongholdBattle(outcome);
                 break;
             default:
                 Debug.LogWarning($"未知战斗类型：{encounterType}");
@@ -469,7 +517,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void StartBattle(BattleEncounterType encounterType, List<Card> enemyDeck, Vector2Int sourceTilePos)
+    private void StartBattle(BattleEncounterType encounterType, List<Card> enemyDeck, Vector2Int sourceTilePos, List<Card> playerDeckOverride = null)
     {
         if (gameEnded)
         {
@@ -503,13 +551,15 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        List<Card> actualPlayerDeck = playerDeckOverride ?? player.deck.cards;
+
         GameRunState runState = GameRunState.Capture(this, hero, mapState);
         PendingBattleState battleState = new PendingBattleState
         {
             encounterType = encounterType,
             sourceTilePos = sourceTilePos,
             playerStartsAttacking = true,
-            playerDeck = GameRunState.CloneCardList(player.deck.cards),
+            playerDeck = GameRunState.CloneCardList(actualPlayerDeck),
             enemyDeck = GameRunState.CloneCardList(enemyDeck)
         };
 
@@ -518,11 +568,18 @@ public class GameManager : MonoBehaviour
         BattleSceneBridge.LoadBattleScene(runState, battleState);
     }
 
-    private void ResolveArmyCampBattle(BattleOutcome outcome)
+    private void ResolveArmyCampBattle(BattleOutcome outcome, Vector2Int sourceTilePos)
     {
         if (outcome == BattleOutcome.PlayerSurrender)
         {
             ApplySurrenderPenalty();
+            return;
+        }
+
+        if (outcome == BattleOutcome.PlayerFled)
+        {
+            Debug.Log("玩家从兵营战斗中逃跑成功。");
+            MessageLogUI.Instance?.AddMessage("玩家从兵营战斗中逃跑成功。");
             return;
         }
 
@@ -552,11 +609,13 @@ public class GameManager : MonoBehaviour
                     if (player.TryAddToHeroDeck(rewardCard))
                     {
                         Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
+                        MessageLogUI.Instance?.AddMessage($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
                     }
                     else
                     {
                         player.AddToGarrison(rewardCard);
                         Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}，英雄兵力已满，自动移入据点。");
+                        MessageLogUI.Instance?.AddMessage($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
                     }
                 }
             }
@@ -565,6 +624,13 @@ public class GameManager : MonoBehaviour
                 int goldReward = Random.Range(30, 51);
                 player.resources.gold += goldReward;
                 Debug.Log($"战胜兵营！获得 {goldReward} 金币。");
+                MessageLogUI.Instance?.AddMessage($"战胜兵营！获得 {goldReward} 金币。");
+            }
+
+            // 战胜后清除兵营格子
+            if (MapManager.Instance != null)
+            {
+                MapManager.Instance.ClearTileAt(sourceTilePos);
             }
 
             return;
@@ -572,6 +638,7 @@ public class GameManager : MonoBehaviour
 
         RemovePlayerBattleCards();
         Debug.Log("兵营战斗失败，参战卡牌已损失。");
+        MessageLogUI.Instance?.AddMessage("兵营战斗失败，参战卡牌已损失。");
     }
 
     private void ResolveEnemyStrongholdBattle(BattleOutcome outcome)
@@ -582,13 +649,57 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        if (outcome == BattleOutcome.PlayerFled)
+        {
+            Debug.Log("玩家从敌方据点战斗中逃跑成功。");
+            MessageLogUI.Instance?.AddMessage("玩家从敌方据点战斗中逃跑成功。");
+            return;
+        }
+
         if (IsPlayerBattleWin(outcome))
         {
             WinGame(player);
             return;
         }
 
-        Debug.Log("攻打敌方据点失败，返回主地图继续游戏。");
+        // 玩家战败：从英雄卡组移除参战卡牌（进攻方仅英雄卡组参战）
+        RemovePlayerBattleCards();
+        Debug.Log("攻打敌方据点失败，参战卡牌已损失。");
+        MessageLogUI.Instance?.AddMessage("攻打敌方据点失败，参战卡牌已损失。");
+    }
+
+    private void ResolvePlayerStrongholdBattle(BattleOutcome outcome)
+    {
+        if (outcome == BattleOutcome.PlayerSurrender)
+        {
+            // 玩家投降 → AI 胜利
+            WinGame(aiPlayer);
+            return;
+        }
+
+        if (outcome == BattleOutcome.PlayerFled)
+        {
+            Debug.Log("玩家从己方据点战斗中逃跑成功。");
+            MessageLogUI.Instance?.AddMessage("玩家从己方据点战斗中逃跑成功。");
+            return;
+        }
+
+        if (IsPlayerBattleWin(outcome))
+        {
+            // 玩家成功防守，击退 AI 进攻
+            Debug.Log("成功防守己方据点，击退 AI 进攻！");
+            MessageLogUI.Instance?.AddMessage("成功防守己方据点！");
+            return;
+        }
+
+        // AI 攻破玩家据点：从玩家英雄+驻兵合并卡组移除参战卡牌，然后 AI 胜利
+        List<Card> battlePlayerDeck = GetPendingBattlePlayerDeck();
+        if (battlePlayerDeck != null)
+        {
+            RemoveCardsFromCombinedDeck(player.deck, player.garrisonDeck, battlePlayerDeck);
+            Debug.Log("己方据点防守失败，参战卡牌已损失。");
+        }
+        WinGame(aiPlayer);
     }
 
     private void ApplySurrenderPenalty()
@@ -609,6 +720,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log($"逃跑惩罚：损失 {goldLost} 金币、{matLost} 建材、{cardsToLose} 张卡牌。");
+        MessageLogUI.Instance?.AddMessage($"逃跑惩罚：损失 {goldLost} 金币、{matLost} 建材、{cardsToLose} 张卡牌");
     }
 
     private void RemovePlayerBattleCards()
@@ -649,6 +761,65 @@ public class GameManager : MonoBehaviour
                     if (deckCard.quantity <= 0)
                     {
                         deck.cards.RemoveAt(i);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 从合并卡组（英雄+驻兵）中移除参战卡牌，优先从英雄卡组移除
+    /// </summary>
+    public static void RemoveCardsFromCombinedDeck(Deck heroDeck, Deck garrisonDeck, List<Card> battleCards)
+    {
+        if (battleCards == null) return;
+
+        // 先尝试从英雄卡组移除
+        List<Card> remainingCards = new List<Card>();
+        foreach (Card battleCard in battleCards)
+        {
+            if (battleCard == null) continue;
+
+            int need = Mathf.Max(1, battleCard.quantity);
+            if (heroDeck != null)
+            {
+                for (int i = heroDeck.CardCount - 1; i >= 0 && need > 0; i--)
+                {
+                    Card deckCard = heroDeck[i];
+                    if (deckCard.race == battleCard.race
+                        && deckCard.unitIndex == battleCard.unitIndex
+                        && deckCard.level == battleCard.level)
+                    {
+                        int removed = Mathf.Min(deckCard.quantity, need);
+                        deckCard.quantity -= removed;
+                        need -= removed;
+                        Debug.Log($"损失参战卡牌（英雄）：{deckCard.cardName} Lv{deckCard.level} x{removed}");
+                        if (deckCard.quantity <= 0)
+                        {
+                            heroDeck.cards.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+
+            // 剩余从驻兵卡组移除
+            if (need > 0 && garrisonDeck != null)
+            {
+                for (int i = garrisonDeck.CardCount - 1; i >= 0 && need > 0; i--)
+                {
+                    Card deckCard = garrisonDeck[i];
+                    if (deckCard.race == battleCard.race
+                        && deckCard.unitIndex == battleCard.unitIndex
+                        && deckCard.level == battleCard.level)
+                    {
+                        int removed = Mathf.Min(deckCard.quantity, need);
+                        deckCard.quantity -= removed;
+                        need -= removed;
+                        Debug.Log($"损失参战卡牌（驻兵）：{deckCard.cardName} Lv{deckCard.level} x{removed}");
+                        if (deckCard.quantity <= 0)
+                        {
+                            garrisonDeck.cards.RemoveAt(i);
+                        }
                     }
                 }
             }
@@ -716,11 +887,29 @@ public class GameManager : MonoBehaviour
         StartEnemyStrongholdBattle();
     }
 
+    /// <summary>
+    /// AI 英雄进入玩家据点时调用，AI 进攻玩家据点
+    /// </summary>
+    public void OnAIHeroEnterPlayerStronghold()
+    {
+        if (gameEnded || isBattleActive) return;
+
+        // 玩家以英雄卡组 + 据点驻兵合并防守
+        List<Card> combinedPlayerDeck = new List<Card>();
+        combinedPlayerDeck.AddRange(player.deck.cards);
+        combinedPlayerDeck.AddRange(player.garrisonDeck.cards);
+        Debug.Log($"AI 进攻玩家据点！防守方：英雄{player.deck.CardCount}张 + 驻兵{player.garrisonDeck.CardCount}张，共{combinedPlayerDeck.Count}张");
+        MessageLogUI.Instance?.AddMessage("AI 进攻我方据点！");
+        StartBattle(BattleEncounterType.PlayerStronghold, aiPlayer.deck.cards, player.strongholdPos, combinedPlayerDeck);
+    }
+
     void WinGame(Player winner)
     {
         gameEnded = true;
         isBattleActive = false;
         currentState = GameState.End;
+        SetGameEndSummary(winner);
+        NotifyGameEndUI();
         Debug.Log($"{winner.playerName} 胜利！游戏结束。");
     }
 
@@ -735,18 +924,89 @@ public class GameManager : MonoBehaviour
         Debug.Log("20回合结束，按战力+资源判定。");
         Debug.Log($"玩家总分:{playerScore}，电脑总分:{aiScore}");
 
-        if (playerScore > aiScore)
+        if (playerScore >= aiScore)
         {
             WinGame(player);
         }
-        else if (aiScore > playerScore)
+        else
         {
             WinGame(aiPlayer);
         }
-        else
+    }
+
+    public void TriggerGameEndVictoryTest()
+    {
+        if (gameEnded)
+            return;
+
+        Debug.Log("[Debug] 触发游戏结束结算测试（胜利）");
+        gameEnded = true;
+        isBattleActive = false;
+        currentState = GameState.End;
+        SetGameEndSummary(player);
+        NotifyGameEndUI();
+    }
+
+    public void TriggerGameEndDefeatTest()
+    {
+        if (gameEnded)
+            return;
+
+        Debug.Log("[Debug] 触发游戏结束结算测试（失败）");
+        gameEnded = true;
+        isBattleActive = false;
+        currentState = GameState.End;
+        SetGameEndSummary(aiPlayer);
+        NotifyGameEndUI();
+    }
+
+    private void SetGameEndSummary(Player winner)
+    {
+        gameEndIsVictory = (winner == player);
+        gameEndTitle = gameEndIsVictory ? "胜利！" : "失败！";
+        gameEndMessage = gameEndIsVictory ? "你获得了胜利！" : "电脑获胜，游戏结束。";
+        gameEndDetail = BuildGameEndDetail();
+    }
+
+    private string BuildGameEndDetail()
+    {
+        int playerScore = player.deck.GetTotalCombatPower() + player.resources.gold + player.resources.buildingMaterials;
+        int aiScore = aiPlayer.deck.GetTotalCombatPower() + aiPlayer.resources.gold + aiPlayer.resources.buildingMaterials;
+
+        string finalResult = gameEndMessage;
+
+        return $"回合数: {Mathf.Min(currentTurn, maxTurn)}/{maxTurn}\n"
+             + $"玩家据点等级: Lv{player.strongholdLevel}\n"
+             + $"玩家资源: {player.resources.gold} 金币, {player.resources.buildingMaterials} 建材\n"
+             + $"结局: {finalResult}";
+    }
+
+    private void NotifyGameEndUI()
+    {
+        if (UIManager.Instance != null)
         {
-            Debug.Log("平局。");
+            UIManager.Instance.ShowGameEndPanel(GameEndDetail, GameEndIsVictory);
+            return;
         }
+
+        UIManager ui = FindObjectOfType<UIManager>();
+        if (ui != null)
+        {
+            ui.ShowGameEndPanel(GameEndDetail, GameEndIsVictory);
+            return;
+        }
+
+        GameEndUI endUI = FindObjectOfType<GameEndUI>();
+        if (endUI == null)
+        {
+            GameObject uiObject = new GameObject("GameEndUI");
+            endUI = uiObject.AddComponent<GameEndUI>();
+        }
+
+        if (GameEndIsVictory)
+            endUI.ShowVictory(GameEndDetail);
+        else
+            endUI.ShowDefeat(GameEndDetail);
     }
 
     private CameraFollow GetCameraFollow()
