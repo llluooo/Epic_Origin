@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
-public class ArmyCampTile : Tile
-{
-    public override void OnHeroEnter()
-    {
-        if (Cleared) return;
 
+public class ArmyCampTile : POITile
+{
+    protected override bool AutoClear => false;
+
+    protected override void OnPOIEnter()
+    {
         GameManager gameManager = GameManager.Instance;
         if (gameManager == null)
         {
@@ -21,6 +22,7 @@ public class ArmyCampTile : Tile
         MessageLogUI.Instance?.AddMessage("进入兵营");
         gameManager.StartArmyCampBattle(enemyDeck, gridPosition);
     }
+
     private List<Card> CreateEnemyEncounterDeck()
     {
         int cardCount = Random.Range(3, 6);
@@ -33,6 +35,7 @@ public class ArmyCampTile : Tile
         }
         return deck;
     }
+
     private Card CreateRandomCard(RaceType race, int unitIndex)
     {
         return race switch

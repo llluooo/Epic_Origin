@@ -1,10 +1,9 @@
 using UnityEngine;
-public class ResourceTile : Tile
-{
-    public override void OnHeroEnter()
-    {
-        if (Cleared) return;
 
+public class ResourceTile : POITile
+{
+    protected override void OnPOIEnter()
+    {
         Player player = GetEnteringPlayer();
         if (player == null) return;
 
@@ -31,14 +30,10 @@ public class ResourceTile : Tile
         }
 
         player.capturedResourceCount++;
-        MarkCleared();
         Debug.Log($"资源点已占领，据点每回合产出 +20 金币 +20 建材（当前累计 +{player.capturedResourceCount * 20}）");
         MessageLogUI.Instance?.AddMessage($"资源点已占领，据点产出提升！");
     }
 
-    /// <summary>
-    /// 判断进入资源点的是玩家还是 AI，返回对应的 Player 对象。
-    /// </summary>
     private Player GetEnteringPlayer()
     {
         AIHero aiHero = Object.FindObjectOfType<AIHero>();
