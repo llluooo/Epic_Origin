@@ -269,6 +269,60 @@ public abstract class AIController
     }
 
     /// <summary>
+    /// 维护据点驻兵：确保至少有 2 张驻兵卡牌
+    /// </summary>
+    protected void MaintainGarrison()
+    {
+        if (aiPlayer == null || gameManager == null) return;
+
+        int garrisonCount = aiPlayer.garrisonDeck.CardCount;
+        if (garrisonCount >= 2) return;
+
+        // 尝试召唤直接加入驻兵
+        int maxLevel = Mathf.Min(aiPlayer.strongholdLevel, 5);
+        for (int level = maxLevel; level >= 1; level--)
+        {
+            int unitIndex = level - 1;
+            if (!aiPlayer.CanSummon(level)) continue;
+
+            ResourceData cost = aiPlayer.GetSummonCost(level);
+            if (aiPlayer.resources.gold - cost.gold < GoldReserve) continue;
+
+            aiPlayer.resources.gold -= cost.gold;
+            aiPlayer.resources.buildingMaterials -= cost.buildingMaterials;
+            Card card = gameManager.CreateCardForRace(aiPlayer.race, unitIndex, level);
+            aiPlayer.AddToGarrison(card);
+            Debug.Log($"[AI] 驻兵不足，召唤 {card.cardName} Lv{card.level} 加入驻兵（当前驻兵：{aiPlayer.garrisonDeck.CardCount}张）");
+            return;
+        }
+
+        // 资源不足召唤时，从英雄卡组转移最低攻击力的卡牌到驻兵
+        if (aiPlayer.deck.CardCount > 1)
+        {
+            int lowestIdx = -1;
+            int lowestAtk = int.MaxValue;
+            for (int i = 0; i < aiPlayer.deck.CardCount; i++)
+            {
+                Card card = aiPlayer.deck[i];
+                if (card == null) continue;
+                int atk = card.baseAttack * card.quantity;
+                if (atk < lowestAtk)
+                {
+                    lowestAtk = atk;
+                    lowestIdx = i;
+                }
+            }
+
+            if (lowestIdx >= 0)
+            {
+                Card moved = aiPlayer.deck[lowestIdx];
+                aiPlayer.TransferToGarrison(lowestIdx);
+                Debug.Log($"[AI] 驻兵不足，从英雄卡组转移 {moved.cardName} Lv{moved.level} 到驻兵（当前驻兵：{aiPlayer.garrisonDeck.CardCount}张）");
+            }
+        }
+    }
+
+    /// <summary>
     /// 检查当前目标是否已失效（被清除）
     /// </summary>
     protected bool IsTargetValid(Vector2Int? targetPos)
@@ -310,6 +364,9 @@ public class EasyAI : AIController
             // 智能召唤
             if (TrySmartSummon())
                 Debug.Log("[EasyAI] 智能召唤");
+
+            // 维护驻兵
+            MaintainGarrison();
         }
 
         if (aiHero == null) return false;
@@ -378,6 +435,9 @@ public class HardAI : AIController
                 if (!TrySmartSummon()) break;
                 Debug.Log($"[HardAI] 智能召唤（第{attempt + 1}次）");
             }
+
+            // 维护驻兵
+            MaintainGarrison();
         }
 
         if (aiHero == null) return false;

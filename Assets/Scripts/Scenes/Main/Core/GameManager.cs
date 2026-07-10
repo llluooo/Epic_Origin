@@ -122,6 +122,11 @@ public class GameManager : MonoBehaviour
         };
         DeckInit(aiPlayer);
 
+        // AI 据点初始驻兵
+        aiPlayer.garrisonDeck.AddCard(CreateCardForRace(aiRace, 1, 2)); // Lv2 单位
+        aiPlayer.garrisonDeck.AddCard(CreateCardForRace(aiRace, 0, 1)); // Lv1 单位
+        Debug.Log($"AI 据点初始驻兵：{aiPlayer.garrisonDeck.CardCount} 张");
+
         InitializeAIController();
         StartPlayerTurn();
     }
@@ -476,7 +481,12 @@ public class GameManager : MonoBehaviour
 
     public void StartEnemyStrongholdBattle(Vector2Int sourceTilePos)
     {
-        StartBattle(BattleEncounterType.EnemyStronghold, aiPlayer.deck.cards, sourceTilePos);
+        // 合并 AI 英雄卡组 + 据点驻兵
+        List<Card> combinedEnemyDeck = new List<Card>();
+        combinedEnemyDeck.AddRange(aiPlayer.deck.cards);
+        combinedEnemyDeck.AddRange(aiPlayer.garrisonDeck.cards);
+        Debug.Log($"敌方据点战斗：AI英雄{aiPlayer.deck.CardCount}张 + 驻兵{aiPlayer.garrisonDeck.CardCount}张，共{combinedEnemyDeck.Count}张");
+        StartBattle(BattleEncounterType.EnemyStronghold, combinedEnemyDeck, sourceTilePos);
     }
 
     public void ResolveBattleResult(BattleEncounterType encounterType, BattleOutcome outcome, Vector2Int sourceTilePos)
@@ -507,7 +517,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void StartBattle(BattleEncounterType encounterType, List<Card> enemyDeck, Vector2Int sourceTilePos)
+    private void StartBattle(BattleEncounterType encounterType, List<Card> enemyDeck, Vector2Int sourceTilePos, List<Card> playerDeckOverride = null)
     {
         if (gameEnded)
         {
@@ -541,13 +551,15 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        List<Card> actualPlayerDeck = playerDeckOverride ?? player.deck.cards;
+
         GameRunState runState = GameRunState.Capture(this, hero, mapState);
         PendingBattleState battleState = new PendingBattleState
         {
             encounterType = encounterType,
             sourceTilePos = sourceTilePos,
             playerStartsAttacking = true,
-            playerDeck = GameRunState.CloneCardList(player.deck.cards),
+            playerDeck = GameRunState.CloneCardList(actualPlayerDeck),
             enemyDeck = GameRunState.CloneCardList(enemyDeck)
         };
 
@@ -650,8 +662,10 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Debug.Log("攻打敌方据点失败，返回主地图继续游戏。");
-        MessageLogUI.Instance?.AddMessage("攻打敌方据点失败，返回主地图继续游戏。");
+        // 玩家战败：从英雄卡组移除参战卡牌（进攻方仅英雄卡组参战）
+        RemovePlayerBattleCards();
+        Debug.Log("攻打敌方据点失败，参战卡牌已损失。");
+        MessageLogUI.Instance?.AddMessage("攻打敌方据点失败，参战卡牌已损失。");
     }
 
     private void ResolvePlayerStrongholdBattle(BattleOutcome outcome)
@@ -678,7 +692,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // AI 攻破玩家据点 → AI 胜利
+        // AI 攻破玩家据点：从玩家英雄+驻兵合并卡组移除参战卡牌，然后 AI 胜利
+        List<Card> battlePlayerDeck = GetPendingBattlePlayerDeck();
+        if (battlePlayerDeck != null)
+        {
+            RemoveCardsFromCombinedDeck(player.deck, player.garrisonDeck, battlePlayerDeck);
+            Debug.Log("己方据点防守失败，参战卡牌已损失。");
+        }
         WinGame(aiPlayer);
     }
 
@@ -741,6 +761,65 @@ public class GameManager : MonoBehaviour
                     if (deckCard.quantity <= 0)
                     {
                         deck.cards.RemoveAt(i);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 从合并卡组（英雄+驻兵）中移除参战卡牌，优先从英雄卡组移除
+    /// </summary>
+    public static void RemoveCardsFromCombinedDeck(Deck heroDeck, Deck garrisonDeck, List<Card> battleCards)
+    {
+        if (battleCards == null) return;
+
+        // 先尝试从英雄卡组移除
+        List<Card> remainingCards = new List<Card>();
+        foreach (Card battleCard in battleCards)
+        {
+            if (battleCard == null) continue;
+
+            int need = Mathf.Max(1, battleCard.quantity);
+            if (heroDeck != null)
+            {
+                for (int i = heroDeck.CardCount - 1; i >= 0 && need > 0; i--)
+                {
+                    Card deckCard = heroDeck[i];
+                    if (deckCard.race == battleCard.race
+                        && deckCard.unitIndex == battleCard.unitIndex
+                        && deckCard.level == battleCard.level)
+                    {
+                        int removed = Mathf.Min(deckCard.quantity, need);
+                        deckCard.quantity -= removed;
+                        need -= removed;
+                        Debug.Log($"损失参战卡牌（英雄）：{deckCard.cardName} Lv{deckCard.level} x{removed}");
+                        if (deckCard.quantity <= 0)
+                        {
+                            heroDeck.cards.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+
+            // 剩余从驻兵卡组移除
+            if (need > 0 && garrisonDeck != null)
+            {
+                for (int i = garrisonDeck.CardCount - 1; i >= 0 && need > 0; i--)
+                {
+                    Card deckCard = garrisonDeck[i];
+                    if (deckCard.race == battleCard.race
+                        && deckCard.unitIndex == battleCard.unitIndex
+                        && deckCard.level == battleCard.level)
+                    {
+                        int removed = Mathf.Min(deckCard.quantity, need);
+                        deckCard.quantity -= removed;
+                        need -= removed;
+                        Debug.Log($"损失参战卡牌（驻兵）：{deckCard.cardName} Lv{deckCard.level} x{removed}");
+                        if (deckCard.quantity <= 0)
+                        {
+                            garrisonDeck.cards.RemoveAt(i);
+                        }
                     }
                 }
             }
@@ -814,9 +893,14 @@ public class GameManager : MonoBehaviour
     public void OnAIHeroEnterPlayerStronghold()
     {
         if (gameEnded || isBattleActive) return;
-        Debug.Log("AI 进攻玩家据点！");
+
+        // 玩家以英雄卡组 + 据点驻兵合并防守
+        List<Card> combinedPlayerDeck = new List<Card>();
+        combinedPlayerDeck.AddRange(player.deck.cards);
+        combinedPlayerDeck.AddRange(player.garrisonDeck.cards);
+        Debug.Log($"AI 进攻玩家据点！防守方：英雄{player.deck.CardCount}张 + 驻兵{player.garrisonDeck.CardCount}张，共{combinedPlayerDeck.Count}张");
         MessageLogUI.Instance?.AddMessage("AI 进攻我方据点！");
-        StartBattle(BattleEncounterType.PlayerStronghold, aiPlayer.deck.cards, player.strongholdPos);
+        StartBattle(BattleEncounterType.PlayerStronghold, aiPlayer.deck.cards, player.strongholdPos, combinedPlayerDeck);
     }
 
     void WinGame(Player winner)
