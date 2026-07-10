@@ -3172,6 +3172,7 @@ MonoBehaviour:
       cards: []
       hasSlotLimit: 0
     strongholdPos: {x: 0, y: 0}
+    capturedResourceCount: 0
   aiPlayer:
     playerName: 
     race: 0
@@ -3186,6 +3187,7 @@ MonoBehaviour:
       cards: []
       hasSlotLimit: 0
     strongholdPos: {x: 0, y: 0}
+    capturedResourceCount: 0
   aiHero: {fileID: 0}
   showDeveloperAILog: 0
 --- !u!4 &361257978
@@ -5190,7 +5192,7 @@ MonoBehaviour:
   m_fontSizeMax: 26
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
