@@ -24,8 +24,16 @@ public class GameManager : MonoBehaviour
     public Player aiPlayer;
 
     public bool IsGameEnded => gameEnded;
+    public string GameEndTitle => gameEndTitle;
+    public string GameEndMessage => gameEndMessage;
+    public string GameEndDetail => gameEndDetail;
+    public bool GameEndIsVictory => gameEndIsVictory;
 
     private bool gameEnded = false;
+    private bool gameEndIsVictory = false;
+    private string gameEndTitle = "";
+    private string gameEndMessage = "";
+    private string gameEndDetail = "";
     private BattleEncounterType pendingBattleType = BattleEncounterType.None;
     private AIController aiController;
     public AIHero aiHero;
@@ -54,6 +62,21 @@ public class GameManager : MonoBehaviour
 
         StartGame();
     }
+
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F10))
+        {
+            TriggerGameEndVictoryTest();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F11))
+        {
+            TriggerGameEndDefeatTest();
+        }
+    }
+#endif
 
     private void OnEnable()
     {
@@ -245,6 +268,12 @@ public class GameManager : MonoBehaviour
 
     public void EndPlayerTurn()
     {
+        if (currentState != GameState.PlayerTurn)
+        {
+            Debug.Log("当前不是玩家回合，无法结束回合。");
+            return;
+        }
+
         if (!hasPlayerActed)
         {
             Debug.Log("你还没有执行操作。");
@@ -258,6 +287,11 @@ public class GameManager : MonoBehaviour
     void StartAITurn()
     {
         if (gameEnded)
+        {
+            return;
+        }
+
+        if (currentState == GameState.AITurn)
         {
             return;
         }
@@ -333,6 +367,7 @@ public class GameManager : MonoBehaviour
         ResourceData playerProd = player.GetTurnProduction();
         player.resources.Add(playerProd);
         Debug.Log($"玩家据点产出: {playerProd.gold}金币, {playerProd.buildingMaterials}建材");
+        MessageLogUI.Instance?.AddMessage($"据点产出: +{playerProd.gold}金币, +{playerProd.buildingMaterials}建材");
 
         ResourceData aiProd = aiPlayer.GetTurnProduction();
         aiPlayer.resources.Add(aiProd);
@@ -552,11 +587,13 @@ public class GameManager : MonoBehaviour
                     if (player.TryAddToHeroDeck(rewardCard))
                     {
                         Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
+                        MessageLogUI.Instance?.AddMessage($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
                     }
                     else
                     {
                         player.AddToGarrison(rewardCard);
                         Debug.Log($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}，英雄兵力已满，自动移入据点。");
+                        MessageLogUI.Instance?.AddMessage($"战胜兵营！获得 {rewardCard.cardName} Lv{rewardCard.level}。");
                     }
                 }
             }
@@ -565,6 +602,7 @@ public class GameManager : MonoBehaviour
                 int goldReward = Random.Range(30, 51);
                 player.resources.gold += goldReward;
                 Debug.Log($"战胜兵营！获得 {goldReward} 金币。");
+                MessageLogUI.Instance?.AddMessage($"战胜兵营！获得 {goldReward} 金币。");
             }
 
             return;
@@ -572,6 +610,7 @@ public class GameManager : MonoBehaviour
 
         RemovePlayerBattleCards();
         Debug.Log("兵营战斗失败，参战卡牌已损失。");
+        MessageLogUI.Instance?.AddMessage("兵营战斗失败，参战卡牌已损失。");
     }
 
     private void ResolveEnemyStrongholdBattle(BattleOutcome outcome)
@@ -589,6 +628,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("攻打敌方据点失败，返回主地图继续游戏。");
+        MessageLogUI.Instance?.AddMessage("攻打敌方据点失败，返回主地图继续游戏。");
     }
 
     private void ApplySurrenderPenalty()
@@ -609,6 +649,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log($"逃跑惩罚：损失 {goldLost} 金币、{matLost} 建材、{cardsToLose} 张卡牌。");
+        MessageLogUI.Instance?.AddMessage($"逃跑惩罚：损失 {goldLost} 金币、{matLost} 建材、{cardsToLose} 张卡牌");
     }
 
     private void RemovePlayerBattleCards()
@@ -721,6 +762,8 @@ public class GameManager : MonoBehaviour
         gameEnded = true;
         isBattleActive = false;
         currentState = GameState.End;
+        SetGameEndSummary(winner);
+        NotifyGameEndUI();
         Debug.Log($"{winner.playerName} 胜利！游戏结束。");
     }
 
@@ -735,18 +778,89 @@ public class GameManager : MonoBehaviour
         Debug.Log("20回合结束，按战力+资源判定。");
         Debug.Log($"玩家总分:{playerScore}，电脑总分:{aiScore}");
 
-        if (playerScore > aiScore)
+        if (playerScore >= aiScore)
         {
             WinGame(player);
         }
-        else if (aiScore > playerScore)
+        else
         {
             WinGame(aiPlayer);
         }
-        else
+    }
+
+    public void TriggerGameEndVictoryTest()
+    {
+        if (gameEnded)
+            return;
+
+        Debug.Log("[Debug] 触发游戏结束结算测试（胜利）");
+        gameEnded = true;
+        isBattleActive = false;
+        currentState = GameState.End;
+        SetGameEndSummary(player);
+        NotifyGameEndUI();
+    }
+
+    public void TriggerGameEndDefeatTest()
+    {
+        if (gameEnded)
+            return;
+
+        Debug.Log("[Debug] 触发游戏结束结算测试（失败）");
+        gameEnded = true;
+        isBattleActive = false;
+        currentState = GameState.End;
+        SetGameEndSummary(aiPlayer);
+        NotifyGameEndUI();
+    }
+
+    private void SetGameEndSummary(Player winner)
+    {
+        gameEndIsVictory = (winner == player);
+        gameEndTitle = gameEndIsVictory ? "胜利！" : "失败！";
+        gameEndMessage = gameEndIsVictory ? "你获得了胜利！" : "电脑获胜，游戏结束。";
+        gameEndDetail = BuildGameEndDetail();
+    }
+
+    private string BuildGameEndDetail()
+    {
+        int playerScore = player.deck.GetTotalCombatPower() + player.resources.gold + player.resources.buildingMaterials;
+        int aiScore = aiPlayer.deck.GetTotalCombatPower() + aiPlayer.resources.gold + aiPlayer.resources.buildingMaterials;
+
+        string finalResult = gameEndMessage;
+
+        return $"回合数: {Mathf.Min(currentTurn, maxTurn)}/{maxTurn}\n"
+             + $"玩家据点等级: Lv{player.strongholdLevel}\n"
+             + $"玩家资源: {player.resources.gold} 金币, {player.resources.buildingMaterials} 建材\n"
+             + $"结局: {finalResult}";
+    }
+
+    private void NotifyGameEndUI()
+    {
+        if (UIManager.Instance != null)
         {
-            Debug.Log("平局。");
+            UIManager.Instance.ShowGameEndPanel(GameEndDetail, GameEndIsVictory);
+            return;
         }
+
+        UIManager ui = FindObjectOfType<UIManager>();
+        if (ui != null)
+        {
+            ui.ShowGameEndPanel(GameEndDetail, GameEndIsVictory);
+            return;
+        }
+
+        GameEndUI endUI = FindObjectOfType<GameEndUI>();
+        if (endUI == null)
+        {
+            GameObject uiObject = new GameObject("GameEndUI");
+            endUI = uiObject.AddComponent<GameEndUI>();
+        }
+
+        if (GameEndIsVictory)
+            endUI.ShowVictory(GameEndDetail);
+        else
+            endUI.ShowDefeat(GameEndDetail);
     }
 
     private CameraFollow GetCameraFollow()
