@@ -564,6 +564,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        if (outcome == BattleOutcome.PlayerFled)
+        {
+            Debug.Log("玩家从兵营战斗中逃跑成功。");
+            MessageLogUI.Instance?.AddMessage("玩家从兵营战斗中逃跑成功。");
+            return;
+        }
+
         if (IsPlayerBattleWin(outcome))
         {
             List<Card> enemyDeck = GetPendingBattleEnemyDeck();
@@ -630,6 +637,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        if (outcome == BattleOutcome.PlayerFled)
+        {
+            Debug.Log("玩家从敌方据点战斗中逃跑成功。");
+            MessageLogUI.Instance?.AddMessage("玩家从敌方据点战斗中逃跑成功。");
+            return;
+        }
+
         if (IsPlayerBattleWin(outcome))
         {
             WinGame(player);
@@ -646,6 +660,13 @@ public class GameManager : MonoBehaviour
         {
             // 玩家投降 → AI 胜利
             WinGame(aiPlayer);
+            return;
+        }
+
+        if (outcome == BattleOutcome.PlayerFled)
+        {
+            Debug.Log("玩家从己方据点战斗中逃跑成功。");
+            MessageLogUI.Instance?.AddMessage("玩家从己方据点战斗中逃跑成功。");
             return;
         }
 

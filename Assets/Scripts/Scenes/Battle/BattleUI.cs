@@ -19,6 +19,11 @@ public class BattleUI : MonoBehaviour
 
     [Header("回合控制")]
     public Button attackButton;
+    public Button fleeButton;
+
+    [Header("文字反馈")]
+    public TMP_Text feedbackText;
+    public float feedbackDuration = 2f;
     public bool returnToMapWhenBattleEnds = true;
     public float returnToMapDelay = 0.8f;
 
@@ -60,6 +65,10 @@ public class BattleUI : MonoBehaviour
     private int selectedPlayerIndex = -1;
     private bool resultSubmitted;
     private bool isAnimating;
+    private bool _fleeUsed;
+    private bool _lastIsPlayerAttacking;
+    private bool _roundFeedbackInitialized;
+    private Coroutine _hideFeedbackCoroutine;
 
     // 居中汇集布局缓存（基于场景初始位置计算，不变）
     private float playerSpacing;
@@ -82,6 +91,23 @@ public class BattleUI : MonoBehaviour
         if (battleManager == null)
         {
             return;
+        }
+
+        // 回合切换或首次进入时显示反馈
+        if (!_roundFeedbackInitialized || _lastIsPlayerAttacking != battleManager.isPlayerAttacking)
+        {
+            _roundFeedbackInitialized = true;
+            _lastIsPlayerAttacking = battleManager.isPlayerAttacking;
+            string msg;
+            if (battleManager.isPlayerAttacking && _fleeUsed)
+            {
+                msg = "无法逃跑";
+            }
+            else
+            {
+                msg = battleManager.isPlayerAttacking ? "玩家进攻回合" : "玩家防守回合";
+            }
+            ShowFeedback(msg);
         }
 
         ClampSelectedIndex();
@@ -123,8 +149,49 @@ public class BattleUI : MonoBehaviour
         {
             attackButton.gameObject.SetActive(false);
         }
+        if (fleeButton != null)
+        {
+            fleeButton.gameObject.SetActive(false);
+        }
 
         StartCoroutine(PlayEngageAnimation());
+    }
+
+    public void OnFlee()
+    {
+        if (battleManager == null || battleManager.IsBattleOver() || isAnimating)
+        {
+            return;
+        }
+
+        if (_fleeUsed)
+        {
+            return;
+        }
+
+        // 隐藏攻击按钮
+        if (attackButton != null)
+        {
+            attackButton.gameObject.SetActive(false);
+        }
+
+        bool success = battleManager.AttemptFlee();
+        _fleeUsed = true;
+        selectedPlayerIndex = -1;
+
+        // 先同步回合状态，避免RefreshUI检测到回合切换覆盖逃跑反馈
+        _lastIsPlayerAttacking = battleManager.isPlayerAttacking;
+
+        if (success)
+        {
+            ShowFeedback("逃跑成功！");
+        }
+        else
+        {
+            ShowFeedback("逃跑失败！所有己方卡牌HP减半");
+        }
+
+        RefreshUI();
     }
 
     private void BindControls()
@@ -149,6 +216,12 @@ public class BattleUI : MonoBehaviour
         {
             attackButton.onClick.RemoveAllListeners();
             attackButton.onClick.AddListener(OnAttackConfirm);
+        }
+
+        if (fleeButton != null)
+        {
+            fleeButton.onClick.RemoveAllListeners();
+            fleeButton.onClick.AddListener(OnFlee);
         }
     }
 
@@ -759,6 +832,16 @@ public class BattleUI : MonoBehaviour
             attackButton.gameObject.SetActive(canShow);
         }
 
+        if (fleeButton != null)
+        {
+            bool battleActive = battleManager != null && !battleManager.IsBattleOver();
+            bool canFlee = !isAnimating && battleActive && battleManager.isPlayerAttacking && !_fleeUsed;
+            bool showDimmed = _fleeUsed && battleActive;
+
+            fleeButton.interactable = canFlee;
+            fleeButton.gameObject.SetActive(canFlee || showDimmed);
+        }
+
         if (battleManager != null && battleManager.IsBattleOver() && showResultPanel)
         {
             bool playerVictory = IsOutcomePlayerWin(battleManager.outcome);
@@ -778,6 +861,26 @@ public class BattleUI : MonoBehaviour
                 battleResultPanel.SetActive(true);
             }
         }
+    }
+
+    private void ShowFeedback(string message)
+    {
+        if (feedbackText == null) return;
+
+        if (_hideFeedbackCoroutine != null)
+            StopCoroutine(_hideFeedbackCoroutine);
+
+        feedbackText.text = message;
+        feedbackText.gameObject.SetActive(true);
+        _hideFeedbackCoroutine = StartCoroutine(HideFeedbackAfterDelay(feedbackDuration));
+    }
+
+    private IEnumerator HideFeedbackAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (feedbackText != null)
+            feedbackText.gameObject.SetActive(false);
+        _hideFeedbackCoroutine = null;
     }
 
     private void TrySubmitBattleResult()
@@ -976,6 +1079,8 @@ public class BattleUI : MonoBehaviour
                 return "双方同归于尽，战斗结束，需补充兵力后再战。";
             case BattleOutcome.PlayerSurrender:
                 return "玩家投降，损失 20% 金币和 20% 建材。";
+            case BattleOutcome.PlayerFled:
+                return "逃跑成功，返回地图继续游戏。";
             case BattleOutcome.EnemySurrender:
                 return "敌方投降，获得战斗胜利。";
             default:
@@ -1356,7 +1461,7 @@ public class BattleUI : MonoBehaviour
 
     private bool IsOutcomePlayerWin(BattleOutcome outcome)
     {
-        return outcome == BattleOutcome.PlayerVictory || outcome == BattleOutcome.EnemySurrender;
+        return outcome == BattleOutcome.PlayerVictory || outcome == BattleOutcome.EnemySurrender || outcome == BattleOutcome.PlayerFled;
     }
 
     private void ApplyCardBackToViews(CardView[] views, Sprite cardBack)

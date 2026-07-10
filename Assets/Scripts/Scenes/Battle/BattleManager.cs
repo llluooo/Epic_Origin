@@ -115,6 +115,48 @@ public class BattleManager
         Debug.Log($"战斗结束：{battleResult}");
     }
 
+    /// <summary>
+    /// 玩家逃跑，50%概率成功脱战，失败则所有己方卡牌HP减半
+    /// </summary>
+    public bool AttemptFlee()
+    {
+        if (battleEnded)
+        {
+            return false;
+        }
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(SFX.Flee);
+
+        bool success = Random.value < 0.5f;
+
+        if (success)
+        {
+            battleEnded = true;
+            outcome = BattleOutcome.PlayerFled;
+            battleResult = "玩家逃跑成功";
+            AudioManager.Instance?.StopBGM();
+            Debug.Log("玩家逃跑成功！");
+            return true;
+        }
+
+        // 逃跑失败：所有玩家卡牌HP减半（至少保留1）
+        foreach (BattleCard card in playerCards)
+        {
+            if (card != null && card.IsAlive())
+            {
+                int newHP = Mathf.Max(1, card.currentHP / 2);
+                int hpLost = card.currentHP - newHP;
+                card.TakeDamage(hpLost);
+            }
+        }
+
+        // 回合交给敌方
+        isPlayerAttacking = false;
+        Debug.Log("玩家逃跑失败，所有己方卡牌HP减半！");
+        return false;
+    }
+
     private bool IsValidSelection(List<BattleCard> list, int index)
     {
         return list != null &&
